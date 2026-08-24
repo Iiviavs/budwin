@@ -21,23 +21,23 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, onTog
   ];
 
   return (
-    <aside className="w-52 bg-sidebar border-r border-border flex flex-col justify-between p-3 select-none font-sans">
-      <div className="space-y-4">
+    <aside className="w-52 bg-[#111215] flex flex-col justify-between p-2.5 select-none font-sans border-r border-white/[0.04]">
+      <div className="space-y-3">
         {/* Raycast Navigation Item List */}
-        <div className="space-y-1 pt-1">
+        <div className="space-y-0.5 pt-1">
           {items.map((item) => {
             const isActive = activeTab === item.id;
             return (
               <button
                 key={item.id}
                 onClick={() => setActiveTab(item.id as TabType)}
-                className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-150 ${
+                className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-xs transition-colors duration-150 ${
                   isActive
-                    ? 'bg-surfaceActive text-white shadow-sm border border-white/10'
-                    : 'text-neutral-400 hover:text-neutral-200 hover:bg-surfaceHover/70'
+                    ? 'bg-[#24252A] text-white font-semibold'
+                    : 'text-neutral-400 hover:text-neutral-200 hover:bg-[#18191E] font-medium'
                 }`}
               >
-                <span className={isActive ? 'text-accent-theme' : 'text-neutral-400'}>
+                <span className={isActive ? 'text-white' : 'text-neutral-400'}>
                   {item.icon}
                 </span>
                 <span>{item.label}</span>
@@ -47,17 +47,17 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, onTog
         </div>
 
         {/* Discord Game Overlay Toggle Button */}
-        <div className="pt-2 border-t border-border/80">
+        <div className="pt-2 border-t border-white/[0.04]">
           <button
             onClick={onToggleHud}
-            className="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-surface hover:bg-surfaceHover border border-border text-xs font-semibold text-neutral-300 hover:text-accent-theme transition-all"
+            className="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-[#18191E] hover:bg-[#202127] text-xs font-medium text-neutral-300 transition-colors"
             title="Launch Discord Game Overlay"
           >
             <div className="flex items-center space-x-2">
               <Pin className="w-3.5 h-3.5 text-accent-theme" />
               <span>Game Overlay</span>
             </div>
-            <span className="text-[10px] font-mono font-bold text-accent-theme bg-accent-theme/10 px-1.5 py-0.5 rounded border border-accent-theme/20">
+            <span className="text-[10px] font-mono font-bold text-accent-theme bg-accent-theme/15 px-1.5 py-0.5 rounded">
               PIN
             </span>
           </button>
@@ -65,13 +65,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, onTog
       </div>
 
       {/* Mascot Card at bottom of sidebar */}
-      <div className="bg-surface border border-border rounded-xl p-2.5 flex items-center space-x-2.5">
-        <div className="w-8 h-8 rounded-full overflow-hidden border border-accent-theme/40 shrink-0 bg-background shadow-sm">
+      <div className="bg-[#18191E] rounded-xl p-2.5 flex items-center space-x-2.5">
+        <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 bg-[#111215]">
           <img src="/logo.png" alt="budwin mascot" className="w-full h-full object-cover scale-110" />
         </div>
         <div className="overflow-hidden">
           <span className="font-bold text-xs text-white block truncate leading-tight">Buddy Companion</span>
-          <span className="text-[10px] text-accent-theme font-medium">Ready & Protecting</span>
+          <span className="text-[10px] text-neutral-400 font-medium">Ready & Protecting</span>
         </div>
       </div>
     </aside>

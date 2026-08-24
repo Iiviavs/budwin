@@ -117,43 +117,41 @@ export const OptimizerView: React.FC<OptimizerViewProps> = ({
   };
 
   return (
-    <div className="p-6 space-y-6 max-h-[calc(100vh-2.5rem)] overflow-y-auto">
+    <div className="p-6 space-y-5 max-h-[calc(100vh-2.5rem)] overflow-y-auto font-sans">
       <div>
-        <h2 className="text-lg font-bold text-white flex items-center space-x-2">
+        <h2 className="text-base font-bold text-white flex items-center space-x-2">
           <Sparkles className="w-5 h-5 text-accent-theme" />
           <span>Performance & System Optimizer</span>
         </h2>
-        <p className="text-xs text-gray-400 font-medium">1-Click Game Boost, input latency reduction, and system cleaning</p>
+        <p className="text-xs text-neutral-400 mt-0.5 font-normal">
+          1-Click Game Boost, input latency reduction, and system cleaning
+        </p>
       </div>
 
-      {/* GAME BOOST / FOCUS MODE HERO BANNER */}
-      <div className={`rounded-3xl p-6 border transition-all duration-300 shadow-2xl ${
-        gameBoostActive
-          ? 'bg-gradient-to-br from-surface to-accent-theme/10 border-accent-theme/50 shadow-accent-theme/10'
-          : 'glass-card border-border'
-      }`}>
+      {/* 1. GAME BOOST / FOCUS MODE HERO (Pure Borderless Raycast) */}
+      <div className="glass-card rounded-2xl p-5 space-y-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className={`w-13 h-13 rounded-2xl flex items-center justify-center p-3 transition-all ${
+          <div className="flex items-center space-x-3.5">
+            <div className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all ${
               gameBoostActive
-                ? 'bg-accent-theme text-black shadow-lg shadow-accent-theme/30'
-                : 'bg-surfaceHover text-gray-400 border border-border'
+                ? 'bg-accent-theme text-black shadow-md'
+                : 'bg-[#24252A] text-neutral-300'
             }`}>
-              <Rocket className="w-7 h-7" />
+              <Rocket className="w-5 h-5" />
             </div>
 
             <div>
               <div className="flex items-center space-x-2">
-                <h3 className="text-base font-bold text-white">🚀 1-Click Game Boost & Focus Mode</h3>
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                <h3 className="text-sm font-bold text-white">1-Click Game Boost & Focus Mode</h3>
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
                   gameBoostActive
-                    ? 'bg-accent-theme/20 text-accent-theme border-accent-theme/40 animate-pulse'
-                    : 'bg-surface text-gray-400 border-border'
+                    ? 'bg-emerald-500/20 text-emerald-400'
+                    : 'bg-[#24252A] text-neutral-400'
                 }`}>
                   {gameBoostActive ? 'BOOST ACTIVE' : 'READY'}
                 </span>
               </div>
-              <p className="text-xs text-gray-300 mt-0.5">
+              <p className="text-xs text-neutral-400 mt-0.5">
                 Locks 1.0ms timer, purges standby RAM cache, sets high game priority, and maximizes CPU power.
               </p>
             </div>
@@ -163,7 +161,7 @@ export const OptimizerView: React.FC<OptimizerViewProps> = ({
             <button
               onClick={handlePurgeRAM}
               disabled={purgingRam}
-              className="px-3 py-2 rounded-xl bg-surface hover:bg-surfaceHover border border-border text-gray-300 text-xs font-semibold flex items-center space-x-1.5 transition-colors"
+              className="px-3 py-1.5 rounded-lg bg-[#24252A] hover:bg-[#2E3038] text-neutral-200 text-xs font-semibold flex items-center space-x-1.5 transition-colors"
               title="Flush Standby RAM cache"
             >
               {purgingRam ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
@@ -172,10 +170,10 @@ export const OptimizerView: React.FC<OptimizerViewProps> = ({
 
             <button
               onClick={handleToggleGameBoost}
-              className={`px-5 py-2 rounded-xl text-xs font-bold transition-all shadow-lg active:scale-95 ${
+              className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${
                 gameBoostActive
-                  ? 'bg-accent-theme text-black shadow-accent-theme/30 hover:opacity-90'
-                  : 'bg-surfaceHover hover:bg-border text-white border border-border/80'
+                  ? 'bg-accent-theme text-black hover:opacity-90'
+                  : 'bg-[#24252A] hover:bg-[#2E3038] text-white'
               }`}
             >
               {gameBoostActive ? 'TURBO BOOST ON' : 'ENABLE BOOST'}
@@ -184,223 +182,226 @@ export const OptimizerView: React.FC<OptimizerViewProps> = ({
         </div>
 
         {gameBoostResult && (
-          <div className="mt-3 p-2.5 rounded-xl bg-accent-theme/10 border border-accent-theme/30 text-accent-theme text-xs flex items-center space-x-2 font-medium">
+          <div className="p-2.5 rounded-xl bg-[#24252A] text-accent-theme text-xs flex items-center space-x-2 font-medium">
             <CheckCircle2 className="w-4 h-4 shrink-0" />
             <span>{gameBoostResult}</span>
           </div>
         )}
       </div>
 
-      {/* INPUT LAG REDUCER CARD */}
-      <div className="glass-card rounded-3xl p-5 border border-sky-500/20 bg-gradient-to-br from-surface to-sky-950/10 space-y-4 shadow-xl">
+      {/* 2. INPUT LAG REDUCER CARD (Borderless Raycast) */}
+      <div className="glass-card rounded-2xl p-5 space-y-3.5">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-sky-500/10 text-sky-400 border border-sky-500/20 flex items-center justify-center">
+          <div className="flex items-center space-x-3.5">
+            <div className="w-11 h-11 rounded-xl bg-sky-500/10 text-sky-400 flex items-center justify-center">
               <Zap className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center space-x-2">
-                <h3 className="text-sm font-bold text-white">⚡ Ultra-Low Input Latency Reducer</h3>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                <h3 className="text-sm font-bold text-white">Ultra-Low Input Latency Reducer</h3>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-400">
                   Active
                 </span>
               </div>
-              <p className="text-xs text-gray-300">Forces 1.0ms timer ticks, strips mouse acceleration, and bypasses DWM queuing</p>
+              <p className="text-xs text-neutral-400 mt-0.5">
+                Forces 1.0ms timer ticks, strips mouse acceleration, and bypasses DWM queuing
+              </p>
             </div>
           </div>
 
           <button
             onClick={handleOptimizeAllLatency}
-            className="px-3.5 py-1.5 rounded-xl bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 border border-sky-500/30 text-xs font-bold transition-all shadow-sm"
+            className="px-3 py-1.5 rounded-lg bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 text-xs font-semibold transition-colors"
           >
             Apply All Latency Fixes
           </button>
         </div>
 
         {/* 3 Pill Tweaks */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1">
-          <div className="bg-background/80 border border-border rounded-xl p-3 flex items-center justify-between">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 pt-1">
+          <div className="bg-[#111215] rounded-xl p-3 flex items-center justify-between">
             <div className="flex items-center space-x-2.5">
               <Zap className="w-4 h-4 text-sky-400" />
               <div>
                 <span className="text-xs font-bold text-white block">1.0ms Timer Resolution</span>
-                <span className="text-[10px] text-gray-400">Standard: 15.6ms</span>
+                <span className="text-[10px] text-neutral-400">Standard: 15.6ms</span>
               </div>
             </div>
             <button
               onClick={handleToggleTimer}
-              className={`px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-colors ${
+              className={`px-2.5 py-1 rounded-md text-[10px] font-bold transition-colors ${
                 timerActive
-                  ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
-                  : 'bg-surface text-gray-400 border-border hover:text-white'
+                  ? 'bg-emerald-500/20 text-emerald-400'
+                  : 'bg-[#24252A] text-neutral-400 hover:text-white'
               }`}
             >
               {timerActive ? 'ENABLED' : 'DISABLED'}
             </button>
           </div>
 
-          <div className="bg-background/80 border border-border rounded-xl p-3 flex items-center justify-between">
+          <div className="bg-[#111215] rounded-xl p-3 flex items-center justify-between">
             <div className="flex items-center space-x-2.5">
               <MousePointer2 className="w-4 h-4 text-emerald-400" />
               <div>
                 <span className="text-xs font-bold text-white block">1:1 Raw Mouse Input</span>
-                <span className="text-[10px] text-gray-400">Zero Acceleration Curve</span>
+                <span className="text-[10px] text-neutral-400">Zero Acceleration Curve</span>
               </div>
             </div>
-            <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+            <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/20 px-2 py-0.5 rounded-md">
               OPTIMIZED
             </span>
           </div>
 
-          <div className="bg-background/80 border border-border rounded-xl p-3 flex items-center justify-between">
+          <div className="bg-[#111215] rounded-xl p-3 flex items-center justify-between">
             <div className="flex items-center space-x-2.5">
               <Gamepad2 className="w-4 h-4 text-purple-400" />
               <div>
                 <span className="text-xs font-bold text-white block">GameDVR Queue Bypass</span>
-                <span className="text-[10px] text-gray-400">Lower DWM Latency</span>
+                <span className="text-[10px] text-neutral-400">Lower DWM Latency</span>
               </div>
             </div>
-            <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+            <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/20 px-2 py-0.5 rounded-md">
               BYPASSED
             </span>
           </div>
         </div>
 
         {lagResult && (
-          <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs flex items-center space-x-2">
+          <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-300 text-xs flex items-center space-x-2">
             <CheckCircle2 className="w-4 h-4 shrink-0" />
             <span>{lagResult}</span>
           </div>
         )}
       </div>
 
+      {/* 3. TEMP FILES & DNS CLEANERS (Borderless Raycast) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* 1. Temp Files Cleaner */}
-        <div className="glass-card rounded-3xl p-5 border border-border flex flex-col justify-between space-y-4">
+        {/* Temp Files */}
+        <div className="glass-card rounded-2xl p-5 flex flex-col justify-between space-y-4">
           <div className="space-y-2">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-400 border border-rose-500/20 flex items-center justify-center">
-                <Trash2 className="w-5 h-5" />
+              <div className="w-9 h-9 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center">
+                <Trash2 className="w-4 h-4" />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-white">Clean Temporary Cache</h3>
-                <p className="text-xs text-gray-400">Removes accumulated %TEMP% disk clutter</p>
+                <h3 className="text-xs font-bold text-white">Clean Temporary Cache</h3>
+                <p className="text-[11px] text-neutral-400">Removes accumulated %TEMP% disk clutter</p>
               </div>
             </div>
-            <p className="text-xs text-gray-300 pt-1">
-              Cleans user application caches, installer traces, and orphan temporary files to prevent disk thrashing.
+            <p className="text-xs text-neutral-300 pt-1">
+              Cleans user application caches, installer traces, and orphan temporary files.
             </p>
           </div>
 
           <div>
             {cleanResult && (
-              <div className="mb-3 p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs flex items-center space-x-2">
-                <CheckCircle2 className="w-4 h-4 shrink-0" />
+              <div className="mb-2.5 p-2 rounded-lg bg-emerald-500/10 text-emerald-300 text-xs flex items-center space-x-2">
+                <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
                 <span>{cleanResult}</span>
               </div>
             )}
             <button
               onClick={handleCleanTemp}
               disabled={cleaning}
-              className="w-full py-2.5 px-4 rounded-xl bg-surfaceHover hover:bg-border text-white text-xs font-semibold flex items-center justify-center space-x-2 border border-border/80 transition-colors"
+              className="w-full py-2 px-3 rounded-lg bg-[#24252A] hover:bg-[#2E3038] text-white text-xs font-semibold flex items-center justify-center space-x-2 transition-colors"
             >
-              {cleaning ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+              {cleaning ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
               <span>{cleaning ? 'Cleaning Cache...' : 'Clean Temp Files'}</span>
             </button>
           </div>
         </div>
 
-        {/* 2. Flush DNS Cache */}
-        <div className="glass-card rounded-3xl p-5 border border-border flex flex-col justify-between space-y-4">
+        {/* Flush DNS */}
+        <div className="glass-card rounded-2xl p-5 flex flex-col justify-between space-y-4">
           <div className="space-y-2">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 flex items-center justify-center">
-                <Globe className="w-5 h-5" />
+              <div className="w-9 h-9 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center">
+                <Globe className="w-4 h-4" />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-white">Flush DNS Resolver Cache</h3>
-                <p className="text-xs text-gray-400">Clears cached network hostnames</p>
+                <h3 className="text-xs font-bold text-white">Flush DNS Resolver Cache</h3>
+                <p className="text-[11px] text-neutral-400">Clears cached network hostnames</p>
               </div>
             </div>
-            <p className="text-xs text-gray-300 pt-1">
-              Resolves DNS lookup delays, network connection glitches, and stale browser domain routing.
+            <p className="text-xs text-neutral-300 pt-1">
+              Resolves DNS lookup delays, network glitches, and stale browser domain routing.
             </p>
           </div>
 
           <div>
             {dnsResult && (
-              <div className="mb-3 p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs flex items-center space-x-2">
-                <CheckCircle2 className="w-4 h-4 shrink-0" />
+              <div className="mb-2.5 p-2 rounded-lg bg-emerald-500/10 text-emerald-300 text-xs flex items-center space-x-2">
+                <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
                 <span>{dnsResult}</span>
               </div>
             )}
             <button
               onClick={handleFlushDNS}
               disabled={flushing}
-              className="w-full py-2.5 px-4 rounded-xl bg-surfaceHover hover:bg-border text-white text-xs font-semibold flex items-center justify-center space-x-2 border border-border/80 transition-colors"
+              className="w-full py-2 px-3 rounded-lg bg-[#24252A] hover:bg-[#2E3038] text-white text-xs font-semibold flex items-center justify-center space-x-2 transition-colors"
             >
-              {flushing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Globe className="w-4 h-4" />}
+              {flushing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Globe className="w-3.5 h-3.5" />}
               <span>{flushing ? 'Flushing DNS...' : 'Flush DNS Cache'}</span>
             </button>
           </div>
         </div>
       </div>
 
-      {/* 3. Power Plan Switcher Card */}
-      <div className="glass-card rounded-3xl p-5 border border-border space-y-4">
+      {/* 4. Power Plan Manager */}
+      <div className="glass-card rounded-2xl p-5 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center">
-              <Gauge className="w-5 h-5" />
+            <div className="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center">
+              <Gauge className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-white">Windows Power Scheme Manager</h3>
-              <p className="text-xs text-gray-400">Controls CPU frequency scaling, heat output, and fan speeds</p>
+              <h3 className="text-xs font-bold text-white">Windows Power Scheme Manager</h3>
+              <p className="text-[11px] text-neutral-400">Controls CPU frequency scaling and thermal fan speeds</p>
             </div>
           </div>
-          <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-accent-theme/10 text-accent-theme border border-accent-theme/20">
+          <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-md bg-[#24252A] text-neutral-300">
             Active: {activePlan}
           </span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
           {/* Balanced Option */}
           <button
             onClick={() => handlePowerPlan('Balanced')}
-            className={`p-4 rounded-2xl border text-left transition-all ${
+            className={`p-3.5 rounded-xl text-left transition-all ${
               activePlan.toLowerCase().includes('equilibrado') || activePlan.toLowerCase().includes('balanced')
-                ? 'bg-accent-lime/10 border-accent-lime/40 shadow-lg shadow-accent-lime/10'
-                : 'bg-surface border-border hover:bg-surfaceHover'
+                ? 'bg-[#24252A] text-white'
+                : 'bg-[#111215] text-neutral-300 hover:bg-[#1C1D22]'
             }`}
           >
             <div className="flex items-center justify-between mb-1">
-              <span className="font-bold text-sm text-white">❄️ Balanced (Recommended)</span>
+              <span className="font-bold text-xs text-white">❄️ Balanced (Recommended)</span>
               {activePlan.toLowerCase().includes('balanced') || activePlan.toLowerCase().includes('equilibrado') ? (
-                <CheckCircle2 className="w-4 h-4 text-accent-lime" />
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
               ) : null}
             </div>
-            <p className="text-xs text-gray-400">
-              Downclocks CPU when idle. Drastically lowers thermal temperatures and keeps your cooling fans silent.
+            <p className="text-[11px] text-neutral-400">
+              Downclocks CPU when idle. Drastically lowers thermal temperatures and keeps fans quiet.
             </p>
           </button>
 
           {/* High Performance Option */}
           <button
             onClick={() => handlePowerPlan('High Performance')}
-            className={`p-4 rounded-2xl border text-left transition-all ${
+            className={`p-3.5 rounded-xl text-left transition-all ${
               activePlan.toLowerCase().includes('desempenho') || activePlan.toLowerCase().includes('high')
-                ? 'bg-amber-500/10 border-amber-500/40 shadow-lg shadow-amber-500/10'
-                : 'bg-surface border-border hover:bg-surfaceHover'
+                ? 'bg-[#24252A] text-white'
+                : 'bg-[#111215] text-neutral-300 hover:bg-[#1C1D22]'
             }`}
           >
             <div className="flex items-center justify-between mb-1">
-              <span className="font-bold text-sm text-white">⚡ High Performance</span>
+              <span className="font-bold text-xs text-white">⚡ High Performance</span>
               {activePlan.toLowerCase().includes('desempenho') || activePlan.toLowerCase().includes('high') ? (
                 <CheckCircle2 className="w-4 h-4 text-amber-400" />
               ) : null}
             </div>
-            <p className="text-xs text-gray-400">
-              Locks CPU clocks at maximum boost frequency. Maximum raw responsiveness for heavy workloads.
+            <p className="text-[11px] text-neutral-400">
+              Locks CPU clocks at maximum boost frequency for raw compute responsiveness.
             </p>
           </button>
         </div>

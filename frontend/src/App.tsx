@@ -13,7 +13,7 @@ import { FloatingHudView } from './views/FloatingHudView';
 import { TelemetrySnapshot, ProcessItem, DriveItem, StartupItem, AlertItem, ThemeAccent, AutoBoostStatus } from './types';
 import { Sparkline } from './components/Sparkline';
 import { EndProcessModal } from './components/EndProcessModal';
-import { Maximize2, Cpu, Zap, HardDrive, Wifi, ShieldAlert, AlertTriangle, CheckCircle2, XCircle, Pin } from 'lucide-react';
+import { Cpu, Zap, HardDrive, Wifi, ShieldAlert, AlertTriangle, CheckCircle2, XCircle, Pin } from 'lucide-react';
 
 export function App() {
   const [viewMode, setViewMode] = useState<'full' | 'mini' | 'hud'>('full');
@@ -295,7 +295,7 @@ export function App() {
     );
   }
 
-  // 2. MINI TRAY COMPANION VIEW
+  // 2. MINI TRAY COMPANION VIEW (Borderless Raycast)
   if (viewMode === 'mini') {
     const cpuVal = telemetry ? Math.round(telemetry.cpuPercent) : 0;
     const gpuVal = telemetry?.gpu.isAvailable ? Math.round(telemetry.gpu.coreUtilization) : 0;
@@ -303,33 +303,32 @@ export function App() {
     const netInVal = telemetry ? telemetry.netInKb : 0;
 
     return (
-      <div data-theme={themeAccent} className="h-screen w-screen bg-background border border-border flex flex-col justify-between p-3.5 select-none font-sans text-gray-100 rounded-2xl overflow-hidden">
-        {/* Header with Raccoon Mascot */}
-        <div className="flex items-center justify-between pb-2.5 border-b border-border draggable">
+      <div data-theme={themeAccent} className="h-screen w-screen bg-[#0E0F12] flex flex-col justify-between p-3 select-none font-sans text-gray-100 rounded-2xl overflow-hidden shadow-2xl">
+        {/* Header with Mascot */}
+        <div className="flex items-center justify-between pb-2 border-b border-white/[0.04] draggable">
           <div className="flex items-center space-x-2.5 non-draggable">
-            <div className="w-7 h-7 rounded-full overflow-hidden border border-accent-theme/40 shadow-sm bg-surface">
+            <div className="w-7 h-7 rounded-full overflow-hidden bg-[#18191E]">
               <img src="/logo.png" alt="budwin mascot" className="w-full h-full object-cover scale-110" />
             </div>
             <div>
-              <span className="font-bold text-sm text-white block leading-tight">budwin</span>
-              <span className="text-[10px] text-accent-theme font-medium">Tray Widget</span>
+              <span className="font-bold text-xs text-white block leading-tight">budwin</span>
+              <span className="text-[9px] text-neutral-400 font-medium">Mini Companion</span>
             </div>
           </div>
 
-          <div className="flex items-center space-x-1.5 non-draggable">
+          <div className="flex items-center space-x-1 non-draggable">
             <button
               onClick={() => switchViewMode('hud')}
-              className="p-1 rounded hover:bg-surfaceHover text-neutral-400 hover:text-accent-theme transition-colors"
+              className="p-1 rounded hover:bg-[#18191E] text-neutral-400 hover:text-accent-theme transition-colors"
               title="Pin as Discord Game Overlay"
             >
               <Pin className="w-3.5 h-3.5" />
             </button>
             <button
               onClick={() => switchViewMode('full')}
-              className="flex items-center space-x-1 px-2 py-1 rounded-lg bg-accent-theme/10 hover:bg-accent-theme/20 text-accent-theme border border-accent-theme/30 text-[11px] font-bold transition-all shadow-sm"
+              className="px-2 py-1 rounded-md bg-[#18191E] hover:bg-[#202127] text-white text-[11px] font-semibold transition-all"
             >
               <span>See More</span>
-              <Maximize2 className="w-3 h-3" />
             </button>
             <button
               onClick={() => window.runtime?.WindowHide?.()}
@@ -342,9 +341,9 @@ export function App() {
         </div>
 
         {/* 2x2 Mini Metrics Grid */}
-        <div className="grid grid-cols-2 gap-2.5 my-2">
+        <div className="grid grid-cols-2 gap-2 my-2">
           {/* CPU Card */}
-          <div className="glass-card rounded-2xl p-3 flex flex-col justify-between border border-border">
+          <div className="glass-card rounded-xl p-3 flex flex-col justify-between">
             <div className="flex justify-between items-center text-xs">
               <span className="flex items-center space-x-1 font-bold text-sky-400">
                 <Cpu className="w-3.5 h-3.5" />
@@ -353,13 +352,13 @@ export function App() {
               <span className="font-bold text-white text-sm">{cpuVal}%</span>
             </div>
             <div className="my-1.5">
-              <Sparkline data={history.cpu} max={100} color="#38bdf8" gradientId="miniCpu" height={32} />
+              <Sparkline data={history.cpu} max={100} color="#38bdf8" gradientId="miniCpu" height={28} />
             </div>
-            <span className="text-[10px] text-neutral-400">60s History</span>
+            <span className="text-[9px] text-neutral-400">60s Trend</span>
           </div>
 
           {/* GPU Card */}
-          <div className="glass-card rounded-2xl p-3 flex flex-col justify-between border border-border">
+          <div className="glass-card rounded-xl p-3 flex flex-col justify-between">
             <div className="flex justify-between items-center text-xs">
               <span className="flex items-center space-x-1 font-bold text-emerald-400">
                 <Zap className="w-3.5 h-3.5" />
@@ -370,15 +369,15 @@ export function App() {
               </span>
             </div>
             <div className="my-1.5">
-              <Sparkline data={history.gpu} max={100} color="#22c55e" gradientId="miniGpu" height={32} />
+              <Sparkline data={history.gpu} max={100} color="#22c55e" gradientId="miniGpu" height={28} />
             </div>
-            <span className="text-[10px] text-neutral-400">
+            <span className="text-[9px] text-neutral-400">
               {telemetry?.gpu.isAvailable ? `${telemetry.gpu.temperatureC}°C Temp` : 'NVIDIA'}
             </span>
           </div>
 
           {/* RAM Card */}
-          <div className="glass-card rounded-2xl p-3 flex flex-col justify-between border border-border">
+          <div className="glass-card rounded-xl p-3 flex flex-col justify-between">
             <div className="flex justify-between items-center text-xs">
               <span className="flex items-center space-x-1 font-bold text-purple-400">
                 <HardDrive className="w-3.5 h-3.5" />
@@ -386,16 +385,16 @@ export function App() {
               </span>
               <span className="font-bold text-white text-sm">{ramVal}%</span>
             </div>
-            <div className="w-full bg-surfaceHover h-1.5 rounded-full overflow-hidden my-2">
+            <div className="w-full bg-[#111215] h-1.5 rounded-full overflow-hidden my-2">
               <div className="bg-purple-500 h-full rounded-full" style={{ width: `${ramVal}%` }} />
             </div>
-            <span className="text-[10px] text-neutral-400 truncate">
+            <span className="text-[9px] text-neutral-400 truncate">
               {telemetry?.ramUsedGb.toFixed(1)} / {telemetry?.ramTotalGb.toFixed(0)} GB
             </span>
           </div>
 
           {/* Net Card */}
-          <div className="glass-card rounded-2xl p-3 flex flex-col justify-between border border-border">
+          <div className="glass-card rounded-xl p-3 flex flex-col justify-between">
             <div className="flex justify-between items-center text-xs">
               <span className="flex items-center space-x-1 font-bold text-cyan-400">
                 <Wifi className="w-3.5 h-3.5" />
@@ -404,24 +403,24 @@ export function App() {
               <span className="font-bold text-white text-xs truncate">{formatSpeed(netInVal)}</span>
             </div>
             <div className="my-1.5">
-              <Sparkline data={history.net} max={3000} color="#22d3ee" gradientId="miniNet" height={32} />
+              <Sparkline data={history.net} max={3000} color="#22d3ee" gradientId="miniNet" height={28} />
             </div>
-            <span className="text-[10px] text-neutral-400">Download Speed</span>
+            <span className="text-[9px] text-neutral-400">Bandwidth</span>
           </div>
         </div>
 
         {/* Input Lag 1-Click Status Badge */}
-        <div className="bg-surface border border-border rounded-xl p-2 flex items-center justify-between text-xs">
+        <div className="bg-[#18191E] rounded-xl p-2 flex items-center justify-between text-xs">
           <div className="flex items-center space-x-2">
             <Zap className="w-3.5 h-3.5 text-accent-theme" />
             <span className="text-[11px] font-semibold text-neutral-200">1.0ms Low Latency</span>
           </div>
           <button
             onClick={handleToggleTimer}
-            className={`px-2.5 py-0.5 rounded text-[10px] font-bold border transition-colors ${
+            className={`px-2.5 py-0.5 rounded-md text-[10px] font-bold transition-colors ${
               timerActive
-                ? 'bg-accent-theme/10 text-accent-theme border-accent-theme/30'
-                : 'bg-surfaceHover text-neutral-400 border-border hover:text-white'
+                ? 'bg-accent-theme/15 text-accent-theme'
+                : 'bg-[#24252A] text-neutral-400 hover:text-white'
             }`}
           >
             {timerActive ? 'ACTIVE' : 'OFF'}
@@ -429,9 +428,9 @@ export function App() {
         </div>
 
         {/* Top Apps Leaderboard */}
-        <div className="glass-card rounded-2xl p-2.5 flex-1 flex flex-col justify-between overflow-hidden my-2 border border-border">
-          <div className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">
-            Top Apps (With Safety Shields)
+        <div className="glass-card rounded-xl p-2.5 flex-1 flex flex-col justify-between overflow-hidden my-2">
+          <div className="text-[9px] font-bold text-neutral-400 uppercase tracking-wider mb-1">
+            Top Apps (Safety Shields)
           </div>
 
           <div className="space-y-1 overflow-y-auto">
@@ -440,7 +439,7 @@ export function App() {
               const isBackground = proc.category === 'background';
 
               return (
-                <div key={proc.pid} className="flex items-center justify-between p-1.5 rounded-lg bg-surfaceHover text-xs">
+                <div key={proc.pid} className="flex items-center justify-between p-1.5 rounded-lg bg-[#111215] text-xs">
                   <div className="flex items-center space-x-2 truncate">
                     <span className="shrink-0">
                       {isProtected ? (
@@ -451,14 +450,14 @@ export function App() {
                         <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
                       )}
                     </span>
-                    <span className="text-white font-medium truncate">{proc.name}</span>
+                    <span className="text-white font-medium truncate text-[11px]">{proc.name}</span>
                   </div>
 
                   <div className="flex items-center space-x-2 shrink-0">
-                    <span className="font-mono text-neutral-300 text-[11px]">{proc.memoryMb.toFixed(0)} MB</span>
+                    <span className="font-mono text-neutral-400 text-[10px]">{proc.memoryMb.toFixed(0)} MB</span>
                     <button
                       onClick={() => setTargetProcess(proc)}
-                      className={`p-1 rounded ${
+                      className={`p-0.5 rounded ${
                         isProtected ? 'text-neutral-600 cursor-not-allowed' : 'text-neutral-400 hover:text-rose-400 hover:bg-rose-500/10'
                       }`}
                     >
@@ -473,9 +472,9 @@ export function App() {
           {/* See More Banner */}
           <button
             onClick={() => switchViewMode('full')}
-            className="w-full mt-1.5 py-1.5 rounded-xl bg-accent-theme/10 hover:bg-accent-theme/20 text-center text-xs font-bold text-accent-theme border border-accent-theme/20 transition-all shadow-sm"
+            className="w-full mt-1.5 py-1.5 rounded-lg bg-[#24252A] hover:bg-[#2E3038] text-center text-xs font-bold text-white transition-all"
           >
-            Open Full Dashboard & Optimizer ↗
+            Open Full Dashboard ↗
           </button>
         </div>
 
@@ -488,10 +487,10 @@ export function App() {
     );
   }
 
-  // 3. FULL SIZED LUXURY RAYCAST MATTE OBSIDIAN APP VIEW
+  // 3. FULL SIZED LUXURY RAYCAST MATTE OBSIDIAN APP VIEW (100% Borderless)
   return (
-    <div data-theme={themeAccent} className="h-screen w-screen bg-background flex flex-col select-none text-gray-100 font-sans overflow-hidden border border-border rounded-2xl">
-      {/* Discord / Raycast Style Frameless Titlebar */}
+    <div data-theme={themeAccent} className="h-screen w-screen bg-[#0E0F12] flex flex-col select-none text-gray-100 font-sans overflow-hidden rounded-2xl shadow-2xl">
+      {/* Raycast Style Frameless Titlebar */}
       <Titlebar
         timerActive={timerActive}
         powerPlan={powerPlan}
@@ -517,7 +516,7 @@ export function App() {
           onToggleHud={() => switchViewMode('hud')}
         />
 
-        <main className="flex-1 overflow-hidden bg-background">
+        <main className="flex-1 overflow-hidden bg-[#0E0F12]">
           {activeTab === 'overview' && (
             <OverviewView telemetry={telemetry} history={history} />
           )}

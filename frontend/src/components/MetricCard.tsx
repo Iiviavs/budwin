@@ -23,29 +23,29 @@ export const MetricCard: React.FC<MetricCardProps> = ({
   maxHistory = 100,
 }) => {
   return (
-    <div className="glass-card rounded-xl p-4 flex flex-col justify-between hover:border-border transition-colors duration-200">
+    <div className="glass-card rounded-2xl p-4 flex flex-col justify-between shadow-xl">
       <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center space-x-2 text-sm font-semibold text-gray-300">
+        <div className="flex items-center space-x-2 text-xs font-semibold text-neutral-300">
           <span style={{ color: accentColor }}>{icon}</span>
           <span>{title}</span>
         </div>
         <div className="text-right">
-          <span className="text-xl font-bold text-white tracking-tight">{value}</span>
+          <span className="text-lg font-bold text-white tracking-tight">{value}</span>
         </div>
       </div>
 
-      <div className="my-2">
+      <div className="my-1.5">
         <Sparkline
           data={history}
           max={maxHistory}
           color={accentColor}
           gradientId={gradientId}
-          height={48}
+          height={44}
         />
       </div>
 
       {subValue && (
-        <div className="text-xs text-gray-400 font-medium truncate pt-1 border-t border-border/50">
+        <div className="text-[11px] text-neutral-400 font-normal truncate pt-1.5 border-t border-white/[0.04]">
           {subValue}
         </div>
       )}
