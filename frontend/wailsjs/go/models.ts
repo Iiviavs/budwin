@@ -103,6 +103,29 @@ export namespace hardware {
 
 }
 
+export namespace optimizer {
+	
+	export class GameBoostResult {
+	    active: boolean;
+	    freedRamMb: number;
+	    timerActive: boolean;
+	    powerPlan: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new GameBoostResult(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.active = source["active"];
+	        this.freedRamMb = source["freedRamMb"];
+	        this.timerActive = source["timerActive"];
+	        this.powerPlan = source["powerPlan"];
+	    }
+	}
+
+}
+
 export namespace process {
 	
 	export class ProcessItem {

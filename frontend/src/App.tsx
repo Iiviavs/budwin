@@ -11,37 +11,6 @@ import { Sparkline } from './components/Sparkline';
 import { EndProcessModal } from './components/EndProcessModal';
 import { Maximize2, Cpu, Zap, HardDrive, Wifi, ShieldAlert, AlertTriangle, CheckCircle2, XCircle } from 'lucide-react';
 
-declare global {
-  interface Window {
-    go?: {
-      main?: {
-        App?: {
-          GetTelemetry?: () => Promise<TelemetrySnapshot>;
-          GetProcesses?: () => Promise<ProcessItem[]>;
-          GetDrives?: () => Promise<DriveItem[]>;
-          KillProcess?: (pid: number) => Promise<boolean>;
-          CleanTempFiles?: () => Promise<number>;
-          FlushDNS?: () => Promise<boolean>;
-          SetPowerPlan?: (plan: string) => Promise<boolean>;
-          GetActivePowerPlan?: () => Promise<string>;
-          ToggleHighPrecisionTimer?: (enable: boolean) => Promise<boolean>;
-          IsTimerActive?: () => Promise<boolean>;
-          OptimizeInputLatency?: () => Promise<boolean>;
-          HideWindow?: () => Promise<void>;
-          ShowWindow?: () => Promise<void>;
-        };
-      };
-    };
-    runtime?: {
-      WindowMinimise?: () => void;
-      WindowToggleMaximise?: () => void;
-      WindowSetSize?: (width: number, height: number) => void;
-      WindowHide?: () => void;
-      Quit?: () => void;
-    };
-  }
-}
-
 export function App() {
   const [isMiniMode, setIsMiniMode] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<TabType>('overview');

@@ -82,6 +82,22 @@ func (a *App) OptimizeInputLatency() bool {
 	return optimizer.OptimizeInputLatency()
 }
 
+// Game Boost & Memory Cleaner API
+func (a *App) ToggleGameBoost(enable bool) optimizer.GameBoostResult {
+	if enable {
+		return optimizer.EnableGameBoost()
+	}
+	return optimizer.DisableGameBoost()
+}
+
+func (a *App) IsGameBoostActive() bool {
+	return optimizer.IsGameBoostActive()
+}
+
+func (a *App) PurgeStandbyRAM() float64 {
+	return optimizer.PurgeStandbyRAM()
+}
+
 // Window visibility controls
 func (a *App) HideWindow() {
 	runtime.WindowHide(a.ctx)

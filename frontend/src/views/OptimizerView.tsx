@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Trash2, Globe, Gauge, CheckCircle2, Sparkles, Loader2, Zap, MousePointer2, Gamepad2 } from 'lucide-react';
+import { Trash2, Globe, Gauge, CheckCircle2, Sparkles, Loader2, Zap, MousePointer2, Gamepad2, Rocket, RefreshCw } from 'lucide-react';
 
 interface OptimizerViewProps {
   currentPowerPlan: string;
@@ -16,6 +16,7 @@ export const OptimizerView: React.FC<OptimizerViewProps> = ({
 }) => {
   const [cleaning, setCleaning] = useState(false);
   const [flushing, setFlushing] = useState(false);
+  const [purgingRam, setPurgingRam] = useState(false);
   const [cleanResult, setCleanResult] = useState<string | null>(null);
   const [dnsResult, setDnsResult] = useState<string | null>(null);
   const [activePlan, setActivePlan] = useState(currentPowerPlan || 'Balanced');
@@ -24,12 +25,48 @@ export const OptimizerView: React.FC<OptimizerViewProps> = ({
   const [timerActive, setTimerActive] = useState(true);
   const [lagResult, setLagResult] = useState<string | null>(null);
 
+  // Game Boost State
+  const [gameBoostActive, setGameBoostActive] = useState(false);
+  const [gameBoostResult, setGameBoostResult] = useState<string | null>(null);
+
   useEffect(() => {
-    // Check if timer is active
     if (window.go?.main?.App?.IsTimerActive) {
       window.go.main.App.IsTimerActive().then((active) => setTimerActive(active));
     }
+    if (window.go?.main?.App?.IsGameBoostActive) {
+      window.go.main.App.IsGameBoostActive().then((active) => setGameBoostActive(active));
+    }
   }, []);
+
+  const handleToggleGameBoost = async () => {
+    const nextState = !gameBoostActive;
+    if (window.go?.main?.App?.ToggleGameBoost) {
+      const res = await window.go.main.App.ToggleGameBoost(nextState);
+      setGameBoostActive(res.active);
+      setActivePlan(res.powerPlan);
+      setTimerActive(res.timerActive);
+      if (res.active) {
+        setGameBoostResult(`🚀 Game Boost Active: Purged ${res.freedRamMb.toFixed(0)} MB Standby RAM, 1.0ms Timer Locked, High Performance Power Active!`);
+      } else {
+        setGameBoostResult('Game Boost Disabled: Balanced power & quiet fans restored.');
+      }
+    } else {
+      setGameBoostActive(nextState);
+      setGameBoostResult(nextState ? '🚀 Game Boost Activated!' : 'Game Boost Disabled.');
+    }
+  };
+
+  const handlePurgeRAM = async () => {
+    setPurgingRam(true);
+    try {
+      if (window.go?.main?.App?.PurgeStandbyRAM) {
+        const freed = await window.go.main.App.PurgeStandbyRAM();
+        setGameBoostResult(`🧠 Purged ${freed.toFixed(0)} MB of unused Standby RAM cache!`);
+      }
+    } finally {
+      setPurgingRam(false);
+    }
+  };
 
   const handleCleanTemp = async () => {
     setCleaning(true);
@@ -68,7 +105,7 @@ export const OptimizerView: React.FC<OptimizerViewProps> = ({
       await window.go.main.App.ToggleHighPrecisionTimer(nextState);
     }
     setTimerActive(nextState);
-    setLagResult(nextState ? '1.0ms High-Resolution System Timer Activated (Lowest Latency)' : 'Standard Windows 15.6ms Timer Restored');
+    setLagResult(nextState ? '1.0ms High-Resolution System Timer Activated' : 'Standard Windows 15.6ms Timer Restored');
   };
 
   const handleOptimizeAllLatency = async () => {
@@ -80,25 +117,90 @@ export const OptimizerView: React.FC<OptimizerViewProps> = ({
   };
 
   return (
-    <div className="p-6 space-y-6 max-h-[calc(100vh-3.5rem)] overflow-y-auto">
+    <div className="p-6 space-y-6 max-h-[calc(100vh-2.5rem)] overflow-y-auto">
       <div>
         <h2 className="text-lg font-bold text-white flex items-center space-x-2">
-          <Sparkles className="w-5 h-5 text-sky-400" />
-          <span>System & Input Latency Optimizer</span>
+          <Sparkles className="w-5 h-5 text-accent-lime" />
+          <span>Performance & System Optimizer</span>
         </h2>
-        <p className="text-xs text-gray-400">Reduce input lag, lower system polling delays, and clean cache</p>
+        <p className="text-xs text-gray-400 font-medium">1-Click Game Boost, input latency reduction, and system cleaning</p>
       </div>
 
-      {/* INPUT LAG REDUCER HERO CARD */}
-      <div className="glass-card rounded-2xl p-5 border border-sky-500/30 bg-gradient-to-br from-surface to-sky-950/20 space-y-4 shadow-xl">
+      {/* GAME BOOST / FOCUS MODE HERO BANNER */}
+      <div className={`rounded-3xl p-6 border transition-all duration-300 shadow-2xl ${
+        gameBoostActive
+          ? 'bg-gradient-to-br from-surface to-accent-lime/10 border-accent-lime/50 shadow-accent-lime/10'
+          : 'glass-card border-border'
+      }`}>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <div className={`w-13 h-13 rounded-2xl flex items-center justify-center p-3 transition-all ${
+              gameBoostActive
+                ? 'bg-accent-lime text-black shadow-lg shadow-accent-lime/30'
+                : 'bg-surfaceHover text-gray-400 border border-border'
+            }`}>
+              <Rocket className="w-7 h-7" />
+            </div>
+
+            <div>
+              <div className="flex items-center space-x-2">
+                <h3 className="text-base font-bold text-white">🚀 1-Click Game Boost & Focus Mode</h3>
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                  gameBoostActive
+                    ? 'bg-accent-lime/20 text-accent-lime border-accent-lime/40 animate-pulse'
+                    : 'bg-surface text-gray-400 border-border'
+                }`}>
+                  {gameBoostActive ? 'BOOST ACTIVE' : 'READY'}
+                </span>
+              </div>
+              <p className="text-xs text-gray-300 mt-0.5">
+                Locks 1.0ms timer, purges standby RAM cache, sets high game priority, and maximizes CPU power.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={handlePurgeRAM}
+              disabled={purgingRam}
+              className="px-3 py-2 rounded-xl bg-surface hover:bg-surfaceHover border border-border text-gray-300 text-xs font-semibold flex items-center space-x-1.5 transition-colors"
+              title="Flush Standby RAM cache"
+            >
+              {purgingRam ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
+              <span>Purge RAM</span>
+            </button>
+
+            <button
+              onClick={handleToggleGameBoost}
+              className={`px-5 py-2 rounded-xl text-xs font-bold transition-all shadow-lg active:scale-95 ${
+                gameBoostActive
+                  ? 'bg-accent-lime text-black shadow-accent-lime/30 hover:bg-lime-400'
+                  : 'bg-surfaceHover hover:bg-border text-white border border-border/80'
+              }`}
+            >
+              {gameBoostActive ? 'TURBO BOOST ON' : 'ENABLE BOOST'}
+            </button>
+          </div>
+        </div>
+
+        {gameBoostResult && (
+          <div className="mt-3 p-2.5 rounded-xl bg-accent-lime/10 border border-accent-lime/30 text-accent-lime text-xs flex items-center space-x-2 font-medium">
+            <CheckCircle2 className="w-4 h-4 shrink-0" />
+            <span>{gameBoostResult}</span>
+          </div>
+        )}
+      </div>
+
+      {/* INPUT LAG REDUCER CARD */}
+      <div className="glass-card rounded-3xl p-5 border border-sky-500/20 bg-gradient-to-br from-surface to-sky-950/10 space-y-4 shadow-xl">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="w-11 h-11 rounded-xl bg-gradient-to-tr from-sky-500 to-emerald-400 text-white flex items-center justify-center shadow-lg shadow-sky-500/20">
-              <Zap className="w-6 h-6" />
+            <div className="w-10 h-10 rounded-xl bg-sky-500/10 text-sky-400 border border-sky-500/20 flex items-center justify-center">
+              <Zap className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center space-x-2">
-                <h3 className="text-base font-bold text-white">⚡ Ultra-Low Input Latency Reducer</h3>
+                <h3 className="text-sm font-bold text-white">⚡ Ultra-Low Input Latency Reducer</h3>
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                   Active
                 </span>
@@ -109,16 +211,15 @@ export const OptimizerView: React.FC<OptimizerViewProps> = ({
 
           <button
             onClick={handleOptimizeAllLatency}
-            className="px-4 py-2 rounded-xl bg-gradient-to-r from-sky-500 to-emerald-500 hover:from-sky-400 hover:to-emerald-400 text-white font-bold text-xs shadow-lg shadow-sky-500/20 transition-all active:scale-95"
+            className="px-3.5 py-1.5 rounded-xl bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 border border-sky-500/30 text-xs font-bold transition-all shadow-sm"
           >
             Apply All Latency Fixes
           </button>
         </div>
 
         {/* 3 Pill Tweaks */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2">
-          {/* Tweak 1 */}
-          <div className="bg-background/80 border border-border/80 rounded-xl p-3 flex items-center justify-between">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1">
+          <div className="bg-background/80 border border-border rounded-xl p-3 flex items-center justify-between">
             <div className="flex items-center space-x-2.5">
               <Zap className="w-4 h-4 text-sky-400" />
               <div>
@@ -138,8 +239,7 @@ export const OptimizerView: React.FC<OptimizerViewProps> = ({
             </button>
           </div>
 
-          {/* Tweak 2 */}
-          <div className="bg-background/80 border border-border/80 rounded-xl p-3 flex items-center justify-between">
+          <div className="bg-background/80 border border-border rounded-xl p-3 flex items-center justify-between">
             <div className="flex items-center space-x-2.5">
               <MousePointer2 className="w-4 h-4 text-emerald-400" />
               <div>
@@ -152,8 +252,7 @@ export const OptimizerView: React.FC<OptimizerViewProps> = ({
             </span>
           </div>
 
-          {/* Tweak 3 */}
-          <div className="bg-background/80 border border-border/80 rounded-xl p-3 flex items-center justify-between">
+          <div className="bg-background/80 border border-border rounded-xl p-3 flex items-center justify-between">
             <div className="flex items-center space-x-2.5">
               <Gamepad2 className="w-4 h-4 text-purple-400" />
               <div>
@@ -168,7 +267,7 @@ export const OptimizerView: React.FC<OptimizerViewProps> = ({
         </div>
 
         {lagResult && (
-          <div className="p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs flex items-center space-x-2">
+          <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs flex items-center space-x-2">
             <CheckCircle2 className="w-4 h-4 shrink-0" />
             <span>{lagResult}</span>
           </div>
@@ -177,10 +276,10 @@ export const OptimizerView: React.FC<OptimizerViewProps> = ({
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* 1. Temp Files Cleaner */}
-        <div className="glass-card rounded-2xl p-5 border border-border flex flex-col justify-between space-y-4">
+        <div className="glass-card rounded-3xl p-5 border border-border flex flex-col justify-between space-y-4">
           <div className="space-y-2">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-400 border border-rose-500/20 flex items-center justify-center">
                 <Trash2 className="w-5 h-5" />
               </div>
               <div>
@@ -195,7 +294,7 @@ export const OptimizerView: React.FC<OptimizerViewProps> = ({
 
           <div>
             {cleanResult && (
-              <div className="mb-3 p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs flex items-center space-x-2">
+              <div className="mb-3 p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs flex items-center space-x-2">
                 <CheckCircle2 className="w-4 h-4 shrink-0" />
                 <span>{cleanResult}</span>
               </div>
@@ -212,10 +311,10 @@ export const OptimizerView: React.FC<OptimizerViewProps> = ({
         </div>
 
         {/* 2. Flush DNS Cache */}
-        <div className="glass-card rounded-2xl p-5 border border-border flex flex-col justify-between space-y-4">
+        <div className="glass-card rounded-3xl p-5 border border-border flex flex-col justify-between space-y-4">
           <div className="space-y-2">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 flex items-center justify-center">
                 <Globe className="w-5 h-5" />
               </div>
               <div>
@@ -230,7 +329,7 @@ export const OptimizerView: React.FC<OptimizerViewProps> = ({
 
           <div>
             {dnsResult && (
-              <div className="mb-3 p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs flex items-center space-x-2">
+              <div className="mb-3 p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs flex items-center space-x-2">
                 <CheckCircle2 className="w-4 h-4 shrink-0" />
                 <span>{dnsResult}</span>
               </div>
@@ -248,10 +347,10 @@ export const OptimizerView: React.FC<OptimizerViewProps> = ({
       </div>
 
       {/* 3. Power Plan Switcher Card */}
-      <div className="glass-card rounded-2xl p-5 border border-border space-y-4">
+      <div className="glass-card rounded-3xl p-5 border border-border space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center">
               <Gauge className="w-5 h-5" />
             </div>
             <div>
@@ -259,7 +358,7 @@ export const OptimizerView: React.FC<OptimizerViewProps> = ({
               <p className="text-xs text-gray-400">Controls CPU frequency scaling, heat output, and fan speeds</p>
             </div>
           </div>
-          <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-sky-500/10 text-sky-400 border border-sky-500/20">
+          <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-accent-lime/10 text-accent-lime border border-accent-lime/20">
             Active: {activePlan}
           </span>
         </div>
@@ -268,16 +367,16 @@ export const OptimizerView: React.FC<OptimizerViewProps> = ({
           {/* Balanced Option */}
           <button
             onClick={() => handlePowerPlan('Balanced')}
-            className={`p-4 rounded-xl border text-left transition-all ${
+            className={`p-4 rounded-2xl border text-left transition-all ${
               activePlan.toLowerCase().includes('equilibrado') || activePlan.toLowerCase().includes('balanced')
-                ? 'bg-sky-500/10 border-sky-500/40 shadow-lg shadow-sky-500/10'
+                ? 'bg-accent-lime/10 border-accent-lime/40 shadow-lg shadow-accent-lime/10'
                 : 'bg-surface border-border hover:bg-surfaceHover'
             }`}
           >
             <div className="flex items-center justify-between mb-1">
               <span className="font-bold text-sm text-white">❄️ Balanced (Recommended)</span>
               {activePlan.toLowerCase().includes('balanced') || activePlan.toLowerCase().includes('equilibrado') ? (
-                <CheckCircle2 className="w-4 h-4 text-sky-400" />
+                <CheckCircle2 className="w-4 h-4 text-accent-lime" />
               ) : null}
             </div>
             <p className="text-xs text-gray-400">
@@ -288,7 +387,7 @@ export const OptimizerView: React.FC<OptimizerViewProps> = ({
           {/* High Performance Option */}
           <button
             onClick={() => handlePowerPlan('High Performance')}
-            className={`p-4 rounded-xl border text-left transition-all ${
+            className={`p-4 rounded-2xl border text-left transition-all ${
               activePlan.toLowerCase().includes('desempenho') || activePlan.toLowerCase().includes('high')
                 ? 'bg-amber-500/10 border-amber-500/40 shadow-lg shadow-amber-500/10'
                 : 'bg-surface border-border hover:bg-surfaceHover'
