@@ -5,6 +5,9 @@ on:
     tags:
       - 'v*'
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: windows-latest
@@ -17,14 +20,26 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
 
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.22'
+          go-version: 'stable'
+          cache: true
+
+      - name: Install Frontend Dependencies
+        run: |
+          cd frontend
+          npm install
+          cd ..
 
       - name: Install Wails CLI
         run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
+
+      - name: Sync Go Modules
+        run: go mod tidy
 
       - name: Build Standalone Executable
         run: |
@@ -34,5 +49,8 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: build/bin/budwin.exe
+          name: budwin ${{ github.ref_name }}
+          draft: false
+          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
