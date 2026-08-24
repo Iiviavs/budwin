@@ -1,21 +1,23 @@
 import { useState, useEffect } from 'react';
 import { Titlebar } from './components/Titlebar';
-import { Sidebar } from './components/Sidebar';
-import { TabType } from './components/Navbar';
+import { Sidebar, TabType } from './components/Sidebar';
 import { OverviewView } from './views/OverviewView';
 import { ProcessesView } from './views/ProcessesView';
 import { StorageView } from './views/StorageView';
 import { OptimizerView } from './views/OptimizerView';
-import { TelemetrySnapshot, ProcessItem, DriveItem } from './types';
+import { StartupView } from './views/StartupView';
+import { FloatingHudView } from './views/FloatingHudView';
+import { TelemetrySnapshot, ProcessItem, DriveItem, StartupItem } from './types';
 import { Sparkline } from './components/Sparkline';
 import { EndProcessModal } from './components/EndProcessModal';
-import { Maximize2, Cpu, Zap, HardDrive, Wifi, ShieldAlert, AlertTriangle, CheckCircle2, XCircle } from 'lucide-react';
+import { Maximize2, Cpu, Zap, HardDrive, Wifi, ShieldAlert, AlertTriangle, CheckCircle2, XCircle, Pin } from 'lucide-react';
 
 export function App() {
-  const [isMiniMode, setIsMiniMode] = useState<boolean>(false);
+  const [viewMode, setViewMode] = useState<'full' | 'mini' | 'hud'>('full');
   const [activeTab, setActiveTab] = useState<TabType>('overview');
   const [telemetry, setTelemetry] = useState<TelemetrySnapshot | null>(null);
   const [processes, setProcesses] = useState<ProcessItem[]>([]);
+  const [startupItems, setStartupItems] = useState<StartupItem[]>([]);
   const [drives, setDrives] = useState<DriveItem[]>([
     { letter: 'C', name: 'System', totalGb: 444.7, usedGb: 313.2, freeGb: 131.5, percentUsed: 70.4 },
     { letter: 'D', name: 'Games & Data', totalGb: 931.5, usedGb: 543.6, freeGb: 387.9, percentUsed: 58.4 },
@@ -37,12 +39,27 @@ export function App() {
     net: Array(60).fill(120),
   });
 
-  const toggleMiniMode = (toMini: boolean) => {
-    setIsMiniMode(toMini);
-    if (toMini) {
+  const switchViewMode = (mode: 'full' | 'mini' | 'hud') => {
+    setViewMode(mode);
+    if (mode === 'hud') {
+      if (window.go?.main?.App?.SetHudMode) {
+        window.go.main.App.SetHudMode(true);
+      } else {
+        window.runtime?.WindowSetSize?.(360, 68);
+        window.runtime?.WindowSetAlwaysOnTop?.(true);
+      }
+    } else if (mode === 'mini') {
+      if (window.go?.main?.App?.SetHudMode) {
+        window.go.main.App.SetHudMode(false);
+      }
       window.runtime?.WindowSetSize?.(380, 580);
+      window.runtime?.WindowSetAlwaysOnTop?.(false);
     } else {
+      if (window.go?.main?.App?.SetHudMode) {
+        window.go.main.App.SetHudMode(false);
+      }
       window.runtime?.WindowSetSize?.(1060, 700);
+      window.runtime?.WindowSetAlwaysOnTop?.(false);
     }
   };
 
@@ -124,6 +141,22 @@ export function App() {
     }
   };
 
+  const loadStartupItems = async () => {
+    if (window.go?.main?.App?.GetStartupItems) {
+      try {
+        const list = await window.go.main.App.GetStartupItems();
+        setStartupItems(list);
+      } catch { }
+    } else {
+      setStartupItems([
+        { name: 'Discord', command: 'C:\\Users\\crynn\\AppData\\Local\\Discord\\app-1.0.9000\\Discord.exe', location: 'HKCU', enabled: true, impact: 'High', description: 'Discord Voice & Chat' },
+        { name: 'Steam', command: 'D:\\Steam\\steam.exe -silent', location: 'HKCU', enabled: true, impact: 'High', description: 'Steam Gaming Client' },
+        { name: 'Spotify', command: 'C:\\Users\\crynn\\AppData\\Roaming\\Spotify\\Spotify.exe', location: 'HKCU', enabled: false, impact: 'High', description: 'Spotify Music Streaming' },
+        { name: 'NvBackend', command: 'C:\\Program Files\\NVIDIA Corporation\\Update Core\\NvBackend.exe', location: 'HKLM', enabled: true, impact: 'Medium', description: 'NVIDIA Display & Driver Helper' },
+      ]);
+    }
+  };
+
   const loadDrives = async () => {
     if (window.go?.main?.App?.GetDrives) {
       try {
@@ -135,6 +168,7 @@ export function App() {
 
   useEffect(() => {
     loadProcesses();
+    loadStartupItems();
     loadDrives();
     if (window.go?.main?.App?.GetActivePowerPlan) {
       window.go.main.App.GetActivePowerPlan().then((p) => setPowerPlan(p));
@@ -151,6 +185,16 @@ export function App() {
     } else {
       setProcesses((prev) => prev.filter((p) => p.pid !== pid));
     }
+  };
+
+  const handleToggleStartupItem = async (name: string, location: string, enable: boolean): Promise<boolean> => {
+    if (window.go?.main?.App?.ToggleStartupItem) {
+      await window.go.main.App.ToggleStartupItem(name, location, enable);
+    }
+    setStartupItems((prev) =>
+      prev.map((i) => (i.name === name && i.location === location ? { ...i, enabled: enable } : i))
+    );
+    return true;
   };
 
   const handleCleanTemp = async (): Promise<number> => {
@@ -188,8 +232,20 @@ export function App() {
     return `${Math.round(kb)} KB/s`;
   };
 
+  // FLOATING ALWAYS-ON-TOP MINI HUD VIEW
+  if (viewMode === 'hud') {
+    return (
+      <FloatingHudView
+        telemetry={telemetry}
+        timerActive={timerActive}
+        onExpand={() => switchViewMode('full')}
+        onClose={() => window.runtime?.WindowHide?.()}
+      />
+    );
+  }
+
   // MINI TRAY COMPANION VIEW
-  if (isMiniMode) {
+  if (viewMode === 'mini') {
     const cpuVal = telemetry ? Math.round(telemetry.cpuPercent) : 0;
     const gpuVal = telemetry?.gpu.isAvailable ? Math.round(telemetry.gpu.coreUtilization) : 0;
     const ramVal = telemetry ? Math.round(telemetry.ramPercent) : 0;
@@ -211,7 +267,14 @@ export function App() {
 
           <div className="flex items-center space-x-1.5 non-draggable">
             <button
-              onClick={() => toggleMiniMode(false)}
+              onClick={() => switchViewMode('hud')}
+              className="p-1 rounded hover:bg-surfaceHover text-gray-400 hover:text-accent-lime transition-colors"
+              title="Pin as Floating Always-on-Top HUD"
+            >
+              <Pin className="w-3.5 h-3.5" />
+            </button>
+            <button
+              onClick={() => switchViewMode('full')}
               className="flex items-center space-x-1 px-2 py-1 rounded-lg bg-accent-lime/10 hover:bg-accent-lime/20 text-accent-lime border border-accent-lime/30 text-[11px] font-bold transition-all shadow-sm"
             >
               <span>See More</span>
@@ -358,7 +421,7 @@ export function App() {
 
           {/* See More Banner */}
           <button
-            onClick={() => toggleMiniMode(false)}
+            onClick={() => switchViewMode('full')}
             className="w-full mt-1.5 py-1.5 rounded-xl bg-accent-lime/10 hover:bg-accent-lime/20 text-center text-xs font-bold text-accent-lime border border-accent-lime/20 transition-all shadow-sm"
           >
             Open Full Dashboard & Optimizer ↗
@@ -382,7 +445,7 @@ export function App() {
         timerActive={timerActive}
         powerPlan={powerPlan}
         isMiniMode={false}
-        onToggleMini={() => toggleMiniMode(true)}
+        onToggleMini={() => switchViewMode('mini')}
         onMinimize={() => window.runtime?.WindowMinimise?.()}
         onMaximize={() => window.runtime?.WindowToggleMaximise?.()}
         onClose={() => window.runtime?.WindowHide?.()}
@@ -390,7 +453,11 @@ export function App() {
 
       {/* Main App Layout with Left Sidebar + View Container */}
       <div className="flex-1 flex overflow-hidden">
-        <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+        <Sidebar
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          onToggleHud={() => switchViewMode('hud')}
+        />
 
         <main className="flex-1 overflow-hidden bg-background">
           {activeTab === 'overview' && (
@@ -410,6 +477,13 @@ export function App() {
               onCleanTemp={handleCleanTemp}
               onFlushDNS={handleFlushDNS}
               onSetPowerPlan={handleSetPowerPlan}
+            />
+          )}
+          {activeTab === 'startup' && (
+            <StartupView
+              items={startupItems}
+              onRefresh={loadStartupItems}
+              onToggle={handleToggleStartupItem}
             />
           )}
         </main>

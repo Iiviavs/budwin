@@ -123,6 +123,28 @@ export namespace optimizer {
 	        this.powerPlan = source["powerPlan"];
 	    }
 	}
+	export class StartupItem {
+	    name: string;
+	    command: string;
+	    location: string;
+	    enabled: boolean;
+	    impact: string;
+	    description: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new StartupItem(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.name = source["name"];
+	        this.command = source["command"];
+	        this.location = source["location"];
+	        this.enabled = source["enabled"];
+	        this.impact = source["impact"];
+	        this.description = source["description"];
+	    }
+	}
 
 }
 

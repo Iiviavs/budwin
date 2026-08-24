@@ -98,7 +98,30 @@ func (a *App) PurgeStandbyRAM() float64 {
 	return optimizer.PurgeStandbyRAM()
 }
 
-// Window visibility controls
+// Startup Apps Manager API
+func (a *App) GetStartupItems() []optimizer.StartupItem {
+	return optimizer.GetStartupItems()
+}
+
+func (a *App) ToggleStartupItem(name string, location string, enable bool) bool {
+	return optimizer.ToggleStartupItem(name, location, enable)
+}
+
+// Window & HUD Controls
+func (a *App) SetAlwaysOnTop(onTop bool) {
+	runtime.WindowSetAlwaysOnTop(a.ctx, onTop)
+}
+
+func (a *App) SetHudMode(isHud bool) {
+	if isHud {
+		runtime.WindowSetAlwaysOnTop(a.ctx, true)
+		runtime.WindowSetSize(a.ctx, 360, 68)
+	} else {
+		runtime.WindowSetAlwaysOnTop(a.ctx, false)
+		runtime.WindowSetSize(a.ctx, 1060, 700)
+	}
+}
+
 func (a *App) HideWindow() {
 	runtime.WindowHide(a.ctx)
 }

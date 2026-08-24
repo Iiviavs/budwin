@@ -22,6 +22,10 @@ export function GetProcesses() {
   return window['go']['main']['App']['GetProcesses']();
 }
 
+export function GetStartupItems() {
+  return window['go']['main']['App']['GetStartupItems']();
+}
+
 export function GetTelemetry() {
   return window['go']['main']['App']['GetTelemetry']();
 }
@@ -50,6 +54,14 @@ export function PurgeStandbyRAM() {
   return window['go']['main']['App']['PurgeStandbyRAM']();
 }
 
+export function SetAlwaysOnTop(arg1) {
+  return window['go']['main']['App']['SetAlwaysOnTop'](arg1);
+}
+
+export function SetHudMode(arg1) {
+  return window['go']['main']['App']['SetHudMode'](arg1);
+}
+
 export function SetPowerPlan(arg1) {
   return window['go']['main']['App']['SetPowerPlan'](arg1);
 }
@@ -64,4 +76,8 @@ export function ToggleGameBoost(arg1) {
 
 export function ToggleHighPrecisionTimer(arg1) {
   return window['go']['main']['App']['ToggleHighPrecisionTimer'](arg1);
+}
+
+export function ToggleStartupItem(arg1, arg2, arg3) {
+  return window['go']['main']['App']['ToggleStartupItem'](arg1, arg2, arg3);
 }

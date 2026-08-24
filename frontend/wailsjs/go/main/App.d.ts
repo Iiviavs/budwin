@@ -14,6 +14,8 @@ export function GetDrives():Promise<Array<hardware.DriveItem>>;
 
 export function GetProcesses():Promise<Array<process.ProcessItem>>;
 
+export function GetStartupItems():Promise<Array<optimizer.StartupItem>>;
+
 export function GetTelemetry():Promise<hardware.TelemetrySnapshot>;
 
 export function HideWindow():Promise<void>;
@@ -28,6 +30,10 @@ export function OptimizeInputLatency():Promise<boolean>;
 
 export function PurgeStandbyRAM():Promise<number>;
 
+export function SetAlwaysOnTop(arg1:boolean):Promise<void>;
+
+export function SetHudMode(arg1:boolean):Promise<void>;
+
 export function SetPowerPlan(arg1:string):Promise<boolean>;
 
 export function ShowWindow():Promise<void>;
@@ -35,3 +41,5 @@ export function ShowWindow():Promise<void>;
 export function ToggleGameBoost(arg1:boolean):Promise<optimizer.GameBoostResult>;
 
 export function ToggleHighPrecisionTimer(arg1:boolean):Promise<boolean>;
+
+export function ToggleStartupItem(arg1:string,arg2:string,arg3:boolean):Promise<boolean>;
