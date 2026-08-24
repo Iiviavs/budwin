@@ -19,10 +19,12 @@
     <Description>A lightweight, native menu bar and system tray companion for Windows 11/10.</Description>
     <RepositoryUrl>https://github.com/crynn/budwin</RepositoryUrl>
     
-    <!-- Single File Output Settings -->
+    <!-- Self-Contained Single File Settings -->
     <PublishSingleFile>true</PublishSingleFile>
-    <SelfContained>false</SelfContained>
+    <SelfContained>true</SelfContained>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
   </PropertyGroup>
 
   <ItemGroup>
