@@ -7,9 +7,10 @@ import { ProcessesView } from './views/ProcessesView';
 import { StorageView } from './views/StorageView';
 import { OptimizerView } from './views/OptimizerView';
 import { StartupView } from './views/StartupView';
+import { BenchmarkView } from './views/BenchmarkView';
 import { SettingsView } from './views/SettingsView';
 import { FloatingHudView } from './views/FloatingHudView';
-import { TelemetrySnapshot, ProcessItem, DriveItem, StartupItem, AlertItem, ThemeAccent } from './types';
+import { TelemetrySnapshot, ProcessItem, DriveItem, StartupItem, AlertItem, ThemeAccent, AutoBoostStatus } from './types';
 import { Sparkline } from './components/Sparkline';
 import { EndProcessModal } from './components/EndProcessModal';
 import { Maximize2, Cpu, Zap, HardDrive, Wifi, ShieldAlert, AlertTriangle, CheckCircle2, XCircle, Pin } from 'lucide-react';
@@ -18,7 +19,7 @@ export function App() {
   const [viewMode, setViewMode] = useState<'full' | 'mini' | 'hud'>('full');
   const [activeTab, setActiveTab] = useState<TabType>('overview');
   const [themeAccent, setThemeAccent] = useState<ThemeAccent>(() => {
-    return (localStorage.getItem('budwin_theme') as ThemeAccent) || 'lime';
+    return (localStorage.getItem('budwin_theme') as ThemeAccent) || 'rose';
   });
 
   // Apply theme dynamically to document root
@@ -30,6 +31,7 @@ export function App() {
   const [processes, setProcesses] = useState<ProcessItem[]>([]);
   const [startupItems, setStartupItems] = useState<StartupItem[]>([]);
   const [alerts, setAlerts] = useState<AlertItem[]>([]);
+  const [autoBoostStatus, setAutoBoostStatus] = useState<AutoBoostStatus | null>(null);
   const [drives, setDrives] = useState<DriveItem[]>([
     { letter: 'C', name: 'System', totalGb: 444.7, usedGb: 313.2, freeGb: 131.5, percentUsed: 70.4 },
     { letter: 'D', name: 'Games & Data', totalGb: 931.5, usedGb: 543.6, freeGb: 387.9, percentUsed: 58.4 },
@@ -94,6 +96,12 @@ export function App() {
           if (window.go?.main?.App?.GetActiveAlerts) {
             const activeAlerts = await window.go.main.App.GetActiveAlerts();
             setAlerts(activeAlerts || []);
+          }
+
+          // Fetch auto-boost status
+          if (window.go?.main?.App?.GetAutoBoostStatus) {
+            const ab = await window.go.main.App.GetAutoBoostStatus();
+            setAutoBoostStatus(ab);
           }
         } catch { }
       } else {
@@ -215,6 +223,14 @@ export function App() {
     return true;
   };
 
+  const handleToggleAutoBoost = async (enable: boolean): Promise<boolean> => {
+    if (window.go?.main?.App?.SetAutoBoostEnabled) {
+      await window.go.main.App.SetAutoBoostEnabled(enable);
+    }
+    setAutoBoostStatus((prev) => prev ? { ...prev, autoBoostEnabled: enable } : null);
+    return true;
+  };
+
   const handleDismissAlert = async (id: string) => {
     if (window.go?.main?.App?.DismissAlert) {
       await window.go.main.App.DismissAlert(id);
@@ -289,7 +305,7 @@ export function App() {
     return (
       <div data-theme={themeAccent} className="h-screen w-screen bg-background border border-border flex flex-col justify-between p-3.5 select-none font-sans text-gray-100 rounded-2xl overflow-hidden">
         {/* Header with Raccoon Mascot */}
-        <div className="flex items-center justify-between pb-2.5 border-b border-border/80 draggable">
+        <div className="flex items-center justify-between pb-2.5 border-b border-border draggable">
           <div className="flex items-center space-x-2.5 non-draggable">
             <div className="w-7 h-7 rounded-full overflow-hidden border border-accent-theme/40 shadow-sm bg-surface">
               <img src="/logo.png" alt="budwin mascot" className="w-full h-full object-cover scale-110" />
@@ -303,7 +319,7 @@ export function App() {
           <div className="flex items-center space-x-1.5 non-draggable">
             <button
               onClick={() => switchViewMode('hud')}
-              className="p-1 rounded hover:bg-surfaceHover text-gray-400 hover:text-accent-theme transition-colors"
+              className="p-1 rounded hover:bg-surfaceHover text-neutral-400 hover:text-accent-theme transition-colors"
               title="Pin as Discord Game Overlay"
             >
               <Pin className="w-3.5 h-3.5" />
@@ -317,7 +333,7 @@ export function App() {
             </button>
             <button
               onClick={() => window.runtime?.WindowHide?.()}
-              className="w-6 h-6 rounded flex items-center justify-center text-gray-400 hover:text-white hover:bg-rose-500/80 transition-colors text-xs"
+              className="w-6 h-6 rounded flex items-center justify-center text-neutral-400 hover:text-white hover:bg-rose-500/80 transition-colors text-xs"
               title="Close to Tray"
             >
               ✕
@@ -339,7 +355,7 @@ export function App() {
             <div className="my-1.5">
               <Sparkline data={history.cpu} max={100} color="#38bdf8" gradientId="miniCpu" height={32} />
             </div>
-            <span className="text-[10px] text-gray-400">60s History</span>
+            <span className="text-[10px] text-neutral-400">60s History</span>
           </div>
 
           {/* GPU Card */}
@@ -356,7 +372,7 @@ export function App() {
             <div className="my-1.5">
               <Sparkline data={history.gpu} max={100} color="#22c55e" gradientId="miniGpu" height={32} />
             </div>
-            <span className="text-[10px] text-gray-400">
+            <span className="text-[10px] text-neutral-400">
               {telemetry?.gpu.isAvailable ? `${telemetry.gpu.temperatureC}°C Temp` : 'NVIDIA'}
             </span>
           </div>
@@ -373,7 +389,7 @@ export function App() {
             <div className="w-full bg-surfaceHover h-1.5 rounded-full overflow-hidden my-2">
               <div className="bg-purple-500 h-full rounded-full" style={{ width: `${ramVal}%` }} />
             </div>
-            <span className="text-[10px] text-gray-400 truncate">
+            <span className="text-[10px] text-neutral-400 truncate">
               {telemetry?.ramUsedGb.toFixed(1)} / {telemetry?.ramTotalGb.toFixed(0)} GB
             </span>
           </div>
@@ -390,7 +406,7 @@ export function App() {
             <div className="my-1.5">
               <Sparkline data={history.net} max={3000} color="#22d3ee" gradientId="miniNet" height={32} />
             </div>
-            <span className="text-[10px] text-gray-400">Download Speed</span>
+            <span className="text-[10px] text-neutral-400">Download Speed</span>
           </div>
         </div>
 
@@ -398,14 +414,14 @@ export function App() {
         <div className="bg-surface border border-border rounded-xl p-2 flex items-center justify-between text-xs">
           <div className="flex items-center space-x-2">
             <Zap className="w-3.5 h-3.5 text-accent-theme" />
-            <span className="text-[11px] font-semibold text-gray-200">1.0ms Low Latency</span>
+            <span className="text-[11px] font-semibold text-neutral-200">1.0ms Low Latency</span>
           </div>
           <button
             onClick={handleToggleTimer}
             className={`px-2.5 py-0.5 rounded text-[10px] font-bold border transition-colors ${
               timerActive
                 ? 'bg-accent-theme/10 text-accent-theme border-accent-theme/30'
-                : 'bg-surfaceHover text-gray-400 border-border hover:text-white'
+                : 'bg-surfaceHover text-neutral-400 border-border hover:text-white'
             }`}
           >
             {timerActive ? 'ACTIVE' : 'OFF'}
@@ -414,7 +430,7 @@ export function App() {
 
         {/* Top Apps Leaderboard */}
         <div className="glass-card rounded-2xl p-2.5 flex-1 flex flex-col justify-between overflow-hidden my-2 border border-border">
-          <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">
+          <div className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">
             Top Apps (With Safety Shields)
           </div>
 
@@ -424,7 +440,7 @@ export function App() {
               const isBackground = proc.category === 'background';
 
               return (
-                <div key={proc.pid} className="flex items-center justify-between p-1.5 rounded-lg bg-surfaceHover/50 text-xs">
+                <div key={proc.pid} className="flex items-center justify-between p-1.5 rounded-lg bg-surfaceHover text-xs">
                   <div className="flex items-center space-x-2 truncate">
                     <span className="shrink-0">
                       {isProtected ? (
@@ -439,11 +455,11 @@ export function App() {
                   </div>
 
                   <div className="flex items-center space-x-2 shrink-0">
-                    <span className="font-mono text-gray-300 text-[11px]">{proc.memoryMb.toFixed(0)} MB</span>
+                    <span className="font-mono text-neutral-300 text-[11px]">{proc.memoryMb.toFixed(0)} MB</span>
                     <button
                       onClick={() => setTargetProcess(proc)}
                       className={`p-1 rounded ${
-                        isProtected ? 'text-gray-600 cursor-not-allowed' : 'text-gray-400 hover:text-rose-400 hover:bg-rose-500/10'
+                        isProtected ? 'text-neutral-600 cursor-not-allowed' : 'text-neutral-400 hover:text-rose-400 hover:bg-rose-500/10'
                       }`}
                     >
                       <XCircle className="w-3.5 h-3.5" />
@@ -472,10 +488,10 @@ export function App() {
     );
   }
 
-  // 3. FULL SIZED LUXURY DARK APP VIEW (Discord / Chompchain layout)
+  // 3. FULL SIZED LUXURY RAYCAST MATTE OBSIDIAN APP VIEW
   return (
     <div data-theme={themeAccent} className="h-screen w-screen bg-background flex flex-col select-none text-gray-100 font-sans overflow-hidden border border-border rounded-2xl">
-      {/* Discord Style Frameless Titlebar */}
+      {/* Discord / Raycast Style Frameless Titlebar */}
       <Titlebar
         timerActive={timerActive}
         powerPlan={powerPlan}
@@ -526,6 +542,12 @@ export function App() {
               items={startupItems}
               onRefresh={loadStartupItems}
               onToggle={handleToggleStartupItem}
+            />
+          )}
+          {activeTab === 'benchmark' && (
+            <BenchmarkView
+              autoBoostStatus={autoBoostStatus}
+              onToggleAutoBoost={handleToggleAutoBoost}
             />
           )}
           {activeTab === 'settings' && (

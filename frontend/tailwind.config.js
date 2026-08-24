@@ -8,12 +8,12 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: "#0B0E14",
-        sidebar: "#11151F",
-        surface: "#161B26",
-        surfaceHover: "#1F2637",
-        surfaceActive: "#262F44",
-        border: "#232B3E",
+        background: "#0E0F12",       // Raycast deep matte charcoal
+        sidebar: "#141518",          // Raycast sidebar neutral
+        surface: "#1A1B20",          // Raycast card surface
+        surfaceHover: "#23252B",     // Raycast hover pill
+        surfaceActive: "#2C2E36",    // Raycast active selector
+        border: "#282A33",           // Raycast subtle divider
         accent: {
           theme: "var(--accent-primary)",
           themeGlow: "var(--accent-glow)",
@@ -28,7 +28,7 @@ export default {
         }
       },
       fontFamily: {
-        sans: ['"Segoe UI Variable Display"', '"Segoe UI"', 'system-ui', 'sans-serif'],
+        sans: ['"Segoe UI Variable Display"', '"Inter"', 'system-ui', 'sans-serif'],
       }
     },
   },

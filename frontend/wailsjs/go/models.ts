@@ -150,6 +150,77 @@ export namespace hardware {
 
 export namespace optimizer {
 	
+	export class AutoBoostStatus {
+	    autoBoostEnabled: boolean;
+	    activeGameName: string;
+	    activeGamePid: number;
+	    isBoosting: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new AutoBoostStatus(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.autoBoostEnabled = source["autoBoostEnabled"];
+	        this.activeGameName = source["activeGameName"];
+	        this.activeGamePid = source["activeGamePid"];
+	        this.isBoosting = source["isBoosting"];
+	    }
+	}
+	export class BenchmarkSummary {
+	    isRunning: boolean;
+	    durationSeconds: number;
+	    avgCpuPercent: number;
+	    maxCpuPercent: number;
+	    avgRamPercent: number;
+	    maxRamPercent: number;
+	    maxGpuTemp: number;
+	    avgGpuLoad: number;
+	    stabilityScore: number;
+	    verdict: string;
+	    // Go type: time
+	    startTime: any;
+	    samplesCount: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new BenchmarkSummary(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.isRunning = source["isRunning"];
+	        this.durationSeconds = source["durationSeconds"];
+	        this.avgCpuPercent = source["avgCpuPercent"];
+	        this.maxCpuPercent = source["maxCpuPercent"];
+	        this.avgRamPercent = source["avgRamPercent"];
+	        this.maxRamPercent = source["maxRamPercent"];
+	        this.maxGpuTemp = source["maxGpuTemp"];
+	        this.avgGpuLoad = source["avgGpuLoad"];
+	        this.stabilityScore = source["stabilityScore"];
+	        this.verdict = source["verdict"];
+	        this.startTime = this.convertValues(source["startTime"], null);
+	        this.samplesCount = source["samplesCount"];
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
 	export class GameBoostResult {
 	    active: boolean;
 	    freedRamMb: number;
