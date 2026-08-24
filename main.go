@@ -31,14 +31,14 @@ func main() {
 		Title:             "budwin",
 		Width:             1060,
 		Height:            700,
-		MinWidth:          380,
-		MinHeight:         520,
+		MinWidth:          180,
+		MinHeight:         38,
 		Frameless:         true,
 		HideWindowOnClose: true,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},
-		BackgroundColour: &options.RGBA{R: 11, G: 14, B: 20, A: 255},
+		BackgroundColour: &options.RGBA{R: 0, G: 0, B: 0, A: 0}, // True transparent background
 		OnStartup: func(ctx context.Context) {
 			app.startup(ctx)
 			tray.InitTray(ctx, tempIcon)
@@ -50,9 +50,9 @@ func main() {
 			app,
 		},
 		Windows: &windows.Options{
-			WebviewIsTransparent: false,
-			WindowIsTranslucent:  false,
-			BackdropType:         windows.Mica,
+			WebviewIsTransparent: true,
+			WindowIsTranslucent:  true,
+			BackdropType:         windows.Acrylic,
 			Theme:                windows.Dark,
 		},
 	})
