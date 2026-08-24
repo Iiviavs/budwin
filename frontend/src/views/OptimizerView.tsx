@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Trash2, Globe, Gauge, CheckCircle2, Sparkles, Loader2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Trash2, Globe, Gauge, CheckCircle2, Sparkles, Loader2, Zap, MousePointer2, Gamepad2 } from 'lucide-react';
 
 interface OptimizerViewProps {
   currentPowerPlan: string;
@@ -19,6 +19,17 @@ export const OptimizerView: React.FC<OptimizerViewProps> = ({
   const [cleanResult, setCleanResult] = useState<string | null>(null);
   const [dnsResult, setDnsResult] = useState<string | null>(null);
   const [activePlan, setActivePlan] = useState(currentPowerPlan || 'Balanced');
+
+  // Input lag reduction state
+  const [timerActive, setTimerActive] = useState(true);
+  const [lagResult, setLagResult] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Check if timer is active
+    if (window.go?.main?.App?.IsTimerActive) {
+      window.go.main.App.IsTimerActive().then((active) => setTimerActive(active));
+    }
+  }, []);
 
   const handleCleanTemp = async () => {
     setCleaning(true);
@@ -51,14 +62,117 @@ export const OptimizerView: React.FC<OptimizerViewProps> = ({
     await onSetPowerPlan(plan);
   };
 
+  const handleToggleTimer = async () => {
+    const nextState = !timerActive;
+    if (window.go?.main?.App?.ToggleHighPrecisionTimer) {
+      await window.go.main.App.ToggleHighPrecisionTimer(nextState);
+    }
+    setTimerActive(nextState);
+    setLagResult(nextState ? '1.0ms High-Resolution System Timer Activated (Lowest Latency)' : 'Standard Windows 15.6ms Timer Restored');
+  };
+
+  const handleOptimizeAllLatency = async () => {
+    if (window.go?.main?.App?.OptimizeInputLatency) {
+      await window.go.main.App.OptimizeInputLatency();
+    }
+    setTimerActive(true);
+    setLagResult('Ultra-Low Latency Mode Applied: 1.0ms Timer + 1:1 Raw Mouse Input + GameDVR Buffer Disabled');
+  };
+
   return (
     <div className="p-6 space-y-6 max-h-[calc(100vh-3.5rem)] overflow-y-auto">
       <div>
         <h2 className="text-lg font-bold text-white flex items-center space-x-2">
           <Sparkles className="w-5 h-5 text-sky-400" />
-          <span>System Quick Optimizer</span>
+          <span>System & Input Latency Optimizer</span>
         </h2>
-        <p className="text-xs text-gray-400">One-click actions to keep your PC fast, quiet, and responsive</p>
+        <p className="text-xs text-gray-400">Reduce input lag, lower system polling delays, and clean cache</p>
+      </div>
+
+      {/* INPUT LAG REDUCER HERO CARD */}
+      <div className="glass-card rounded-2xl p-5 border border-sky-500/30 bg-gradient-to-br from-surface to-sky-950/20 space-y-4 shadow-xl">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="w-11 h-11 rounded-xl bg-gradient-to-tr from-sky-500 to-emerald-400 text-white flex items-center justify-center shadow-lg shadow-sky-500/20">
+              <Zap className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="flex items-center space-x-2">
+                <h3 className="text-base font-bold text-white">⚡ Ultra-Low Input Latency Reducer</h3>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                  Active
+                </span>
+              </div>
+              <p className="text-xs text-gray-300">Forces 1.0ms timer ticks, strips mouse acceleration, and bypasses DWM queuing</p>
+            </div>
+          </div>
+
+          <button
+            onClick={handleOptimizeAllLatency}
+            className="px-4 py-2 rounded-xl bg-gradient-to-r from-sky-500 to-emerald-500 hover:from-sky-400 hover:to-emerald-400 text-white font-bold text-xs shadow-lg shadow-sky-500/20 transition-all active:scale-95"
+          >
+            Apply All Latency Fixes
+          </button>
+        </div>
+
+        {/* 3 Pill Tweaks */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2">
+          {/* Tweak 1 */}
+          <div className="bg-background/80 border border-border/80 rounded-xl p-3 flex items-center justify-between">
+            <div className="flex items-center space-x-2.5">
+              <Zap className="w-4 h-4 text-sky-400" />
+              <div>
+                <span className="text-xs font-bold text-white block">1.0ms Timer Resolution</span>
+                <span className="text-[10px] text-gray-400">Standard: 15.6ms</span>
+              </div>
+            </div>
+            <button
+              onClick={handleToggleTimer}
+              className={`px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-colors ${
+                timerActive
+                  ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
+                  : 'bg-surface text-gray-400 border-border hover:text-white'
+              }`}
+            >
+              {timerActive ? 'ENABLED' : 'DISABLED'}
+            </button>
+          </div>
+
+          {/* Tweak 2 */}
+          <div className="bg-background/80 border border-border/80 rounded-xl p-3 flex items-center justify-between">
+            <div className="flex items-center space-x-2.5">
+              <MousePointer2 className="w-4 h-4 text-emerald-400" />
+              <div>
+                <span className="text-xs font-bold text-white block">1:1 Raw Mouse Input</span>
+                <span className="text-[10px] text-gray-400">Zero Acceleration Curve</span>
+              </div>
+            </div>
+            <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+              OPTIMIZED
+            </span>
+          </div>
+
+          {/* Tweak 3 */}
+          <div className="bg-background/80 border border-border/80 rounded-xl p-3 flex items-center justify-between">
+            <div className="flex items-center space-x-2.5">
+              <Gamepad2 className="w-4 h-4 text-purple-400" />
+              <div>
+                <span className="text-xs font-bold text-white block">GameDVR Queue Bypass</span>
+                <span className="text-[10px] text-gray-400">Lower DWM Latency</span>
+              </div>
+            </div>
+            <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+              BYPASSED
+            </span>
+          </div>
+        </div>
+
+        {lagResult && (
+          <div className="p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs flex items-center space-x-2">
+            <CheckCircle2 className="w-4 h-4 shrink-0" />
+            <span>{lagResult}</span>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

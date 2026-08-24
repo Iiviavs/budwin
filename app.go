@@ -6,6 +6,7 @@ import (
 	"budwin/pkg/hardware"
 	"budwin/pkg/optimizer"
 	"budwin/pkg/process"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 // App struct
@@ -21,8 +22,7 @@ func NewApp() *App {
 	}
 }
 
-// startup is called when the app starts. The context is saved
-// so we can call the runtime methods
+// startup is called when the app starts.
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 }
@@ -64,4 +64,29 @@ func (a *App) SetPowerPlan(plan string) bool {
 
 func (a *App) GetActivePowerPlan() string {
 	return optimizer.GetActivePowerPlan()
+}
+
+// Input Lag Reducer API
+func (a *App) ToggleHighPrecisionTimer(enable bool) bool {
+	if enable {
+		return optimizer.EnableHighPrecisionTimer()
+	}
+	return optimizer.DisableHighPrecisionTimer()
+}
+
+func (a *App) IsTimerActive() bool {
+	return optimizer.IsTimerActive()
+}
+
+func (a *App) OptimizeInputLatency() bool {
+	return optimizer.OptimizeInputLatency()
+}
+
+// Window visibility controls
+func (a *App) HideWindow() {
+	runtime.WindowHide(a.ctx)
+}
+
+func (a *App) ShowWindow() {
+	runtime.WindowShow(a.ctx)
 }

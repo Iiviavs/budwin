@@ -15,6 +15,16 @@ export function GetProcesses():Promise<Array<process.ProcessItem>>;
 
 export function GetTelemetry():Promise<hardware.TelemetrySnapshot>;
 
+export function HideWindow():Promise<void>;
+
+export function IsTimerActive():Promise<boolean>;
+
 export function KillProcess(arg1:number):Promise<boolean>;
 
+export function OptimizeInputLatency():Promise<boolean>;
+
 export function SetPowerPlan(arg1:string):Promise<boolean>;
+
+export function ShowWindow():Promise<void>;
+
+export function ToggleHighPrecisionTimer(arg1:boolean):Promise<boolean>;

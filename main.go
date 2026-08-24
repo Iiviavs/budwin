@@ -18,11 +18,12 @@ func main() {
 
 	// Create application with options
 	err := wails.Run(&options.App{
-		Title:     "budwin",
-		Width:     960,
-		Height:    680,
-		MinWidth:  800,
-		MinHeight: 560,
+		Title:              "budwin",
+		Width:              960,
+		Height:             680,
+		MinWidth:           380,
+		MinHeight:          520,
+		HideWindowOnClose:  true, // Minimizes directly to Windows System Tray / Taskbar
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},

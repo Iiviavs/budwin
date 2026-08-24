@@ -26,10 +26,30 @@ export function GetTelemetry() {
   return window['go']['main']['App']['GetTelemetry']();
 }
 
+export function HideWindow() {
+  return window['go']['main']['App']['HideWindow']();
+}
+
+export function IsTimerActive() {
+  return window['go']['main']['App']['IsTimerActive']();
+}
+
 export function KillProcess(arg1) {
   return window['go']['main']['App']['KillProcess'](arg1);
 }
 
+export function OptimizeInputLatency() {
+  return window['go']['main']['App']['OptimizeInputLatency']();
+}
+
 export function SetPowerPlan(arg1) {
   return window['go']['main']['App']['SetPowerPlan'](arg1);
+}
+
+export function ShowWindow() {
+  return window['go']['main']['App']['ShowWindow']();
+}
+
+export function ToggleHighPrecisionTimer(arg1) {
+  return window['go']['main']['App']['ToggleHighPrecisionTimer'](arg1);
 }
