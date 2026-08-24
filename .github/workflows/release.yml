@@ -29,23 +29,16 @@ jobs:
           go-version: 'stable'
           cache: true
 
-      - name: Install Frontend Dependencies
+      - name: Build Frontend Assets
         run: |
           cd frontend
           npm install
+          npm run build
           cd ..
 
-      - name: Install Wails CLI
-        run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
-
-      - name: Sync Go Modules
-        run: go mod tidy
-
       - name: Build Standalone Executable
-        env:
-          GO111MODULE: on
         run: |
-          wails build -clean -platform windows/amd64 -o budwin.exe -skipbindings
+          go build -tags desktop,production -ldflags "-w -s -H windowsgui" -o build/bin/budwin.exe .
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
