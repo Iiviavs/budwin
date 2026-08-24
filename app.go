@@ -2,12 +2,24 @@ package main
 
 import (
 	"context"
+	"syscall"
 
 	"budwin/pkg/hardware"
 	"budwin/pkg/optimizer"
 	"budwin/pkg/process"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
+
+var (
+	user32               = syscall.NewLazyDLL("user32.dll")
+	procGetSystemMetrics = user32.NewProc("GetSystemMetrics")
+)
+
+func getScreenSize() (int, int) {
+	w, _, _ := procGetSystemMetrics.Call(0) // SM_CXSCREEN
+	h, _, _ := procGetSystemMetrics.Call(1) // SM_CYSCREEN
+	return int(w), int(h)
+}
 
 // App struct
 type App struct {
@@ -112,13 +124,37 @@ func (a *App) SetAlwaysOnTop(onTop bool) {
 	runtime.WindowSetAlwaysOnTop(a.ctx, onTop)
 }
 
-func (a *App) SetHudMode(isHud bool) {
+func (a *App) SetHudMode(isHud bool, hudType string) {
 	if isHud {
 		runtime.WindowSetAlwaysOnTop(a.ctx, true)
-		runtime.WindowSetSize(a.ctx, 360, 68)
+		if hudType == "card" {
+			runtime.WindowSetSize(a.ctx, 220, 180)
+		} else {
+			runtime.WindowSetSize(a.ctx, 360, 48) // Ultra-compact see-through pill
+		}
 	} else {
 		runtime.WindowSetAlwaysOnTop(a.ctx, false)
 		runtime.WindowSetSize(a.ctx, 1060, 700)
+	}
+}
+
+func (a *App) SnapHudPosition(corner string) {
+	screenWidth, screenHeight := getScreenSize()
+	if screenWidth == 0 {
+		screenWidth = 1920
+		screenHeight = 1080
+	}
+	w, h := runtime.WindowGetSize(a.ctx)
+
+	switch corner {
+	case "top-left":
+		runtime.WindowSetPosition(a.ctx, 24, 24)
+	case "top-right":
+		runtime.WindowSetPosition(a.ctx, screenWidth-w-24, 24)
+	case "bottom-right":
+		runtime.WindowSetPosition(a.ctx, screenWidth-w-24, screenHeight-h-60)
+	case "bottom-left":
+		runtime.WindowSetPosition(a.ctx, 24, screenHeight-h-60)
 	}
 }
 

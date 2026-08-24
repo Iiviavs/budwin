@@ -14,6 +14,7 @@ import { Maximize2, Cpu, Zap, HardDrive, Wifi, ShieldAlert, AlertTriangle, Check
 
 export function App() {
   const [viewMode, setViewMode] = useState<'full' | 'mini' | 'hud'>('full');
+  const [hudType, setHudType] = useState<'pill' | 'card'>('pill');
   const [activeTab, setActiveTab] = useState<TabType>('overview');
   const [telemetry, setTelemetry] = useState<TelemetrySnapshot | null>(null);
   const [processes, setProcesses] = useState<ProcessItem[]>([]);
@@ -39,27 +40,34 @@ export function App() {
     net: Array(60).fill(120),
   });
 
-  const switchViewMode = (mode: 'full' | 'mini' | 'hud') => {
+  const switchViewMode = (mode: 'full' | 'mini' | 'hud', type: 'pill' | 'card' = hudType) => {
     setViewMode(mode);
+    setHudType(type);
     if (mode === 'hud') {
       if (window.go?.main?.App?.SetHudMode) {
-        window.go.main.App.SetHudMode(true);
+        window.go.main.App.SetHudMode(true, type);
       } else {
-        window.runtime?.WindowSetSize?.(360, 68);
+        window.runtime?.WindowSetSize?.(type === 'card' ? 220 : 360, type === 'card' ? 180 : 48);
         window.runtime?.WindowSetAlwaysOnTop?.(true);
       }
     } else if (mode === 'mini') {
       if (window.go?.main?.App?.SetHudMode) {
-        window.go.main.App.SetHudMode(false);
+        window.go.main.App.SetHudMode(false, type);
       }
       window.runtime?.WindowSetSize?.(380, 580);
       window.runtime?.WindowSetAlwaysOnTop?.(false);
     } else {
       if (window.go?.main?.App?.SetHudMode) {
-        window.go.main.App.SetHudMode(false);
+        window.go.main.App.SetHudMode(false, type);
       }
       window.runtime?.WindowSetSize?.(1060, 700);
       window.runtime?.WindowSetAlwaysOnTop?.(false);
+    }
+  };
+
+  const handleSnap = (corner: string) => {
+    if (window.go?.main?.App?.SnapHudPosition) {
+      window.go.main.App.SnapHudPosition(corner);
     }
   };
 
@@ -232,7 +240,7 @@ export function App() {
     return `${Math.round(kb)} KB/s`;
   };
 
-  // FLOATING ALWAYS-ON-TOP MINI HUD VIEW
+  // 1. FLOATING ALWAYS-ON-TOP SEE-THROUGH GLASS HUD
   if (viewMode === 'hud') {
     return (
       <FloatingHudView
@@ -240,11 +248,14 @@ export function App() {
         timerActive={timerActive}
         onExpand={() => switchViewMode('full')}
         onClose={() => window.runtime?.WindowHide?.()}
+        onSnap={handleSnap}
+        onToggleType={(type) => switchViewMode('hud', type)}
+        hudType={hudType}
       />
     );
   }
 
-  // MINI TRAY COMPANION VIEW
+  // 2. MINI TRAY COMPANION VIEW
   if (viewMode === 'mini') {
     const cpuVal = telemetry ? Math.round(telemetry.cpuPercent) : 0;
     const gpuVal = telemetry?.gpu.isAvailable ? Math.round(telemetry.gpu.coreUtilization) : 0;
@@ -252,7 +263,7 @@ export function App() {
     const netInVal = telemetry ? telemetry.netInKb : 0;
 
     return (
-      <div className="h-screen w-screen bg-background border border-border flex flex-col justify-between p-3.5 select-none font-sans text-gray-100">
+      <div className="h-screen w-screen bg-background border border-border flex flex-col justify-between p-3.5 select-none font-sans text-gray-100 rounded-2xl overflow-hidden">
         {/* Header with Raccoon Mascot */}
         <div className="flex items-center justify-between pb-2.5 border-b border-border/80 draggable">
           <div className="flex items-center space-x-2.5 non-draggable">
@@ -267,9 +278,9 @@ export function App() {
 
           <div className="flex items-center space-x-1.5 non-draggable">
             <button
-              onClick={() => switchViewMode('hud')}
+              onClick={() => switchViewMode('hud', 'pill')}
               className="p-1 rounded hover:bg-surfaceHover text-gray-400 hover:text-accent-lime transition-colors"
-              title="Pin as Floating Always-on-Top HUD"
+              title="Pin as Floating See-Through HUD"
             >
               <Pin className="w-3.5 h-3.5" />
             </button>
@@ -437,9 +448,9 @@ export function App() {
     );
   }
 
-  // FULL SIZED LUXURY DARK APP VIEW (Discord / Chompchain layout)
+  // 3. FULL SIZED LUXURY DARK APP VIEW (Discord / Chompchain layout)
   return (
-    <div className="h-screen w-screen bg-background flex flex-col select-none text-gray-100 font-sans overflow-hidden border border-border">
+    <div className="h-screen w-screen bg-background flex flex-col select-none text-gray-100 font-sans overflow-hidden border border-border rounded-2xl">
       {/* Discord Style Frameless Titlebar */}
       <Titlebar
         timerActive={timerActive}
@@ -456,7 +467,7 @@ export function App() {
         <Sidebar
           activeTab={activeTab}
           setActiveTab={setActiveTab}
-          onToggleHud={() => switchViewMode('hud')}
+          onToggleHud={() => switchViewMode('hud', 'pill')}
         />
 
         <main className="flex-1 overflow-hidden bg-background">

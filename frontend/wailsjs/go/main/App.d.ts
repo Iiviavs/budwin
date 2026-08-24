@@ -32,11 +32,13 @@ export function PurgeStandbyRAM():Promise<number>;
 
 export function SetAlwaysOnTop(arg1:boolean):Promise<void>;
 
-export function SetHudMode(arg1:boolean):Promise<void>;
+export function SetHudMode(arg1:boolean,arg2:string):Promise<void>;
 
 export function SetPowerPlan(arg1:string):Promise<boolean>;
 
 export function ShowWindow():Promise<void>;
+
+export function SnapHudPosition(arg1:string):Promise<void>;
 
 export function ToggleGameBoost(arg1:boolean):Promise<optimizer.GameBoostResult>;
 
