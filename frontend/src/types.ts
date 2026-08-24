@@ -43,6 +43,50 @@ export interface DriveItem {
   percentUsed: number;
 }
 
+export interface StorageCategoryItem {
+  id: string;
+  name: string;
+  description: string;
+  sizeMb: number;
+  cleanable: boolean;
+  iconType: string;
+}
+
+export interface StorageScanResult {
+  totalCleanableMb: number;
+  categories: StorageCategoryItem[];
+}
+
+export interface GameDuplicateItem {
+  id: string;
+  gameName: string;
+  category: string;
+  path: string;
+  sizeMb: number;
+  description: string;
+}
+
+export interface GameHunterScanResult {
+  totalDuplicateMb: number;
+  items: GameDuplicateItem[];
+}
+
+export interface AudioLatencyStatus {
+  isOptimized: boolean;
+  bufferLatencyMs: number;
+  mmcssPriority: string;
+  exclusiveMode: boolean;
+  systemResponsive: number;
+}
+
+export interface FpsTweakStatus {
+  ultimatePowerPlanActive: boolean;
+  gameDvrDisabled: boolean;
+  cpuCoreParkingDisabled: boolean;
+  highPriorityQueueActive: boolean;
+  gpuSchedulingUnlocked: boolean;
+}
+
 export interface GameBoostResult {
   active: boolean;
   freedRamMb: number;
@@ -69,6 +113,19 @@ export interface BenchmarkSummary {
   stabilityScore: number;
   verdict: string;
   samplesCount: number;
+}
+
+export interface MonitorInfo {
+  index: number;
+  name: string;
+  isPrimary: boolean;
+  width: number;
+  height: number;
+}
+
+export interface MultiMonitorSettings {
+  dimSecondaryMonitors: boolean;
+  autoDimOnGameLaunch: boolean;
 }
 
 export interface StartupItem {
@@ -101,6 +158,14 @@ declare global {
           GetTelemetry?: () => Promise<TelemetrySnapshot>;
           GetProcesses?: () => Promise<ProcessItem[]>;
           GetDrives?: () => Promise<DriveItem[]>;
+          ScanCleanableStorage?: () => Promise<StorageScanResult>;
+          CleanStorageCategory?: (categoryID: string) => Promise<number>;
+          ScanGameDuplicates?: () => Promise<GameHunterScanResult>;
+          PurgeGameDuplicates?: (itemID: string) => Promise<number>;
+          GetAudioLatencyStatus?: () => Promise<AudioLatencyStatus>;
+          OptimizeAudioLatency?: () => Promise<AudioLatencyStatus>;
+          ApplyUltimateFpsBoost?: () => Promise<FpsTweakStatus>;
+          GetFpsOptimizationStatus?: () => Promise<FpsTweakStatus>;
           KillProcess?: (pid: number) => Promise<boolean>;
           CleanTempFiles?: () => Promise<number>;
           FlushDNS?: () => Promise<boolean>;
@@ -117,6 +182,9 @@ declare global {
           StartBenchmark?: () => Promise<BenchmarkSummary>;
           StopBenchmark?: () => Promise<BenchmarkSummary>;
           GetBenchmarkStatus?: () => Promise<BenchmarkSummary>;
+          GetMonitors?: () => Promise<MonitorInfo[]>;
+          GetMultiMonitorSettings?: () => Promise<MultiMonitorSettings>;
+          SetMultiMonitorSettings?: (settings: MultiMonitorSettings) => Promise<MultiMonitorSettings>;
           GetStartupItems?: () => Promise<StartupItem[]>;
           ToggleStartupItem?: (name: string, location: string, enable: boolean) => Promise<boolean>;
           GetActiveAlerts?: () => Promise<AlertItem[]>;
@@ -124,12 +192,14 @@ declare global {
           ResolveAlert?: (id: string, alertType: string, targetPid: number) => Promise<boolean>;
           SetAlwaysOnTop?: (onTop: boolean) => Promise<void>;
           SetHudMode?: (isHud: boolean) => Promise<void>;
+          SetMiniMode?: (isMini: boolean) => Promise<void>;
           HideWindow?: () => Promise<void>;
           ShowWindow?: () => Promise<void>;
         };
       };
     };
     runtime?: {
+      EventsOn?: (eventName: string, callback: (...args: any[]) => void) => void;
       WindowMinimise?: () => void;
       WindowToggleMaximise?: () => void;
       WindowSetSize?: (width: number, height: number) => void;

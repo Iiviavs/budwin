@@ -7,6 +7,7 @@ import (
 	"budwin/pkg/hardware"
 	"budwin/pkg/optimizer"
 	"budwin/pkg/process"
+	"budwin/pkg/storage"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
@@ -56,6 +57,41 @@ func (a *App) GetProcesses() []process.ProcessItem {
 
 func (a *App) GetDrives() []hardware.DriveItem {
 	return hardware.GetDrives()
+}
+
+// Storage Space Reclaimer & Game Duplicate Hunter API
+func (a *App) ScanCleanableStorage() storage.StorageScanResult {
+	return storage.ScanCleanableStorage()
+}
+
+func (a *App) CleanStorageCategory(categoryID string) float64 {
+	return storage.CleanStorageCategory(categoryID)
+}
+
+func (a *App) ScanGameDuplicates() storage.GameHunterScanResult {
+	return storage.ScanGameDuplicates()
+}
+
+func (a *App) PurgeGameDuplicates(itemID string) float64 {
+	return storage.PurgeGameDuplicates(itemID)
+}
+
+// Audio Latency & Exclusive Buffer API
+func (a *App) GetAudioLatencyStatus() optimizer.AudioLatencyStatus {
+	return optimizer.GetAudioLatencyStatus()
+}
+
+func (a *App) OptimizeAudioLatency() optimizer.AudioLatencyStatus {
+	return optimizer.OptimizeAudioLatency()
+}
+
+// Competitive FPS Maxer & Core Unparker API
+func (a *App) ApplyUltimateFpsBoost() optimizer.FpsTweakStatus {
+	return optimizer.ApplyUltimateFpsBoost()
+}
+
+func (a *App) GetFpsOptimizationStatus() optimizer.FpsTweakStatus {
+	return optimizer.GetFpsOptimizationStatus()
 }
 
 func (a *App) KillProcess(pid int32) bool {
@@ -148,6 +184,19 @@ func (a *App) ToggleStartupItem(name string, location string, enable bool) bool 
 	return optimizer.ToggleStartupItem(name, location, enable)
 }
 
+// Multi-Monitor Gaming Mode API
+func (a *App) GetMonitors() []optimizer.MonitorInfo {
+	return optimizer.GetMonitors()
+}
+
+func (a *App) GetMultiMonitorSettings() optimizer.MultiMonitorSettings {
+	return optimizer.GetMultiMonitorSettings()
+}
+
+func (a *App) SetMultiMonitorSettings(settings optimizer.MultiMonitorSettings) optimizer.MultiMonitorSettings {
+	return optimizer.SetMultiMonitorSettings(settings)
+}
+
 // Smart Thermal & Rogue Process Alerts API
 func (a *App) GetActiveAlerts() []hardware.AlertItem {
 	return hardware.GetAlertEngine().GetAlerts()
@@ -175,7 +224,7 @@ func (a *App) SetAlwaysOnTop(onTop bool) {
 func (a *App) SetHudMode(isHud bool) {
 	if isHud {
 		runtime.WindowSetAlwaysOnTop(a.ctx, true)
-		hudW, hudH := 280, 36
+		hudW, hudH := 345, 36
 		runtime.WindowSetMinSize(a.ctx, hudW, hudH)
 		runtime.WindowSetMaxSize(a.ctx, hudW, hudH)
 		runtime.WindowSetSize(a.ctx, hudW, hudH)
@@ -185,6 +234,30 @@ func (a *App) SetHudMode(isHud bool) {
 			screenWidth = 1920
 		}
 		runtime.WindowSetPosition(a.ctx, screenWidth-hudW-20, 20)
+	} else {
+		runtime.WindowSetAlwaysOnTop(a.ctx, false)
+		runtime.WindowSetMinSize(a.ctx, 380, 520)
+		runtime.WindowSetMaxSize(a.ctx, 3840, 2160)
+		runtime.WindowSetSize(a.ctx, 1060, 700)
+		runtime.WindowCenter(a.ctx)
+	}
+}
+
+func (a *App) SetMiniMode(isMini bool) {
+	if isMini {
+		runtime.WindowSetAlwaysOnTop(a.ctx, false)
+		miniW, miniH := 380, 580
+		runtime.WindowSetMinSize(a.ctx, miniW, miniH)
+		runtime.WindowSetMaxSize(a.ctx, miniW, miniH)
+		runtime.WindowSetSize(a.ctx, miniW, miniH)
+
+		screenWidth, screenHeight := getScreenSize()
+		if screenWidth == 0 {
+			screenWidth = 1920
+			screenHeight = 1080
+		}
+		// Position at bottom-right right above the Windows taskbar
+		runtime.WindowSetPosition(a.ctx, screenWidth-miniW-16, screenHeight-miniH-56)
 	} else {
 		runtime.WindowSetAlwaysOnTop(a.ctx, false)
 		runtime.WindowSetMinSize(a.ctx, 380, 520)

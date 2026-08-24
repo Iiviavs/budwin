@@ -81,7 +81,7 @@ export const BenchmarkView: React.FC<BenchmarkViewProps> = ({
   };
 
   return (
-    <div className="p-6 space-y-6 max-h-[calc(100vh-2.5rem)] overflow-y-auto font-sans">
+    <div className="p-6 space-y-5 pb-20 font-sans">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
