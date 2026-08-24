@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ApplicationManifest>Resources\app.manifest</ApplicationManifest>
+    <RootNamespace>Budwin</RootNamespace>
+    <AssemblyName>budwin</AssemblyName>
+    
+    <!-- Packaging Properties -->
+    <Version>1.0.0</Version>
+    <Authors>crynn</Authors>
+    <Company>Budwin Open Source</Company>
+    <Product>Budwin</Product>
+    <Description>A lightweight, native menu bar and system tray companion for Windows 11/10.</Description>
+    <RepositoryUrl>https://github.com/crynn/budwin</RepositoryUrl>
+    
+    <!-- Single File Output Settings -->
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>false</SelfContained>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Update="Resources\app.manifest">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

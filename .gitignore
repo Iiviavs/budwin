@@ -1,0 +1,18 @@
+## .NET Core / Visual Studio
+[Bb]in/
+[Oo]bj/
+publish/
+*.user
+*.userosscache
+*.sln.docstates
+.vs/
+.vscode/
+
+## Build Artifacts
+*.exe
+*.dll
+*.pdb
+*.log
+
+# Keep project icons
+!src/Budwin/Resources/icon.ico
