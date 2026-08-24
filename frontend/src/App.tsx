@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Navbar, TabType } from './components/Navbar';
+import { Titlebar } from './components/Titlebar';
+import { Sidebar } from './components/Sidebar';
+import { TabType } from './components/Navbar';
 import { OverviewView } from './views/OverviewView';
 import { ProcessesView } from './views/ProcessesView';
 import { StorageView } from './views/StorageView';
@@ -32,6 +34,7 @@ declare global {
     };
     runtime?: {
       WindowMinimise?: () => void;
+      WindowToggleMaximise?: () => void;
       WindowSetSize?: (width: number, height: number) => void;
       WindowHide?: () => void;
       Quit?: () => void;
@@ -70,7 +73,7 @@ export function App() {
     if (toMini) {
       window.runtime?.WindowSetSize?.(380, 580);
     } else {
-      window.runtime?.WindowSetSize?.(960, 680);
+      window.runtime?.WindowSetSize?.(1060, 700);
     }
   };
 
@@ -224,32 +227,41 @@ export function App() {
     const netInVal = telemetry ? telemetry.netInKb : 0;
 
     return (
-      <div className="h-screen w-screen bg-background border border-border/80 flex flex-col justify-between p-4 select-none font-sans text-gray-100">
+      <div className="h-screen w-screen bg-background border border-border flex flex-col justify-between p-3.5 select-none font-sans text-gray-100">
         {/* Header with Raccoon Mascot */}
-        <div className="flex items-center justify-between pb-3 border-b border-border/60">
-          <div className="flex items-center space-x-2.5">
-            <div className="w-7 h-7 rounded-full overflow-hidden border border-sky-400/40 shadow-sm bg-surface">
+        <div className="flex items-center justify-between pb-2.5 border-b border-border/80 draggable">
+          <div className="flex items-center space-x-2.5 non-draggable">
+            <div className="w-7 h-7 rounded-full overflow-hidden border border-accent-lime/40 shadow-sm bg-surface">
               <img src="/logo.png" alt="budwin mascot" className="w-full h-full object-cover scale-110" />
             </div>
             <div>
               <span className="font-bold text-sm text-white block leading-tight">budwin</span>
-              <span className="text-[10px] text-gray-400">Tray Companion</span>
+              <span className="text-[10px] text-accent-lime font-medium">Tray Widget</span>
             </div>
           </div>
 
-          <button
-            onClick={() => toggleMiniMode(false)}
-            className="flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 border border-sky-500/20 text-xs font-bold transition-all shadow-sm"
-          >
-            <span>See More</span>
-            <Maximize2 className="w-3.5 h-3.5" />
-          </button>
+          <div className="flex items-center space-x-1.5 non-draggable">
+            <button
+              onClick={() => toggleMiniMode(false)}
+              className="flex items-center space-x-1 px-2 py-1 rounded-lg bg-accent-lime/10 hover:bg-accent-lime/20 text-accent-lime border border-accent-lime/30 text-[11px] font-bold transition-all shadow-sm"
+            >
+              <span>See More</span>
+              <Maximize2 className="w-3 h-3" />
+            </button>
+            <button
+              onClick={() => window.runtime?.WindowHide?.()}
+              className="w-6 h-6 rounded flex items-center justify-center text-gray-400 hover:text-white hover:bg-rose-500/80 transition-colors text-xs"
+              title="Close to Tray"
+            >
+              ✕
+            </button>
+          </div>
         </div>
 
         {/* 2x2 Mini Metrics Grid */}
-        <div className="grid grid-cols-2 gap-2.5 my-2.5">
+        <div className="grid grid-cols-2 gap-2.5 my-2">
           {/* CPU Card */}
-          <div className="glass-card rounded-xl p-3 flex flex-col justify-between">
+          <div className="glass-card rounded-2xl p-3 flex flex-col justify-between border border-border">
             <div className="flex justify-between items-center text-xs">
               <span className="flex items-center space-x-1 font-bold text-sky-400">
                 <Cpu className="w-3.5 h-3.5" />
@@ -260,11 +272,11 @@ export function App() {
             <div className="my-1.5">
               <Sparkline data={history.cpu} max={100} color="#38bdf8" gradientId="miniCpu" height={32} />
             </div>
-            <span className="text-[10px] text-gray-400">60s Trend</span>
+            <span className="text-[10px] text-gray-400">60s History</span>
           </div>
 
           {/* GPU Card */}
-          <div className="glass-card rounded-xl p-3 flex flex-col justify-between">
+          <div className="glass-card rounded-2xl p-3 flex flex-col justify-between border border-border">
             <div className="flex justify-between items-center text-xs">
               <span className="flex items-center space-x-1 font-bold text-emerald-400">
                 <Zap className="w-3.5 h-3.5" />
@@ -275,7 +287,7 @@ export function App() {
               </span>
             </div>
             <div className="my-1.5">
-              <Sparkline data={history.gpu} max={100} color="#4ade80" gradientId="miniGpu" height={32} />
+              <Sparkline data={history.gpu} max={100} color="#22c55e" gradientId="miniGpu" height={32} />
             </div>
             <span className="text-[10px] text-gray-400">
               {telemetry?.gpu.isAvailable ? `${telemetry.gpu.temperatureC}°C Temp` : 'NVIDIA'}
@@ -283,7 +295,7 @@ export function App() {
           </div>
 
           {/* RAM Card */}
-          <div className="glass-card rounded-xl p-3 flex flex-col justify-between">
+          <div className="glass-card rounded-2xl p-3 flex flex-col justify-between border border-border">
             <div className="flex justify-between items-center text-xs">
               <span className="flex items-center space-x-1 font-bold text-purple-400">
                 <HardDrive className="w-3.5 h-3.5" />
@@ -300,7 +312,7 @@ export function App() {
           </div>
 
           {/* Net Card */}
-          <div className="glass-card rounded-xl p-3 flex flex-col justify-between">
+          <div className="glass-card rounded-2xl p-3 flex flex-col justify-between border border-border">
             <div className="flex justify-between items-center text-xs">
               <span className="flex items-center space-x-1 font-bold text-cyan-400">
                 <Wifi className="w-3.5 h-3.5" />
@@ -316,17 +328,17 @@ export function App() {
         </div>
 
         {/* Input Lag 1-Click Status Badge */}
-        <div className="bg-surface/80 border border-border/80 rounded-xl p-2 flex items-center justify-between text-xs">
+        <div className="bg-surface border border-border rounded-xl p-2 flex items-center justify-between text-xs">
           <div className="flex items-center space-x-2">
-            <Zap className="w-3.5 h-3.5 text-sky-400" />
+            <Zap className="w-3.5 h-3.5 text-accent-lime" />
             <span className="text-[11px] font-semibold text-gray-200">1.0ms Low Latency</span>
           </div>
           <button
             onClick={handleToggleTimer}
-            className={`px-2 py-0.5 rounded text-[10px] font-bold border transition-colors ${
+            className={`px-2.5 py-0.5 rounded text-[10px] font-bold border transition-colors ${
               timerActive
-                ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
-                : 'bg-surface text-gray-400 border-border hover:text-white'
+                ? 'bg-accent-lime/10 text-accent-lime border-accent-lime/30'
+                : 'bg-surfaceHover text-gray-400 border-border hover:text-white'
             }`}
           >
             {timerActive ? 'ACTIVE' : 'OFF'}
@@ -334,7 +346,7 @@ export function App() {
         </div>
 
         {/* Top Apps Leaderboard */}
-        <div className="glass-card rounded-xl p-2.5 flex-1 flex flex-col justify-between overflow-hidden my-2">
+        <div className="glass-card rounded-2xl p-2.5 flex-1 flex flex-col justify-between overflow-hidden my-2 border border-border">
           <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">
             Top Apps (With Safety Shields)
           </div>
@@ -345,7 +357,7 @@ export function App() {
               const isBackground = proc.category === 'background';
 
               return (
-                <div key={proc.pid} className="flex items-center justify-between p-1.5 rounded-lg bg-surface/50 text-xs">
+                <div key={proc.pid} className="flex items-center justify-between p-1.5 rounded-lg bg-surfaceHover/50 text-xs">
                   <div className="flex items-center space-x-2 truncate">
                     <span className="shrink-0">
                       {isProtected ? (
@@ -378,7 +390,7 @@ export function App() {
           {/* See More Banner */}
           <button
             onClick={() => toggleMiniMode(false)}
-            className="w-full mt-1.5 py-1.5 rounded-lg bg-surfaceHover hover:bg-border text-center text-xs font-semibold text-sky-400 transition-colors"
+            className="w-full mt-1.5 py-1.5 rounded-xl bg-accent-lime/10 hover:bg-accent-lime/20 text-center text-xs font-bold text-accent-lime border border-accent-lime/20 transition-all shadow-sm"
           >
             Open Full Dashboard & Optimizer ↗
           </button>
@@ -393,37 +405,46 @@ export function App() {
     );
   }
 
-  // FULL SIZED APP VIEW (960x680)
+  // FULL SIZED LUXURY DARK APP VIEW (Discord / Chompchain layout)
   return (
-    <div className="h-screen w-screen bg-background flex flex-col select-none text-gray-100 font-sans">
-      <Navbar
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        onMinimize={() => toggleMiniMode(true)}
+    <div className="h-screen w-screen bg-background flex flex-col select-none text-gray-100 font-sans overflow-hidden border border-border">
+      {/* Discord Style Frameless Titlebar */}
+      <Titlebar
+        timerActive={timerActive}
+        powerPlan={powerPlan}
+        isMiniMode={false}
+        onToggleMini={() => toggleMiniMode(true)}
+        onMinimize={() => window.runtime?.WindowMinimise?.()}
+        onMaximize={() => window.runtime?.WindowToggleMaximise?.()}
         onClose={() => window.runtime?.WindowHide?.()}
       />
 
-      <main className="flex-1 overflow-hidden">
-        {activeTab === 'overview' && (
-          <OverviewView telemetry={telemetry} history={history} />
-        )}
-        {activeTab === 'processes' && (
-          <ProcessesView
-            processes={processes}
-            onRefresh={loadProcesses}
-            onKillProcess={handleKillProcess}
-          />
-        )}
-        {activeTab === 'storage' && <StorageView drives={drives} />}
-        {activeTab === 'optimizer' && (
-          <OptimizerView
-            currentPowerPlan={powerPlan}
-            onCleanTemp={handleCleanTemp}
-            onFlushDNS={handleFlushDNS}
-            onSetPowerPlan={handleSetPowerPlan}
-          />
-        )}
-      </main>
+      {/* Main App Layout with Left Sidebar + View Container */}
+      <div className="flex-1 flex overflow-hidden">
+        <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+
+        <main className="flex-1 overflow-hidden bg-background">
+          {activeTab === 'overview' && (
+            <OverviewView telemetry={telemetry} history={history} />
+          )}
+          {activeTab === 'processes' && (
+            <ProcessesView
+              processes={processes}
+              onRefresh={loadProcesses}
+              onKillProcess={handleKillProcess}
+            />
+          )}
+          {activeTab === 'storage' && <StorageView drives={drives} />}
+          {activeTab === 'optimizer' && (
+            <OptimizerView
+              currentPowerPlan={powerPlan}
+              onCleanTemp={handleCleanTemp}
+              onFlushDNS={handleFlushDNS}
+              onSetPowerPlan={handleSetPowerPlan}
+            />
+          )}
+        </main>
+      </div>
     </div>
   );
 }

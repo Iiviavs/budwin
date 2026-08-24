@@ -8,17 +8,20 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: "#121212",
-        surface: "#1E1E1E",
-        surfaceHover: "#282828",
-        border: "#333333",
+        background: "#0B0E14",
+        sidebar: "#11151F",
+        surface: "#161B26",
+        surfaceHover: "#1F2637",
+        surfaceActive: "#262F44",
+        border: "#232B3E",
         accent: {
-          blue: "#38bdf8",
-          green: "#4ade80",
-          purple: "#c084fc",
-          cyan: "#22d3ee",
-          orange: "#fb923c",
-          red: "#f87171"
+          lime: "#D4F63D",
+          blue: "#38BDF8",
+          purple: "#C084FC",
+          cyan: "#22D3EE",
+          green: "#22C55E",
+          orange: "#FB923C",
+          red: "#F87171"
         }
       },
       fontFamily: {
