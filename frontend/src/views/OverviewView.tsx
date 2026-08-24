@@ -26,67 +26,65 @@ export const OverviewView: React.FC<OverviewViewProps> = ({ telemetry, history }
   };
 
   return (
-    <div className="space-y-4 p-6 overflow-y-auto max-h-[calc(100vh-2.5rem)]">
-      {/* HERO CARD */}
-      <div className="glass-card rounded-3xl p-6 border border-border bg-gradient-to-br from-surface to-sidebar space-y-5 shadow-2xl">
+    <div className="space-y-4 p-6 overflow-y-auto max-h-[calc(100vh-2.5rem)] font-sans">
+      {/* HERO CARD (Borderless Raycast) */}
+      <div className="glass-card rounded-2xl p-6 space-y-4 shadow-xl">
         <div className="flex items-start justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="w-14 h-14 rounded-2xl bg-accent-theme/20 border border-accent-theme/40 p-0.5 shadow-xl shadow-accent-theme/10">
-              <div className="w-full h-full bg-surface rounded-2xl flex items-center justify-center overflow-hidden">
-                <img src="/logo.png" alt="budwin" className="w-full h-full object-cover scale-110" />
-              </div>
+          <div className="flex items-center space-x-3.5">
+            <div className="w-12 h-12 rounded-xl bg-[#24252A] p-0.5 shadow-md flex items-center justify-center overflow-hidden">
+              <img src="/logo.png" alt="budwin" className="w-full h-full object-cover scale-110" />
             </div>
 
             <div>
               <div className="flex items-center space-x-2">
-                <span className="text-[11px] font-bold text-accent-theme uppercase tracking-wider">
+                <span className="text-[10px] font-bold text-accent-theme uppercase tracking-wider">
                   Hardware Engine Active
                 </span>
-                <span className="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/20 font-bold">
-                  Telemetry 1Hz
+                <span className="text-[10px] bg-emerald-500/15 text-emerald-400 px-2 py-0.5 rounded-md font-bold">
+                  1Hz Telemetry
                 </span>
               </div>
-              <h1 className="text-xl font-bold text-white tracking-tight mt-0.5">
+              <h1 className="text-base font-bold text-white tracking-tight mt-0.5">
                 {telemetry?.cpuModel || '11th Gen Intel(R) Core(TM) i5-11400F'}
               </h1>
-              <p className="text-xs text-gray-400 mt-0.5 font-medium">
+              <p className="text-xs text-neutral-400 mt-0.5 font-normal">
                 {telemetry?.cpuCores || 12} Logical Cores • {telemetry?.gpu.name || 'NVIDIA GeForce RTX 3060'}
               </p>
             </div>
           </div>
 
           <div className="flex items-center space-x-2">
-            <div className="px-3.5 py-1.5 rounded-xl bg-accent-theme/10 border border-accent-theme/30 text-accent-theme text-xs font-bold flex items-center space-x-1.5 shadow-sm">
-              <ShieldCheck className="w-4 h-4" />
-              <span>System Optimized</span>
+            <div className="px-3 py-1.5 rounded-lg bg-[#24252A] text-white text-xs font-semibold flex items-center space-x-1.5">
+              <ShieldCheck className="w-4 h-4 text-emerald-400" />
+              <span>System Protected</span>
             </div>
           </div>
         </div>
 
         {/* Quick Spec Pills */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-1 border-t border-border/60">
-          <div className="bg-background/60 border border-border/80 rounded-xl p-3">
-            <span className="text-[11px] text-gray-400 block font-medium">Total Memory</span>
-            <span className="text-sm font-bold text-white mt-0.5 block">{telemetry?.ramTotalGb || 16} GB DDR4</span>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 pt-2 border-t border-white/[0.04]">
+          <div className="bg-[#111215] rounded-xl p-3">
+            <span className="text-[11px] text-neutral-400 block">Total Memory</span>
+            <span className="text-xs font-bold text-white mt-0.5 block">{telemetry?.ramTotalGb || 16} GB DDR4</span>
           </div>
 
-          <div className="bg-background/60 border border-border/80 rounded-xl p-3">
-            <span className="text-[11px] text-gray-400 block font-medium">NVIDIA VRAM</span>
-            <span className="text-sm font-bold text-white mt-0.5 block">
+          <div className="bg-[#111215] rounded-xl p-3">
+            <span className="text-[11px] text-neutral-400 block">NVIDIA VRAM</span>
+            <span className="text-xs font-bold text-white mt-0.5 block">
               {telemetry?.gpu.isAvailable ? `${(telemetry.gpu.vramTotalMb / 1024).toFixed(0)} GB GDDR6` : 'N/A'}
             </span>
           </div>
 
-          <div className="bg-background/60 border border-border/80 rounded-xl p-3">
-            <span className="text-[11px] text-gray-400 block font-medium">GPU Thermal</span>
-            <span className="text-sm font-bold text-white mt-0.5 block">
+          <div className="bg-[#111215] rounded-xl p-3">
+            <span className="text-[11px] text-neutral-400 block">GPU Thermal</span>
+            <span className="text-xs font-bold text-white mt-0.5 block">
               {telemetry?.gpu.isAvailable ? `${telemetry.gpu.temperatureC}°C (Cool)` : 'N/A'}
             </span>
           </div>
 
-          <div className="bg-background/60 border border-border/80 rounded-xl p-3">
-            <span className="text-[11px] text-gray-400 block font-medium">Timer Latency</span>
-            <span className="text-sm font-bold text-accent-theme mt-0.5 block">1.0ms Resolution</span>
+          <div className="bg-[#111215] rounded-xl p-3">
+            <span className="text-[11px] text-neutral-400 block">Timer Latency</span>
+            <span className="text-xs font-bold text-accent-theme mt-0.5 block">1.0ms Resolution</span>
           </div>
         </div>
       </div>
@@ -145,35 +143,35 @@ export const OverviewView: React.FC<OverviewViewProps> = ({ telemetry, history }
 
       {/* Bandwidth & Disk Activity Card */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="glass-card rounded-2xl p-4 flex items-center justify-between border border-border">
+        <div className="glass-card rounded-2xl p-4 flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center">
-              <ArrowDown className="w-5 h-5" />
+            <div className="w-9 h-9 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center">
+              <ArrowDown className="w-4 h-4" />
             </div>
             <div>
-              <div className="text-xs text-gray-400 font-medium">Download Rate</div>
-              <div className="text-base font-bold text-white">{formatSpeed(netIn)}</div>
+              <div className="text-xs text-neutral-400 font-medium">Download Rate</div>
+              <div className="text-sm font-bold text-white">{formatSpeed(netIn)}</div>
             </div>
           </div>
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-sky-500/10 text-sky-400 flex items-center justify-center">
-              <ArrowUp className="w-5 h-5" />
+            <div className="w-9 h-9 rounded-xl bg-sky-500/10 text-sky-400 flex items-center justify-center">
+              <ArrowUp className="w-4 h-4" />
             </div>
             <div>
-              <div className="text-xs text-gray-400 font-medium">Upload Rate</div>
-              <div className="text-base font-bold text-white">{formatSpeed(netOut)}</div>
+              <div className="text-xs text-neutral-400 font-medium">Upload Rate</div>
+              <div className="text-sm font-bold text-white">{formatSpeed(netOut)}</div>
             </div>
           </div>
         </div>
 
-        <div className="glass-card rounded-2xl p-4 flex items-center justify-between border border-border">
+        <div className="glass-card rounded-2xl p-4 flex items-center justify-between">
           <div>
-            <div className="text-xs text-gray-400 font-medium">Disk Read Speed</div>
-            <div className="text-base font-bold text-white">{telemetry?.diskReadMb.toFixed(1) || 0} MB/s</div>
+            <div className="text-xs text-neutral-400 font-medium">Disk Read Speed</div>
+            <div className="text-sm font-bold text-white">{telemetry?.diskReadMb.toFixed(1) || 0} MB/s</div>
           </div>
           <div className="text-right">
-            <div className="text-xs text-gray-400 font-medium">Disk Write Speed</div>
-            <div className="text-base font-bold text-white">{telemetry?.diskWriteMb.toFixed(1) || 0} MB/s</div>
+            <div className="text-xs text-neutral-400 font-medium">Disk Write Speed</div>
+            <div className="text-sm font-bold text-white">{telemetry?.diskWriteMb.toFixed(1) || 0} MB/s</div>
           </div>
         </div>
       </div>

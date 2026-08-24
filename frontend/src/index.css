@@ -4,54 +4,48 @@
 
 :root, [data-theme="lime"] {
   --accent-primary: #D4F63D;
-  --accent-glow: rgba(212, 246, 61, 0.20);
-  --accent-border: rgba(212, 246, 61, 0.35);
+  --accent-glow: rgba(212, 246, 61, 0.15);
 }
 
 [data-theme="cyan"] {
   --accent-primary: #38BDF8;
-  --accent-glow: rgba(56, 189, 248, 0.20);
-  --accent-border: rgba(56, 189, 248, 0.35);
+  --accent-glow: rgba(56, 189, 248, 0.15);
 }
 
 [data-theme="blurple"] {
   --accent-primary: #5865F2;
-  --accent-glow: rgba(88, 101, 242, 0.20);
-  --accent-border: rgba(88, 101, 242, 0.35);
+  --accent-glow: rgba(88, 101, 242, 0.15);
 }
 
 [data-theme="amber"] {
   --accent-primary: #FB923C;
-  --accent-glow: rgba(251, 146, 60, 0.20);
-  --accent-border: rgba(251, 146, 60, 0.35);
+  --accent-glow: rgba(251, 146, 60, 0.15);
 }
 
 [data-theme="rose"] {
   --accent-primary: #F43F5E;
-  --accent-glow: rgba(244, 63, 94, 0.20);
-  --accent-border: rgba(244, 63, 94, 0.35);
+  --accent-glow: rgba(244, 63, 94, 0.15);
 }
 
 [data-theme="emerald"] {
   --accent-primary: #22C55E;
-  --accent-glow: rgba(34, 197, 94, 0.20);
-  --accent-border: rgba(34, 197, 94, 0.35);
+  --accent-glow: rgba(34, 197, 94, 0.15);
 }
 
 @layer base {
   ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 5px;
+    height: 5px;
   }
   ::-webkit-scrollbar-track {
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: #282A33;
+    background: #25262C;
     border-radius: 9999px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #363945;
+    background: #32343C;
   }
 }
 
@@ -65,22 +59,17 @@
   -webkit-app-region: no-drag;
 }
 
-/* Raycast Classy Matte Obsidian Card */
+/* Pure Borderless Raycast Card */
 .glass-card {
-  background: #18191E;
-  border: 1px solid #282A33;
-}
-
-.glass-card:hover {
-  border-color: #383B47;
+  background: #16171B;
 }
 
 .raycast-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.85rem 1.25rem;
-  border-bottom: 1px solid #23252E;
+  padding: 0.9rem 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
   transition: background-color 0.15s ease;
 }
 
