@@ -119,6 +119,25 @@ func (a *App) ToggleStartupItem(name string, location string, enable bool) bool 
 	return optimizer.ToggleStartupItem(name, location, enable)
 }
 
+// Smart Thermal & Rogue Process Alerts API
+func (a *App) GetActiveAlerts() []hardware.AlertItem {
+	return hardware.GetAlertEngine().GetAlerts()
+}
+
+func (a *App) DismissAlert(id string) {
+	hardware.GetAlertEngine().DismissAlert(id)
+}
+
+func (a *App) ResolveAlert(id string, alertType string, targetPid int32) bool {
+	if alertType == "thermal" {
+		optimizer.SetPowerPlan("Balanced")
+	} else if alertType == "rogue_cpu" && targetPid > 0 {
+		process.KillProcess(targetPid)
+	}
+	hardware.GetAlertEngine().DismissAlert(id)
+	return true
+}
+
 // Window & Discord Game Overlay Controls
 func (a *App) SetAlwaysOnTop(onTop bool) {
 	runtime.WindowSetAlwaysOnTop(a.ctx, onTop)
@@ -127,13 +146,11 @@ func (a *App) SetAlwaysOnTop(onTop bool) {
 func (a *App) SetHudMode(isHud bool) {
 	if isHud {
 		runtime.WindowSetAlwaysOnTop(a.ctx, true)
-		hudW, hudH := 310, 42
-		// Lock fixed size for Discord game overlay
+		hudW, hudH := 280, 36
 		runtime.WindowSetMinSize(a.ctx, hudW, hudH)
 		runtime.WindowSetMaxSize(a.ctx, hudW, hudH)
 		runtime.WindowSetSize(a.ctx, hudW, hudH)
 
-		// Auto-dock to Top-Right of active display (like Discord Overlay)
 		screenWidth, _ := getScreenSize()
 		if screenWidth == 0 {
 			screenWidth = 1920

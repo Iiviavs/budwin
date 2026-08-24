@@ -6,8 +6,16 @@ export function CleanTempFiles() {
   return window['go']['main']['App']['CleanTempFiles']();
 }
 
+export function DismissAlert(arg1) {
+  return window['go']['main']['App']['DismissAlert'](arg1);
+}
+
 export function FlushDNS() {
   return window['go']['main']['App']['FlushDNS']();
+}
+
+export function GetActiveAlerts() {
+  return window['go']['main']['App']['GetActiveAlerts']();
 }
 
 export function GetActivePowerPlan() {
@@ -52,6 +60,10 @@ export function OptimizeInputLatency() {
 
 export function PurgeStandbyRAM() {
   return window['go']['main']['App']['PurgeStandbyRAM']();
+}
+
+export function ResolveAlert(arg1, arg2, arg3) {
+  return window['go']['main']['App']['ResolveAlert'](arg1, arg2, arg3);
 }
 
 export function SetAlwaysOnTop(arg1) {

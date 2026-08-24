@@ -1,7 +1,7 @@
 import React from 'react';
-import { Activity, Cpu, HardDrive, Sparkles, Power, Pin } from 'lucide-react';
+import { Activity, Cpu, HardDrive, Sparkles, Power, Settings, Pin } from 'lucide-react';
 
-export type TabType = 'overview' | 'processes' | 'storage' | 'optimizer' | 'startup';
+export type TabType = 'overview' | 'processes' | 'storage' | 'optimizer' | 'startup' | 'settings';
 
 interface SidebarProps {
   activeTab: TabType;
@@ -16,6 +16,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, onTog
     { id: 'storage', label: 'Storage', icon: <HardDrive className="w-4 h-4" /> },
     { id: 'optimizer', label: 'Optimizer', icon: <Sparkles className="w-4 h-4" /> },
     { id: 'startup', label: 'Startup Apps', icon: <Power className="w-4 h-4" /> },
+    { id: 'settings', label: 'Settings & Themes', icon: <Settings className="w-4 h-4" /> },
   ];
 
   return (
@@ -35,7 +36,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, onTog
                     : 'text-gray-400 hover:text-gray-200 hover:bg-surfaceHover/60'
                 }`}
               >
-                <span className={isActive ? 'text-accent-lime' : 'text-gray-400'}>
+                <span className={isActive ? 'text-accent-theme' : 'text-gray-400'}>
                   {item.icon}
                 </span>
                 <span>{item.label}</span>
@@ -44,18 +45,18 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, onTog
           })}
         </div>
 
-        {/* Floating HUD Mode Toggle Card */}
+        {/* Discord Game Overlay Toggle Button */}
         <div className="pt-2 border-t border-border/60">
           <button
             onClick={onToggleHud}
-            className="w-full flex items-center justify-between px-3.5 py-2 rounded-xl bg-surface hover:bg-surfaceHover border border-border text-xs font-semibold text-gray-300 hover:text-accent-lime transition-all"
-            title="Launch Floating Always-on-Top In-Game HUD"
+            className="w-full flex items-center justify-between px-3.5 py-2 rounded-xl bg-surface hover:bg-surfaceHover border border-border text-xs font-semibold text-gray-300 hover:text-accent-theme transition-all"
+            title="Launch Discord Game Overlay"
           >
             <div className="flex items-center space-x-2">
-              <Pin className="w-3.5 h-3.5 text-accent-lime" />
-              <span>Floating HUD</span>
+              <Pin className="w-3.5 h-3.5 text-accent-theme" />
+              <span>Game Overlay</span>
             </div>
-            <span className="text-[10px] font-mono font-bold text-accent-lime bg-accent-lime/10 px-1.5 py-0.5 rounded">
+            <span className="text-[10px] font-mono font-bold text-accent-theme bg-accent-theme/10 px-1.5 py-0.5 rounded border border-accent-theme/20">
               PIN
             </span>
           </button>
@@ -64,12 +65,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, onTog
 
       {/* Mascot Card at bottom of sidebar */}
       <div className="bg-surface/90 border border-border rounded-2xl p-3 flex items-center space-x-3">
-        <div className="w-9 h-9 rounded-full overflow-hidden border border-accent-lime/40 shrink-0 bg-background shadow-sm">
+        <div className="w-9 h-9 rounded-full overflow-hidden border border-accent-theme/40 shrink-0 bg-background shadow-sm">
           <img src="/logo.png" alt="budwin mascot" className="w-full h-full object-cover scale-110" />
         </div>
         <div className="overflow-hidden">
           <span className="font-bold text-xs text-white block truncate leading-tight">Buddy Companion</span>
-          <span className="text-[10px] text-accent-lime font-medium">Ready & Protecting</span>
+          <span className="text-[10px] text-accent-theme font-medium">Ready & Protecting</span>
         </div>
       </div>
     </aside>

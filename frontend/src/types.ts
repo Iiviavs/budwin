@@ -59,6 +59,19 @@ export interface StartupItem {
   description: string;
 }
 
+export interface AlertItem {
+  id: string;
+  type: string;
+  severity: string;
+  title: string;
+  description: string;
+  actionLabel: string;
+  targetPid?: number;
+  timestamp: string;
+}
+
+export type ThemeAccent = 'lime' | 'cyan' | 'blurple' | 'amber' | 'rose' | 'emerald';
+
 declare global {
   interface Window {
     go?: {
@@ -80,9 +93,11 @@ declare global {
           PurgeStandbyRAM?: () => Promise<number>;
           GetStartupItems?: () => Promise<StartupItem[]>;
           ToggleStartupItem?: (name: string, location: string, enable: boolean) => Promise<boolean>;
+          GetActiveAlerts?: () => Promise<AlertItem[]>;
+          DismissAlert?: (id: string) => Promise<void>;
+          ResolveAlert?: (id: string, alertType: string, targetPid: number) => Promise<boolean>;
           SetAlwaysOnTop?: (onTop: boolean) => Promise<void>;
           SetHudMode?: (isHud: boolean) => Promise<void>;
-          SnapHudPosition?: (corner: string) => Promise<void>;
           HideWindow?: () => Promise<void>;
           ShowWindow?: () => Promise<void>;
         };

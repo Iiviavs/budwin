@@ -40,7 +40,7 @@ export const StartupView: React.FC<StartupViewProps> = ({ items, onRefresh, onTo
           <div>
             <div className="flex items-center space-x-2">
               <h2 className="text-base font-bold text-white">Windows Startup Apps Optimizer</h2>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-accent-lime/10 text-accent-lime border border-accent-lime/20">
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-accent-theme/10 text-accent-theme border border-accent-theme/20">
                 {enabledCount} Active at Boot
               </span>
             </div>

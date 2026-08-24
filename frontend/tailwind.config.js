@@ -15,6 +15,9 @@ export default {
         surfaceActive: "#262F44",
         border: "#232B3E",
         accent: {
+          theme: "var(--accent-primary)",
+          themeGlow: "var(--accent-glow)",
+          themeBorder: "var(--accent-border)",
           lime: "#D4F63D",
           blue: "#38BDF8",
           purple: "#C084FC",
