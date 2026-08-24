@@ -81,7 +81,7 @@ declare global {
           GetStartupItems?: () => Promise<StartupItem[]>;
           ToggleStartupItem?: (name: string, location: string, enable: boolean) => Promise<boolean>;
           SetAlwaysOnTop?: (onTop: boolean) => Promise<void>;
-          SetHudMode?: (isHud: boolean, hudType: string) => Promise<void>;
+          SetHudMode?: (isHud: boolean) => Promise<void>;
           SnapHudPosition?: (corner: string) => Promise<void>;
           HideWindow?: () => Promise<void>;
           ShowWindow?: () => Promise<void>;

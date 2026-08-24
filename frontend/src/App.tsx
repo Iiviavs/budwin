@@ -14,7 +14,6 @@ import { Maximize2, Cpu, Zap, HardDrive, Wifi, ShieldAlert, AlertTriangle, Check
 
 export function App() {
   const [viewMode, setViewMode] = useState<'full' | 'mini' | 'hud'>('full');
-  const [hudType, setHudType] = useState<'pill' | 'card'>('pill');
   const [activeTab, setActiveTab] = useState<TabType>('overview');
   const [telemetry, setTelemetry] = useState<TelemetrySnapshot | null>(null);
   const [processes, setProcesses] = useState<ProcessItem[]>([]);
@@ -40,25 +39,24 @@ export function App() {
     net: Array(60).fill(120),
   });
 
-  const switchViewMode = (mode: 'full' | 'mini' | 'hud', type: 'pill' | 'card' = hudType) => {
+  const switchViewMode = (mode: 'full' | 'mini' | 'hud') => {
     setViewMode(mode);
-    setHudType(type);
     if (mode === 'hud') {
       if (window.go?.main?.App?.SetHudMode) {
-        window.go.main.App.SetHudMode(true, type);
+        window.go.main.App.SetHudMode(true);
       } else {
-        window.runtime?.WindowSetSize?.(type === 'card' ? 220 : 360, type === 'card' ? 180 : 48);
+        window.runtime?.WindowSetSize?.(320, 38);
         window.runtime?.WindowSetAlwaysOnTop?.(true);
       }
     } else if (mode === 'mini') {
       if (window.go?.main?.App?.SetHudMode) {
-        window.go.main.App.SetHudMode(false, type);
+        window.go.main.App.SetHudMode(false);
       }
       window.runtime?.WindowSetSize?.(380, 580);
       window.runtime?.WindowSetAlwaysOnTop?.(false);
     } else {
       if (window.go?.main?.App?.SetHudMode) {
-        window.go.main.App.SetHudMode(false, type);
+        window.go.main.App.SetHudMode(false);
       }
       window.runtime?.WindowSetSize?.(1060, 700);
       window.runtime?.WindowSetAlwaysOnTop?.(false);
@@ -249,8 +247,6 @@ export function App() {
         onExpand={() => switchViewMode('full')}
         onClose={() => window.runtime?.WindowHide?.()}
         onSnap={handleSnap}
-        onToggleType={(type) => switchViewMode('hud', type)}
-        hudType={hudType}
       />
     );
   }
@@ -278,7 +274,7 @@ export function App() {
 
           <div className="flex items-center space-x-1.5 non-draggable">
             <button
-              onClick={() => switchViewMode('hud', 'pill')}
+              onClick={() => switchViewMode('hud')}
               className="p-1 rounded hover:bg-surfaceHover text-gray-400 hover:text-accent-lime transition-colors"
               title="Pin as Floating See-Through HUD"
             >
@@ -467,7 +463,7 @@ export function App() {
         <Sidebar
           activeTab={activeTab}
           setActiveTab={setActiveTab}
-          onToggleHud={() => switchViewMode('hud', 'pill')}
+          onToggleHud={() => switchViewMode('hud')}
         />
 
         <main className="flex-1 overflow-hidden bg-background">

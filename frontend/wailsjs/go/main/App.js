@@ -58,8 +58,8 @@ export function SetAlwaysOnTop(arg1) {
   return window['go']['main']['App']['SetAlwaysOnTop'](arg1);
 }
 
-export function SetHudMode(arg1, arg2) {
-  return window['go']['main']['App']['SetHudMode'](arg1, arg2);
+export function SetHudMode(arg1) {
+  return window['go']['main']['App']['SetHudMode'](arg1);
 }
 
 export function SetPowerPlan(arg1) {
