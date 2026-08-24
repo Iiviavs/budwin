@@ -124,16 +124,14 @@ func (a *App) SetAlwaysOnTop(onTop bool) {
 	runtime.WindowSetAlwaysOnTop(a.ctx, onTop)
 }
 
-func (a *App) SetHudMode(isHud bool, hudType string) {
+func (a *App) SetHudMode(isHud bool) {
 	if isHud {
 		runtime.WindowSetAlwaysOnTop(a.ctx, true)
-		if hudType == "card" {
-			runtime.WindowSetSize(a.ctx, 220, 180)
-		} else {
-			runtime.WindowSetSize(a.ctx, 360, 48) // Ultra-compact see-through pill
-		}
+		runtime.WindowSetMinSize(a.ctx, 240, 32)
+		runtime.WindowSetSize(a.ctx, 320, 38)
 	} else {
 		runtime.WindowSetAlwaysOnTop(a.ctx, false)
+		runtime.WindowSetMinSize(a.ctx, 380, 520)
 		runtime.WindowSetSize(a.ctx, 1060, 700)
 	}
 }
@@ -148,13 +146,13 @@ func (a *App) SnapHudPosition(corner string) {
 
 	switch corner {
 	case "top-left":
-		runtime.WindowSetPosition(a.ctx, 24, 24)
+		runtime.WindowSetPosition(a.ctx, 16, 16)
 	case "top-right":
-		runtime.WindowSetPosition(a.ctx, screenWidth-w-24, 24)
+		runtime.WindowSetPosition(a.ctx, screenWidth-w-16, 16)
 	case "bottom-right":
-		runtime.WindowSetPosition(a.ctx, screenWidth-w-24, screenHeight-h-60)
+		runtime.WindowSetPosition(a.ctx, screenWidth-w-16, screenHeight-h-50)
 	case "bottom-left":
-		runtime.WindowSetPosition(a.ctx, 24, screenHeight-h-60)
+		runtime.WindowSetPosition(a.ctx, 16, screenHeight-h-50)
 	}
 }
 
