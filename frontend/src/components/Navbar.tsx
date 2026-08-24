@@ -60,19 +60,22 @@ export const Navbar: React.FC<NavbarProps> = ({
       </nav>
 
       {/* Window Controls */}
-      <div className="flex items-center space-x-1">
+      <div className="flex items-center space-x-2">
         {onMinimize && (
           <button
             onClick={onMinimize}
-            className="w-7 h-7 rounded hover:bg-surfaceHover flex items-center justify-center text-gray-400 hover:text-white transition-colors"
+            className="flex items-center space-x-1 px-2.5 py-1 rounded-lg bg-surfaceHover hover:bg-border text-gray-300 hover:text-white text-xs font-semibold transition-colors"
+            title="Switch to Compact Mini View"
           >
             <Minimize2 className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Mini View</span>
           </button>
         )}
         {onClose && (
           <button
             onClick={onClose}
-            className="w-7 h-7 rounded hover:bg-rose-500/20 hover:text-rose-400 flex items-center justify-center text-gray-400 transition-colors"
+            className="w-7 h-7 rounded-lg hover:bg-rose-500/20 hover:text-rose-400 flex items-center justify-center text-gray-400 transition-colors"
+            title="Close Application"
           >
             <X className="w-3.5 h-3.5" />
           </button>
