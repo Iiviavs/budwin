@@ -32,13 +32,13 @@ func main() {
 		Width:             1060,
 		Height:            700,
 		MinWidth:          180,
-		MinHeight:         38,
+		MinHeight:         32,
 		Frameless:         true,
 		HideWindowOnClose: true,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},
-		BackgroundColour: &options.RGBA{R: 0, G: 0, B: 0, A: 0}, // True transparent background
+		BackgroundColour: &options.RGBA{R: 0, G: 0, B: 0, A: 0},
 		OnStartup: func(ctx context.Context) {
 			app.startup(ctx)
 			tray.InitTray(ctx, tempIcon)

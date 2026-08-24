@@ -38,8 +38,6 @@ export function SetPowerPlan(arg1:string):Promise<boolean>;
 
 export function ShowWindow():Promise<void>;
 
-export function SnapHudPosition(arg1:string):Promise<void>;
-
 export function ToggleGameBoost(arg1:boolean):Promise<optimizer.GameBoostResult>;
 
 export function ToggleHighPrecisionTimer(arg1:boolean):Promise<boolean>;
