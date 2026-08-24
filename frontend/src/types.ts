@@ -50,6 +50,15 @@ export interface GameBoostResult {
   powerPlan: string;
 }
 
+export interface StartupItem {
+  name: string;
+  command: string;
+  location: string;
+  enabled: boolean;
+  impact: 'High' | 'Medium' | 'Low';
+  description: string;
+}
+
 declare global {
   interface Window {
     go?: {
@@ -69,6 +78,10 @@ declare global {
           ToggleGameBoost?: (enable: boolean) => Promise<GameBoostResult>;
           IsGameBoostActive?: () => Promise<boolean>;
           PurgeStandbyRAM?: () => Promise<number>;
+          GetStartupItems?: () => Promise<StartupItem[]>;
+          ToggleStartupItem?: (name: string, location: string, enable: boolean) => Promise<boolean>;
+          SetAlwaysOnTop?: (onTop: boolean) => Promise<void>;
+          SetHudMode?: (isHud: boolean) => Promise<void>;
           HideWindow?: () => Promise<void>;
           ShowWindow?: () => Promise<void>;
         };
@@ -78,6 +91,7 @@ declare global {
       WindowMinimise?: () => void;
       WindowToggleMaximise?: () => void;
       WindowSetSize?: (width: number, height: number) => void;
+      WindowSetAlwaysOnTop?: (onTop: boolean) => void;
       WindowHide?: () => void;
       Quit?: () => void;
     };
