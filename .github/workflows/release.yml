@@ -42,8 +42,10 @@ jobs:
         run: go mod tidy
 
       - name: Build Standalone Executable
+        env:
+          GO111MODULE: on
         run: |
-          wails build -clean -platform windows/amd64 -o budwin.exe
+          wails build -clean -platform windows/amd64 -o budwin.exe -skipbindings
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
