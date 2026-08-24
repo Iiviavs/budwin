@@ -22,12 +22,18 @@ declare global {
           FlushDNS?: () => Promise<boolean>;
           SetPowerPlan?: (plan: string) => Promise<boolean>;
           GetActivePowerPlan?: () => Promise<string>;
+          ToggleHighPrecisionTimer?: (enable: boolean) => Promise<boolean>;
+          IsTimerActive?: () => Promise<boolean>;
+          OptimizeInputLatency?: () => Promise<boolean>;
+          HideWindow?: () => Promise<void>;
+          ShowWindow?: () => Promise<void>;
         };
       };
     };
     runtime?: {
       WindowMinimise?: () => void;
       WindowSetSize?: (width: number, height: number) => void;
+      WindowHide?: () => void;
       Quit?: () => void;
     };
   }
@@ -44,6 +50,7 @@ export function App() {
   ]);
   const [powerPlan, setPowerPlan] = useState('Balanced');
   const [targetProcess, setTargetProcess] = useState<ProcessItem | null>(null);
+  const [timerActive, setTimerActive] = useState(true);
 
   // 60-point history buffers
   const [history, setHistory] = useState<{
@@ -160,6 +167,9 @@ export function App() {
     if (window.go?.main?.App?.GetActivePowerPlan) {
       window.go.main.App.GetActivePowerPlan().then((p) => setPowerPlan(p));
     }
+    if (window.go?.main?.App?.IsTimerActive) {
+      window.go.main.App.IsTimerActive().then((t) => setTimerActive(t));
+    }
   }, []);
 
   const handleKillProcess = async (pid: number) => {
@@ -193,6 +203,14 @@ export function App() {
     return true;
   };
 
+  const handleToggleTimer = async () => {
+    const nextState = !timerActive;
+    if (window.go?.main?.App?.ToggleHighPrecisionTimer) {
+      await window.go.main.App.ToggleHighPrecisionTimer(nextState);
+    }
+    setTimerActive(nextState);
+  };
+
   const formatSpeed = (kb: number) => {
     if (kb >= 1024) return `${(kb / 1024).toFixed(1)} MB/s`;
     return `${Math.round(kb)} KB/s`;
@@ -207,14 +225,16 @@ export function App() {
 
     return (
       <div className="h-screen w-screen bg-background border border-border/80 flex flex-col justify-between p-4 select-none font-sans text-gray-100">
-        {/* Header */}
+        {/* Header with Raccoon Mascot */}
         <div className="flex items-center justify-between pb-3 border-b border-border/60">
-          <div className="flex items-center space-x-2">
-            <div className="w-6 h-6 rounded bg-gradient-to-tr from-sky-500 to-emerald-400 flex items-center justify-center text-xs font-bold text-white">
-              ⚡
+          <div className="flex items-center space-x-2.5">
+            <div className="w-7 h-7 rounded-full overflow-hidden border border-sky-400/40 shadow-sm bg-surface">
+              <img src="/logo.png" alt="budwin mascot" className="w-full h-full object-cover scale-110" />
             </div>
-            <span className="font-bold text-sm text-white">budwin</span>
-            <span className="text-[10px] text-gray-400">Mini Tray View</span>
+            <div>
+              <span className="font-bold text-sm text-white block leading-tight">budwin</span>
+              <span className="text-[10px] text-gray-400">Tray Companion</span>
+            </div>
           </div>
 
           <button
@@ -227,7 +247,7 @@ export function App() {
         </div>
 
         {/* 2x2 Mini Metrics Grid */}
-        <div className="grid grid-cols-2 gap-2.5 my-3">
+        <div className="grid grid-cols-2 gap-2.5 my-2.5">
           {/* CPU Card */}
           <div className="glass-card rounded-xl p-3 flex flex-col justify-between">
             <div className="flex justify-between items-center text-xs">
@@ -295,14 +315,32 @@ export function App() {
           </div>
         </div>
 
-        {/* Top 3 Apps Leaderboard */}
-        <div className="glass-card rounded-xl p-3 flex-1 flex flex-col justify-between overflow-hidden">
-          <div className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">
+        {/* Input Lag 1-Click Status Badge */}
+        <div className="bg-surface/80 border border-border/80 rounded-xl p-2 flex items-center justify-between text-xs">
+          <div className="flex items-center space-x-2">
+            <Zap className="w-3.5 h-3.5 text-sky-400" />
+            <span className="text-[11px] font-semibold text-gray-200">1.0ms Low Latency</span>
+          </div>
+          <button
+            onClick={handleToggleTimer}
+            className={`px-2 py-0.5 rounded text-[10px] font-bold border transition-colors ${
+              timerActive
+                ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
+                : 'bg-surface text-gray-400 border-border hover:text-white'
+            }`}
+          >
+            {timerActive ? 'ACTIVE' : 'OFF'}
+          </button>
+        </div>
+
+        {/* Top Apps Leaderboard */}
+        <div className="glass-card rounded-xl p-2.5 flex-1 flex flex-col justify-between overflow-hidden my-2">
+          <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">
             Top Apps (With Safety Shields)
           </div>
 
-          <div className="space-y-1.5 overflow-y-auto">
-            {processes.slice(0, 4).map((proc) => {
+          <div className="space-y-1 overflow-y-auto">
+            {processes.slice(0, 3).map((proc) => {
               const isProtected = proc.category === 'protected';
               const isBackground = proc.category === 'background';
 
@@ -340,7 +378,7 @@ export function App() {
           {/* See More Banner */}
           <button
             onClick={() => toggleMiniMode(false)}
-            className="w-full mt-2 py-1.5 rounded-lg bg-surfaceHover hover:bg-border text-center text-xs font-semibold text-sky-400 transition-colors"
+            className="w-full mt-1.5 py-1.5 rounded-lg bg-surfaceHover hover:bg-border text-center text-xs font-semibold text-sky-400 transition-colors"
           >
             Open Full Dashboard & Optimizer ↗
           </button>
@@ -362,7 +400,7 @@ export function App() {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         onMinimize={() => toggleMiniMode(true)}
-        onClose={() => window.runtime?.Quit?.()}
+        onClose={() => window.runtime?.WindowHide?.()}
       />
 
       <main className="flex-1 overflow-hidden">

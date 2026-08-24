@@ -25,15 +25,15 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   return (
     <header className="h-14 border-b border-border bg-surface/80 backdrop-blur-md px-4 flex items-center justify-between select-none">
-      {/* Brand */}
+      {/* Brand & Mascot */}
       <div className="flex items-center space-x-3">
-        <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-sky-500 to-emerald-400 flex items-center justify-center text-white font-bold text-sm shadow-md shadow-sky-500/20">
-          ⚡
+        <div className="w-8 h-8 rounded-full overflow-hidden border border-sky-400/40 shadow-md shadow-sky-500/20 bg-surface">
+          <img src="/logo.png" alt="budwin mascot" className="w-full h-full object-cover scale-110" />
         </div>
         <div className="flex items-center space-x-2">
           <span className="font-bold text-base text-white tracking-tight">budwin</span>
           <span className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-sky-500/10 text-sky-400 border border-sky-500/20">
-            v1.1
+            v1.2
           </span>
         </div>
       </div>
@@ -75,7 +75,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             onClick={onClose}
             className="w-7 h-7 rounded-lg hover:bg-rose-500/20 hover:text-rose-400 flex items-center justify-center text-gray-400 transition-colors"
-            title="Close Application"
+            title="Minimize to Tray"
           >
             <X className="w-3.5 h-3.5" />
           </button>
