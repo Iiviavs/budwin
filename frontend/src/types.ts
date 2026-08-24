@@ -50,6 +50,27 @@ export interface GameBoostResult {
   powerPlan: string;
 }
 
+export interface AutoBoostStatus {
+  autoBoostEnabled: boolean;
+  activeGameName: string;
+  activeGamePid: number;
+  isBoosting: boolean;
+}
+
+export interface BenchmarkSummary {
+  isRunning: boolean;
+  durationSeconds: number;
+  avgCpuPercent: number;
+  maxCpuPercent: number;
+  avgRamPercent: number;
+  maxRamPercent: number;
+  maxGpuTemp: number;
+  avgGpuLoad: number;
+  stabilityScore: number;
+  verdict: string;
+  samplesCount: number;
+}
+
 export interface StartupItem {
   name: string;
   command: string;
@@ -91,6 +112,11 @@ declare global {
           ToggleGameBoost?: (enable: boolean) => Promise<GameBoostResult>;
           IsGameBoostActive?: () => Promise<boolean>;
           PurgeStandbyRAM?: () => Promise<number>;
+          GetAutoBoostStatus?: () => Promise<AutoBoostStatus>;
+          SetAutoBoostEnabled?: (enable: boolean) => Promise<boolean>;
+          StartBenchmark?: () => Promise<BenchmarkSummary>;
+          StopBenchmark?: () => Promise<BenchmarkSummary>;
+          GetBenchmarkStatus?: () => Promise<BenchmarkSummary>;
           GetStartupItems?: () => Promise<StartupItem[]>;
           ToggleStartupItem?: (name: string, location: string, enable: boolean) => Promise<boolean>;
           GetActiveAlerts?: () => Promise<AlertItem[]>;

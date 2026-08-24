@@ -4,38 +4,38 @@
 
 :root, [data-theme="lime"] {
   --accent-primary: #D4F63D;
-  --accent-glow: rgba(212, 246, 61, 0.25);
-  --accent-border: rgba(212, 246, 61, 0.40);
+  --accent-glow: rgba(212, 246, 61, 0.20);
+  --accent-border: rgba(212, 246, 61, 0.35);
 }
 
 [data-theme="cyan"] {
   --accent-primary: #38BDF8;
-  --accent-glow: rgba(56, 189, 248, 0.25);
-  --accent-border: rgba(56, 189, 248, 0.40);
+  --accent-glow: rgba(56, 189, 248, 0.20);
+  --accent-border: rgba(56, 189, 248, 0.35);
 }
 
 [data-theme="blurple"] {
   --accent-primary: #5865F2;
-  --accent-glow: rgba(88, 101, 242, 0.25);
-  --accent-border: rgba(88, 101, 242, 0.40);
+  --accent-glow: rgba(88, 101, 242, 0.20);
+  --accent-border: rgba(88, 101, 242, 0.35);
 }
 
 [data-theme="amber"] {
   --accent-primary: #FB923C;
-  --accent-glow: rgba(251, 146, 60, 0.25);
-  --accent-border: rgba(251, 146, 60, 0.40);
+  --accent-glow: rgba(251, 146, 60, 0.20);
+  --accent-border: rgba(251, 146, 60, 0.35);
 }
 
 [data-theme="rose"] {
   --accent-primary: #F43F5E;
-  --accent-glow: rgba(244, 63, 94, 0.25);
-  --accent-border: rgba(244, 63, 94, 0.40);
+  --accent-glow: rgba(244, 63, 94, 0.20);
+  --accent-border: rgba(244, 63, 94, 0.35);
 }
 
 [data-theme="emerald"] {
   --accent-primary: #22C55E;
-  --accent-glow: rgba(34, 197, 94, 0.25);
-  --accent-border: rgba(34, 197, 94, 0.40);
+  --accent-glow: rgba(34, 197, 94, 0.20);
+  --accent-border: rgba(34, 197, 94, 0.35);
 }
 
 @layer base {
@@ -47,11 +47,11 @@
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: #232B3E;
+    background: #282A33;
     border-radius: 9999px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #333F5A;
+    background: #363945;
   }
 }
 
@@ -65,13 +65,29 @@
   -webkit-app-region: no-drag;
 }
 
+/* Raycast Classy Matte Obsidian Card */
 .glass-card {
-  background: rgba(22, 27, 38, 0.85);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid #232B3E;
+  background: #18191E;
+  border: 1px solid #282A33;
 }
 
 .glass-card:hover {
-  border-color: #2F3B55;
+  border-color: #383B47;
+}
+
+.raycast-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1.25rem;
+  border-bottom: 1px solid #23252E;
+  transition: background-color 0.15s ease;
+}
+
+.raycast-row:last-child {
+  border-bottom: none;
+}
+
+.raycast-row:hover {
+  background-color: rgba(255, 255, 255, 0.02);
 }

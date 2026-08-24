@@ -37,10 +37,17 @@ func NewApp() *App {
 // startup is called when the app starts.
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
+	// Start Auto-Boost Game Watchdog
+	_ = optimizer.GetAutoBoostManager()
 }
 
 func (a *App) GetTelemetry() hardware.TelemetrySnapshot {
-	return a.sampler.GetTelemetry()
+	telemetry := a.sampler.GetTelemetry()
+	// Pipe GPU data to benchmark engine if active
+	if telemetry.Gpu.IsAvailable {
+		optimizer.GetBenchmarkEngine().RecordGpuTelemetry(telemetry.Gpu.CoreUtilization, telemetry.Gpu.TemperatureC)
+	}
+	return telemetry
 }
 
 func (a *App) GetProcesses() []process.ProcessItem {
@@ -108,6 +115,28 @@ func (a *App) IsGameBoostActive() bool {
 
 func (a *App) PurgeStandbyRAM() float64 {
 	return optimizer.PurgeStandbyRAM()
+}
+
+// Auto-Boost Game Watchdog API
+func (a *App) GetAutoBoostStatus() optimizer.AutoBoostStatus {
+	return optimizer.GetAutoBoostManager().GetStatus()
+}
+
+func (a *App) SetAutoBoostEnabled(enable bool) bool {
+	return optimizer.GetAutoBoostManager().SetAutoBoostEnabled(enable)
+}
+
+// Benchmark & Gaming Session Logger API
+func (a *App) StartBenchmark() optimizer.BenchmarkSummary {
+	return optimizer.GetBenchmarkEngine().StartBenchmark()
+}
+
+func (a *App) StopBenchmark() optimizer.BenchmarkSummary {
+	return optimizer.GetBenchmarkEngine().StopBenchmark()
+}
+
+func (a *App) GetBenchmarkStatus() optimizer.BenchmarkSummary {
+	return optimizer.GetBenchmarkEngine().GetStatus()
 }
 
 // Startup Apps Manager API

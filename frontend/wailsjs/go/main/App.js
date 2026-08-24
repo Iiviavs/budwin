@@ -22,6 +22,14 @@ export function GetActivePowerPlan() {
   return window['go']['main']['App']['GetActivePowerPlan']();
 }
 
+export function GetAutoBoostStatus() {
+  return window['go']['main']['App']['GetAutoBoostStatus']();
+}
+
+export function GetBenchmarkStatus() {
+  return window['go']['main']['App']['GetBenchmarkStatus']();
+}
+
 export function GetDrives() {
   return window['go']['main']['App']['GetDrives']();
 }
@@ -70,6 +78,10 @@ export function SetAlwaysOnTop(arg1) {
   return window['go']['main']['App']['SetAlwaysOnTop'](arg1);
 }
 
+export function SetAutoBoostEnabled(arg1) {
+  return window['go']['main']['App']['SetAutoBoostEnabled'](arg1);
+}
+
 export function SetHudMode(arg1) {
   return window['go']['main']['App']['SetHudMode'](arg1);
 }
@@ -80,6 +92,14 @@ export function SetPowerPlan(arg1) {
 
 export function ShowWindow() {
   return window['go']['main']['App']['ShowWindow']();
+}
+
+export function StartBenchmark() {
+  return window['go']['main']['App']['StartBenchmark']();
+}
+
+export function StopBenchmark() {
+  return window['go']['main']['App']['StopBenchmark']();
 }
 
 export function ToggleGameBoost(arg1) {
