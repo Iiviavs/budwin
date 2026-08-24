@@ -2,16 +2,23 @@
 
 # ⚡ budwin
 
-**A modern, lightweight Windows 11/10 system monitor, process manager & optimizer companion.**
+**A modern, lightweight Windows 11/10 system monitor, process safety manager & input latency optimizer.**
 
-[![Release](https://img.shields.io/github/v/release/crynn/budwin?color=blue&style=flat-square)](https://github.com/crynn/budwin/releases)
+[![Release](https://img.shields.io/github/v/release/Iiviavs/budwin?color=lime&style=flat-square)](https://github.com/Iiviavs/budwin/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=flat-square)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011-blue?style=flat-square)]()
 [![Go](https://img.shields.io/badge/Go-1.22+-00ADD8?style=flat-square&logo=go&logoColor=white)]()
 [![React](https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react&logoColor=black)]()
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?style=flat-square&logo=typescript&logoColor=white)]()
 
-*Monitor CPU, GPU, Memory, Network, Storage, and background processes with smart safety shields — bundled as a single ~4MB executable.*
+<br/>
+
+<img src="frontend/public/logo.png" width="130" height="130" style="border-radius: 50%;" alt="budwin mascot" />
+
+<br/>
+<br/>
+
+*Monitor CPU, NVIDIA RTX GPU, RAM, Network, Disks, kill lagging apps safely, and eliminate Windows input lag — all in a single ~4MB Discord-style frameless app with Windows System Tray integration.*
 
 </div>
 
@@ -19,24 +26,25 @@
 
 ## ✨ Features
 
-- 📊 **Real-time Overview Dashboard**: Live telemetry and 60-second animated history sparklines for CPU, NVIDIA RTX GPU, Memory, Network throughput, and Disk I/O.
+- 🎮 **⚡ Ultra-Low Input Lag Reducer**:
+  - **1.0ms High-Resolution Timer (`winmm.dll timeBeginPeriod(1)`)**: Drops Windows scheduling tick from 15.6ms to 1.0ms (1000 Hz) for snappy mouse & keyboard polling.
+  - **1:1 Raw Mouse Input**: Strips Windows acceleration curves ("Enhanced Pointer Precision") for pure linear sensor mapping.
+  - **GameDVR Buffer Bypass**: Bypasses background capture queues to minimize Desktop Window Manager (DWM) frame buffer latency.
+- 📊 **Real-time Telemetry Dashboard**: Live metrics and smooth 60-second animated SVG sparklines for CPU, NVIDIA RTX GPU, Memory, Network throughput, and Disk I/O.
 - 🛡️ **Smart Process Manager & Safety Shield**:
-  - Searchable process table with live memory usage and readable descriptions.
-  - **Category Badges:** 🟢 User Applications (Safe to End), 🟡 Background Helpers, 🔴 Critical Windows System Processes.
-  - **Accidental Kill Protection:** Protects core Windows components (`explorer`, `svchost`, `dwm`, `csrss`) from accidental termination.
-- 💾 **Storage Explorer**: Visual progress cards and free space indicators for all mounted SSD/HDD partitions (C:, D:, etc.).
-- 🧹 **Quick System Optimizer**:
-  - **1-Click Temp Cache Cleaner**: Removes `%TEMP%` junk files to free disk space and reduce disk thrashing.
-  - **1-Click DNS Cache Flush**: Instantly fixes DNS resolution issues (`ipconfig /flushdns`).
-  - **1-Click Power Plan Switcher**: Toggle between **Balanced** (silent fans & cool CPU) and **High Performance** directly from the UI.
-- 🪶 **Ultra Lightweight**: Standalone ~4.2 MB binary consuming only ~25–35 MB of RAM (using native WebView2 with zero Electron bloat).
+  - Searchable process list sorted by RAM usage with friendly descriptions.
+  - **Category Shields:** 🟢 User Apps (Safe to Kill), 🟡 Background Helpers (Warning), 🔴 Critical System (`explorer`, `dwm`, `svchost`, `csrss` — blocked from accidental termination).
+- 💾 **Storage Explorer**: Visual partition health and free space indicators for all fixed drives (C:, D:).
+- 🧹 **Quick System Optimizer**: 1-Click `%TEMP%` junk cleaner, DNS cache flusher (`ipconfig /flushdns`), and Power Plan switcher.
+- 🪟 **Discord-Style Frameless Design**: Custom titlebar (`—`, `□`, `✕`), luxury obsidian dark theme with neon lime highlights, and a compact **Mini Tray Companion View**.
+- 🔔 **Native Windows System Tray Icon**: Sits in the Windows taskbar notification area with right-click quick controls.
 
 ---
 
-## 🚀 Download & Quick Start
+## 🚀 Quick Start
 
 ### 1. Download Pre-built Executable
-Download the latest **`budwin.exe`** directly from [GitHub Releases](https://github.com/crynn/budwin/releases) and double-click to run. No installer or runtime setup needed!
+Download the latest **`budwin.exe`** directly from [GitHub Releases](https://github.com/Iiviavs/budwin/releases) and double-click to run. No installer or runtime setup needed!
 
 ### 2. Build from Source
 
@@ -44,39 +52,11 @@ Download the latest **`budwin.exe`** directly from [GitHub Releases](https://git
 
 ```powershell
 # 1. Clone repository
-git clone https://github.com/crynn/budwin.git
+git clone https://github.com/Iiviavs/budwin.git
 cd budwin
 
-# 2. Build Frontend
-cd frontend
-npm install
-npm run build
-cd ..
-
-# 3. Build Standalone Binary
-go build -ldflags "-H windowsgui -s -w" -o ./build/bin/budwin.exe .
-```
-
----
-
-## 🛠️ Architecture
-
-```
-budwin/
-├── frontend/               # React 18 + TypeScript + Tailwind CSS
-│   ├── src/
-│   │   ├── components/     # Navbar, MetricCard, Sparkline, EndProcessModal
-│   │   ├── views/          # Overview, Processes, Storage, Optimizer
-│   │   ├── App.tsx         # Main UI Coordinator
-│   │   └── types.ts        # TypeScript models
-├── pkg/
-│   ├── hardware/           # Go telemetry engine (CPU, RAM, Disk, Net, NVIDIA GPU)
-│   ├── process/            # Process leaderboard, safety rules & termination
-│   └── optimizer/          # 1-Click Temp cleanup, Flush DNS, Power Plan
-├── app.go                  # Go-to-TypeScript bridge API
-├── main.go                 # Native Windows window configuration
-├── build.ps1               # 1-Click build script
-└── README.md
+# 2. Build with 1-Click Script
+./build.ps1
 ```
 
 ---
