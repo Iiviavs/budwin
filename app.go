@@ -4,10 +4,10 @@ import (
 	"context"
 	"syscall"
 
-	"budwin/pkg/hardware"
-	"budwin/pkg/optimizer"
-	"budwin/pkg/process"
-	"budwin/pkg/storage"
+	"github.com/Iiviavs/budwin/pkg/hardware"
+	"github.com/Iiviavs/budwin/pkg/optimizer"
+	"github.com/Iiviavs/budwin/pkg/process"
+	"github.com/Iiviavs/budwin/pkg/storage"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
