@@ -2,14 +2,16 @@
 
 # ⚡ budwin
 
-**A lightweight, native menu-bar and system tray companion for Windows 11 & 10.**
+**A modern, lightweight Windows 11/10 system monitor, process manager & optimizer companion.**
 
 [![Release](https://img.shields.io/github/v/release/crynn/budwin?color=blue&style=flat-square)](https://github.com/crynn/budwin/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=flat-square)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011-blue?style=flat-square)]()
-[![.NET](https://img.shields.io/badge/.NET-8.0-purple?style=flat-square)]()
+[![Go](https://img.shields.io/badge/Go-1.22+-00ADD8?style=flat-square&logo=go&logoColor=white)]()
+[![React](https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react&logoColor=black)]()
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?style=flat-square&logo=typescript&logoColor=white)]()
 
-*Monitor CPU, GPU, Memory, Network, and background processes at a glance — with a footprint under 20MB of RAM.*
+*Monitor CPU, GPU, Memory, Network, Storage, and background processes with smart safety shields — bundled as a single ~4MB executable.*
 
 </div>
 
@@ -17,37 +19,42 @@
 
 ## ✨ Features
 
-- 📌 **System Tray At-a-Glance**: Sits quietly in your Windows taskbar. Hover for instant stats or click for a rich Fluent UI flyout.
-- ⚡ **CPU Telemetry**: Real-time total CPU load %, per-core telemetry, and a smooth 60-second antialiased sparkline.
-- 🎮 **NVIDIA GPU Monitoring**: Direct P/Invoke integration with NVIDIA Management Library (NVML) to read RTX/GTX GPU utilization, VRAM used, temperature (°C), and power usage.
-- 🧠 **Memory Diagnostics**: Live RAM load %, used vs. available memory (GB), and memory pressure gauge.
-- 🌐 **Network Speeds**: Instant Upload/Download throughput rates (MB/s / KB/s).
-- 🛑 **Quick Process Killer**: Live leaderboard of top memory-consuming applications with a 1-click **End Process** button.
-- 🪶 **Ultra Lightweight**: Built natively in C# (.NET 8 WPF) with zero-allocation ring buffers. Uses `<20 MB RAM` and `<0.1% CPU` when running.
-- 📦 **Single Portable `.exe`**: No installer needed. Download `budwin.exe` and double-click to run.
+- 📊 **Real-time Overview Dashboard**: Live telemetry and 60-second animated history sparklines for CPU, NVIDIA RTX GPU, Memory, Network throughput, and Disk I/O.
+- 🛡️ **Smart Process Manager & Safety Shield**:
+  - Searchable process table with live memory usage and readable descriptions.
+  - **Category Badges:** 🟢 User Applications (Safe to End), 🟡 Background Helpers, 🔴 Critical Windows System Processes.
+  - **Accidental Kill Protection:** Protects core Windows components (`explorer`, `svchost`, `dwm`, `csrss`) from accidental termination.
+- 💾 **Storage Explorer**: Visual progress cards and free space indicators for all mounted SSD/HDD partitions (C:, D:, etc.).
+- 🧹 **Quick System Optimizer**:
+  - **1-Click Temp Cache Cleaner**: Removes `%TEMP%` junk files to free disk space and reduce disk thrashing.
+  - **1-Click DNS Cache Flush**: Instantly fixes DNS resolution issues (`ipconfig /flushdns`).
+  - **1-Click Power Plan Switcher**: Toggle between **Balanced** (silent fans & cool CPU) and **High Performance** directly from the UI.
+- 🪶 **Ultra Lightweight**: Standalone ~4.2 MB binary consuming only ~25–35 MB of RAM (using native WebView2 with zero Electron bloat).
 
 ---
 
-## 🚀 Download & Installation
+## 🚀 Download & Quick Start
 
-### Option 1: Pre-built Executable (Recommended)
-1. Download the latest **`budwin.exe`** from [GitHub Releases](https://github.com/crynn/budwin/releases).
-2. Double-click `budwin.exe` to run.
-3. Check the **"Run on Startup"** box inside the flyout if you want it to start automatically with Windows.
+### 1. Download Pre-built Executable
+Download the latest **`budwin.exe`** directly from [GitHub Releases](https://github.com/crynn/budwin/releases) and double-click to run. No installer or runtime setup needed!
 
-### Option 2: Build from Source
-Requirements: [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+### 2. Build from Source
+
+**Prerequisites:** [Go 1.22+](https://go.dev/dl/) & [Node.js](https://nodejs.org/)
 
 ```powershell
-# Clone the repository
+# 1. Clone repository
 git clone https://github.com/crynn/budwin.git
 cd budwin
 
-# Build release executable
-dotnet build Budwin.sln -c Release
+# 2. Build Frontend
+cd frontend
+npm install
+npm run build
+cd ..
 
-# Publish as a single portable .exe
-dotnet publish src/Budwin/Budwin.csproj -c Release -r win-x64 --self-contained false -p:PublishSingleFile=true -o publish
+# 3. Build Standalone Binary
+go build -ldflags "-H windowsgui -s -w" -o ./build/bin/budwin.exe .
 ```
 
 ---
@@ -56,19 +63,20 @@ dotnet publish src/Budwin/Budwin.csproj -c Release -r win-x64 --self-contained f
 
 ```
 budwin/
-├── src/
-│   └── Budwin/
-│       ├── Core/
-│       │   ├── HardwareSampler.cs    # 1Hz telemetry engine (CPU, RAM, Disk, Net)
-│       │   ├── NvmlInterop.cs        # NVIDIA GPU & RTX temperature P/Invoke
-│       │   ├── RingBuffer.cs         # Fixed 60-slot zero-allocation history buffer
-│       │   ├── ProcessManager.cs     # Top apps leaderboard & safe termination
-│       │   └── StartupManager.cs     # Windows startup registry integration
-│       └── UI/
-│           ├── FlyoutWindow.xaml     # Windows 11 Fluent Dark Mode flyout
-│           ├── TrayIconManager.cs    # Taskbar notification icon & context menu
-│           └── Controls/
-│               └── SparklineControl.cs # High-performance antialiased QPainter-style chart
+├── frontend/               # React 18 + TypeScript + Tailwind CSS
+│   ├── src/
+│   │   ├── components/     # Navbar, MetricCard, Sparkline, EndProcessModal
+│   │   ├── views/          # Overview, Processes, Storage, Optimizer
+│   │   ├── App.tsx         # Main UI Coordinator
+│   │   └── types.ts        # TypeScript models
+├── pkg/
+│   ├── hardware/           # Go telemetry engine (CPU, RAM, Disk, Net, NVIDIA GPU)
+│   ├── process/            # Process leaderboard, safety rules & termination
+│   └── optimizer/          # 1-Click Temp cleanup, Flush DNS, Power Plan
+├── app.go                  # Go-to-TypeScript bridge API
+├── main.go                 # Native Windows window configuration
+├── build.ps1               # 1-Click build script
+└── README.md
 ```
 
 ---

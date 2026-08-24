@@ -1,16 +1,18 @@
-# Budwin Build Script (Self-Contained Single-File)
+# budwin Build Script (Go + React / TypeScript)
 $ErrorActionPreference = "Stop"
 
-$dotnet = "$env:LOCALAPPDATA\dotnet\dotnet.exe"
-if (!(Test-Path $dotnet)) {
-    $dotnet = "dotnet"
+Write-Host "📦 1. Building React Frontend..." -ForegroundColor Cyan
+Set-Location ./frontend
+npm run build
+Set-Location ..
+
+$go = "$env:LOCALAPPDATA\go\bin\go.exe"
+if (!(Test-Path $go)) {
+    $go = "go"
 }
 
-Write-Host "🔨 Building Budwin (Release)..." -ForegroundColor Cyan
-& $dotnet build Budwin.sln -c Release
+Write-Host "🔨 2. Compiling Standalone budwin.exe..." -ForegroundColor Cyan
+& $go build -ldflags "-H windowsgui -s -w" -o ./build/bin/budwin.exe .
 
-Write-Host "📦 Publishing self-contained budwin.exe..." -ForegroundColor Cyan
-& $dotnet publish src/Budwin/Budwin.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true -o ./publish
-
-Write-Host "✅ Done! Output executable:" -ForegroundColor Green
-Get-Item ./publish/budwin.exe | Select-Object FullName, Length, LastWriteTime | Format-List
+Write-Host "✅ Build Finished! Single-file executable ready at:" -ForegroundColor Green
+Get-Item ./build/bin/budwin.exe | Select-Object FullName, @{Name="Size_MB";Expression={[math]::Round($_.Length/1MB,2)}}, LastWriteTime | Format-List
