@@ -8,12 +8,13 @@ import { StorageView } from './views/StorageView';
 import { OptimizerView } from './views/OptimizerView';
 import { StartupView } from './views/StartupView';
 import { BenchmarkView } from './views/BenchmarkView';
+import { LatencyTesterView } from './views/LatencyTesterView';
 import { SettingsView } from './views/SettingsView';
 import { FloatingHudView } from './views/FloatingHudView';
-import { TelemetrySnapshot, ProcessItem, DriveItem, StartupItem, AlertItem, ThemeAccent, AutoBoostStatus } from './types';
+import { TelemetrySnapshot, ProcessItem, DriveItem, StartupItem, AlertItem, ThemeAccent, AutoBoostStatus, MonitorInfo, MultiMonitorSettings } from './types';
 import { Sparkline } from './components/Sparkline';
 import { EndProcessModal } from './components/EndProcessModal';
-import { Cpu, Zap, HardDrive, Wifi, ShieldAlert, AlertTriangle, CheckCircle2, XCircle, Pin } from 'lucide-react';
+import { Maximize2, Cpu, Zap, HardDrive, Wifi, ShieldAlert, AlertTriangle, CheckCircle2, XCircle, Pin } from 'lucide-react';
 
 export function App() {
   const [viewMode, setViewMode] = useState<'full' | 'mini' | 'hud'>('full');
@@ -27,11 +28,29 @@ export function App() {
     document.documentElement.setAttribute('data-theme', themeAccent);
   }, [themeAccent]);
 
+  // Listen to Tray Open Events
+  useEffect(() => {
+    if (window.runtime?.EventsOn) {
+      window.runtime.EventsOn('tray-open-mini', () => {
+        switchViewMode('mini');
+      });
+      window.runtime.EventsOn('tray-open-full', () => {
+        switchViewMode('full');
+      });
+    }
+  }, []);
+
   const [telemetry, setTelemetry] = useState<TelemetrySnapshot | null>(null);
   const [processes, setProcesses] = useState<ProcessItem[]>([]);
   const [startupItems, setStartupItems] = useState<StartupItem[]>([]);
   const [alerts, setAlerts] = useState<AlertItem[]>([]);
   const [autoBoostStatus, setAutoBoostStatus] = useState<AutoBoostStatus | null>(null);
+  const [monitors, setMonitors] = useState<MonitorInfo[]>([]);
+  const [multiMonitorSettings, setMultiMonitorSettings] = useState<MultiMonitorSettings>({
+    dimSecondaryMonitors: false,
+    autoDimOnGameLaunch: true,
+  });
+
   const [drives, setDrives] = useState<DriveItem[]>([
     { letter: 'C', name: 'System', totalGb: 444.7, usedGb: 313.2, freeGb: 131.5, percentUsed: 70.4 },
     { letter: 'D', name: 'Games & Data', totalGb: 931.5, usedGb: 543.6, freeGb: 387.9, percentUsed: 58.4 },
@@ -59,21 +78,23 @@ export function App() {
       if (window.go?.main?.App?.SetHudMode) {
         window.go.main.App.SetHudMode(true);
       } else {
-        window.runtime?.WindowSetSize?.(280, 36);
+        window.runtime?.WindowSetSize?.(345, 36);
         window.runtime?.WindowSetAlwaysOnTop?.(true);
       }
     } else if (mode === 'mini') {
-      if (window.go?.main?.App?.SetHudMode) {
-        window.go.main.App.SetHudMode(false);
+      if (window.go?.main?.App?.SetMiniMode) {
+        window.go.main.App.SetMiniMode(true);
+      } else {
+        window.runtime?.WindowSetSize?.(380, 580);
+        window.runtime?.WindowSetAlwaysOnTop?.(false);
       }
-      window.runtime?.WindowSetSize?.(380, 580);
-      window.runtime?.WindowSetAlwaysOnTop?.(false);
     } else {
-      if (window.go?.main?.App?.SetHudMode) {
-        window.go.main.App.SetHudMode(false);
+      if (window.go?.main?.App?.SetMiniMode) {
+        window.go.main.App.SetMiniMode(false);
+      } else {
+        window.runtime?.WindowSetSize?.(1060, 700);
+        window.runtime?.WindowSetAlwaysOnTop?.(false);
       }
-      window.runtime?.WindowSetSize?.(1060, 700);
-      window.runtime?.WindowSetAlwaysOnTop?.(false);
     }
   };
 
@@ -192,10 +213,25 @@ export function App() {
     }
   };
 
+  const loadMonitors = async () => {
+    if (window.go?.main?.App?.GetMonitors) {
+      try {
+        const m = await window.go.main.App.GetMonitors();
+        setMonitors(m || []);
+      } catch { }
+    } else {
+      setMonitors([
+        { index: 0, name: '\\\\.\\DISPLAY1', isPrimary: true, width: 1920, height: 1080 },
+        { index: 1, name: '\\\\.\\DISPLAY2', isPrimary: false, width: 1920, height: 1080 },
+      ]);
+    }
+  };
+
   useEffect(() => {
     loadProcesses();
     loadStartupItems();
     loadDrives();
+    loadMonitors();
     if (window.go?.main?.App?.GetActivePowerPlan) {
       window.go.main.App.GetActivePowerPlan().then((p) => setPowerPlan(p));
     }
@@ -229,6 +265,19 @@ export function App() {
     }
     setAutoBoostStatus((prev) => prev ? { ...prev, autoBoostEnabled: enable } : null);
     return true;
+  };
+
+  const handleUpdateMonitorSettings = async (settings: MultiMonitorSettings) => {
+    setMultiMonitorSettings(settings);
+    if (window.go?.main?.App?.SetMultiMonitorSettings) {
+      await window.go.main.App.SetMultiMonitorSettings(settings);
+    }
+  };
+
+  const handleQuickPurge = async () => {
+    if (window.go?.main?.App?.PurgeStandbyRAM) {
+      await window.go.main.App.PurgeStandbyRAM();
+    }
   };
 
   const handleDismissAlert = async (id: string) => {
@@ -290,6 +339,7 @@ export function App() {
           timerActive={timerActive}
           onExpand={() => switchViewMode('full')}
           onClose={() => window.runtime?.WindowHide?.()}
+          onQuickPurge={handleQuickPurge}
         />
       </div>
     );
@@ -316,7 +366,7 @@ export function App() {
             </div>
           </div>
 
-          <div className="flex items-center space-x-1 non-draggable">
+          <div className="flex items-center space-x-1.5 non-draggable">
             <button
               onClick={() => switchViewMode('hud')}
               className="p-1 rounded hover:bg-[#18191E] text-neutral-400 hover:text-accent-theme transition-colors"
@@ -326,9 +376,11 @@ export function App() {
             </button>
             <button
               onClick={() => switchViewMode('full')}
-              className="px-2 py-1 rounded-md bg-[#18191E] hover:bg-[#202127] text-white text-[11px] font-semibold transition-all"
+              className="flex items-center space-x-1 px-2.5 py-1 rounded-lg bg-[#24252A] hover:bg-[#2E3038] text-white text-[11px] font-semibold transition-all shadow-sm"
+              title="Maximize to Full Dashboard"
             >
               <span>See More</span>
+              <Maximize2 className="w-3 h-3 text-accent-theme" />
             </button>
             <button
               onClick={() => window.runtime?.WindowHide?.()}
@@ -514,9 +566,13 @@ export function App() {
           activeTab={activeTab}
           setActiveTab={setActiveTab}
           onToggleHud={() => switchViewMode('hud')}
+          telemetry={telemetry}
+          gameBoostActive={autoBoostStatus?.isBoosting || false}
+          activeGameName={autoBoostStatus?.activeGameName}
+          onQuickPurge={handleQuickPurge}
         />
 
-        <main className="flex-1 overflow-hidden bg-[#0E0F12]">
+        <main className="flex-1 h-full overflow-y-auto bg-[#0E0F12]">
           {activeTab === 'overview' && (
             <OverviewView telemetry={telemetry} history={history} />
           )}
@@ -547,6 +603,13 @@ export function App() {
             <BenchmarkView
               autoBoostStatus={autoBoostStatus}
               onToggleAutoBoost={handleToggleAutoBoost}
+            />
+          )}
+          {activeTab === 'inputlab' && (
+            <LatencyTesterView
+              monitors={monitors}
+              multiMonitorSettings={multiMonitorSettings}
+              onUpdateMonitorSettings={handleUpdateMonitorSettings}
             />
           )}
           {activeTab === 'settings' && (

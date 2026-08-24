@@ -1,15 +1,29 @@
 import React from 'react';
-import { Activity, Cpu, HardDrive, Sparkles, Power, Settings, Pin, Trophy } from 'lucide-react';
+import { Activity, Cpu, HardDrive, Sparkles, Power, Settings, Pin, Trophy, MousePointer } from 'lucide-react';
+import { BuddyMascot } from './BuddyMascot';
+import { TelemetrySnapshot } from '../types';
 
-export type TabType = 'overview' | 'processes' | 'storage' | 'optimizer' | 'startup' | 'benchmark' | 'settings';
+export type TabType = 'overview' | 'processes' | 'storage' | 'optimizer' | 'startup' | 'benchmark' | 'inputlab' | 'settings';
 
 interface SidebarProps {
   activeTab: TabType;
   setActiveTab: (tab: TabType) => void;
   onToggleHud: () => void;
+  telemetry: TelemetrySnapshot | null;
+  gameBoostActive: boolean;
+  activeGameName?: string;
+  onQuickPurge?: () => Promise<void>;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, onToggleHud }) => {
+export const Sidebar: React.FC<SidebarProps> = ({
+  activeTab,
+  setActiveTab,
+  onToggleHud,
+  telemetry,
+  gameBoostActive,
+  activeGameName,
+  onQuickPurge,
+}) => {
   const items = [
     { id: 'overview', label: 'Dashboard', icon: <Activity className="w-4 h-4" /> },
     { id: 'processes', label: 'Processes', icon: <Cpu className="w-4 h-4" /> },
@@ -17,6 +31,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, onTog
     { id: 'optimizer', label: 'Optimizer', icon: <Sparkles className="w-4 h-4" /> },
     { id: 'startup', label: 'Startup Apps', icon: <Power className="w-4 h-4" /> },
     { id: 'benchmark', label: 'Benchmark', icon: <Trophy className="w-4 h-4" /> },
+    { id: 'inputlab', label: 'Input Lab', icon: <MousePointer className="w-4 h-4" /> },
     { id: 'settings', label: 'Preferences', icon: <Settings className="w-4 h-4" /> },
   ];
 
@@ -64,15 +79,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, onTog
         </div>
       </div>
 
-      {/* Mascot Card at bottom of sidebar */}
-      <div className="bg-[#18191E] rounded-xl p-2.5 flex items-center space-x-2.5">
-        <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 bg-[#111215]">
-          <img src="/logo.png" alt="budwin mascot" className="w-full h-full object-cover scale-110" />
-        </div>
-        <div className="overflow-hidden">
-          <span className="font-bold text-xs text-white block truncate leading-tight">Buddy Companion</span>
-          <span className="text-[10px] text-neutral-400 font-medium">Ready & Protecting</span>
-        </div>
+      {/* Interactive Reactive Buddy Mascot at bottom of sidebar */}
+      <div>
+        <BuddyMascot
+          telemetry={telemetry}
+          gameBoostActive={gameBoostActive}
+          activeGameName={activeGameName}
+          onQuickPurge={onQuickPurge}
+        />
       </div>
     </aside>
   );

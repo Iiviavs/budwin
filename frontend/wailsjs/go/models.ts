@@ -150,6 +150,26 @@ export namespace hardware {
 
 export namespace optimizer {
 	
+	export class AudioLatencyStatus {
+	    isOptimized: boolean;
+	    bufferLatencyMs: number;
+	    mmcssPriority: string;
+	    exclusiveMode: boolean;
+	    systemResponsive: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new AudioLatencyStatus(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.isOptimized = source["isOptimized"];
+	        this.bufferLatencyMs = source["bufferLatencyMs"];
+	        this.mmcssPriority = source["mmcssPriority"];
+	        this.exclusiveMode = source["exclusiveMode"];
+	        this.systemResponsive = source["systemResponsive"];
+	    }
+	}
 	export class AutoBoostStatus {
 	    autoBoostEnabled: boolean;
 	    activeGameName: string;
@@ -221,6 +241,26 @@ export namespace optimizer {
 		    return a;
 		}
 	}
+	export class FpsTweakStatus {
+	    ultimatePowerPlanActive: boolean;
+	    gameDvrDisabled: boolean;
+	    cpuCoreParkingDisabled: boolean;
+	    highPriorityQueueActive: boolean;
+	    gpuSchedulingUnlocked: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new FpsTweakStatus(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.ultimatePowerPlanActive = source["ultimatePowerPlanActive"];
+	        this.gameDvrDisabled = source["gameDvrDisabled"];
+	        this.cpuCoreParkingDisabled = source["cpuCoreParkingDisabled"];
+	        this.highPriorityQueueActive = source["highPriorityQueueActive"];
+	        this.gpuSchedulingUnlocked = source["gpuSchedulingUnlocked"];
+	    }
+	}
 	export class GameBoostResult {
 	    active: boolean;
 	    freedRamMb: number;
@@ -237,6 +277,40 @@ export namespace optimizer {
 	        this.freedRamMb = source["freedRamMb"];
 	        this.timerActive = source["timerActive"];
 	        this.powerPlan = source["powerPlan"];
+	    }
+	}
+	export class MonitorInfo {
+	    index: number;
+	    name: string;
+	    isPrimary: boolean;
+	    width: number;
+	    height: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new MonitorInfo(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.index = source["index"];
+	        this.name = source["name"];
+	        this.isPrimary = source["isPrimary"];
+	        this.width = source["width"];
+	        this.height = source["height"];
+	    }
+	}
+	export class MultiMonitorSettings {
+	    dimSecondaryMonitors: boolean;
+	    autoDimOnGameLaunch: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new MultiMonitorSettings(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.dimSecondaryMonitors = source["dimSecondaryMonitors"];
+	        this.autoDimOnGameLaunch = source["autoDimOnGameLaunch"];
 	    }
 	}
 	export class StartupItem {
@@ -289,6 +363,119 @@ export namespace process {
 	        this.category = source["category"];
 	        this.categoryLabel = source["categoryLabel"];
 	    }
+	}
+
+}
+
+export namespace storage {
+	
+	export class GameDuplicateItem {
+	    id: string;
+	    gameName: string;
+	    category: string;
+	    path: string;
+	    sizeMb: number;
+	    description: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new GameDuplicateItem(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.gameName = source["gameName"];
+	        this.category = source["category"];
+	        this.path = source["path"];
+	        this.sizeMb = source["sizeMb"];
+	        this.description = source["description"];
+	    }
+	}
+	export class GameHunterScanResult {
+	    totalDuplicateMb: number;
+	    items: GameDuplicateItem[];
+	
+	    static createFrom(source: any = {}) {
+	        return new GameHunterScanResult(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.totalDuplicateMb = source["totalDuplicateMb"];
+	        this.items = this.convertValues(source["items"], GameDuplicateItem);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class StorageCategoryItem {
+	    id: string;
+	    name: string;
+	    description: string;
+	    sizeMb: number;
+	    cleanable: boolean;
+	    iconType: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new StorageCategoryItem(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.name = source["name"];
+	        this.description = source["description"];
+	        this.sizeMb = source["sizeMb"];
+	        this.cleanable = source["cleanable"];
+	        this.iconType = source["iconType"];
+	    }
+	}
+	export class StorageScanResult {
+	    totalCleanableMb: number;
+	    categories: StorageCategoryItem[];
+	
+	    static createFrom(source: any = {}) {
+	        return new StorageScanResult(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.totalCleanableMb = source["totalCleanableMb"];
+	        this.categories = this.convertValues(source["categories"], StorageCategoryItem);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
 	}
 
 }

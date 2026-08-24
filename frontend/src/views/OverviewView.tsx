@@ -26,7 +26,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({ telemetry, history }
   };
 
   return (
-    <div className="space-y-4 p-6 overflow-y-auto max-h-[calc(100vh-2.5rem)] font-sans">
+    <div className="p-6 space-y-5 pb-20 font-sans">
       {/* HERO CARD (Borderless Raycast) */}
       <div className="glass-card rounded-2xl p-6 space-y-4 shadow-xl">
         <div className="flex items-start justify-between">
