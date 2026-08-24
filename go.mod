@@ -1,4 +1,4 @@
-module budwin
+module github.com/Iiviavs/budwin
 
 go 1.25.0
 

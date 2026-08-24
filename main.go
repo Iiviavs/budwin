@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"budwin/pkg/tray"
+	"github.com/Iiviavs/budwin/pkg/tray"
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
