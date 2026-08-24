@@ -51,8 +51,8 @@ func main() {
 		},
 		Windows: &windows.Options{
 			WebviewIsTransparent: true,
-			WindowIsTranslucent:  true,
-			BackdropType:         windows.Acrylic,
+			WindowIsTranslucent:  false,
+			BackdropType:         windows.None, // None eliminates the rectangular grey Acrylic/Mica corners!
 			Theme:                windows.Dark,
 		},
 	})

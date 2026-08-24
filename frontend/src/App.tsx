@@ -45,7 +45,7 @@ export function App() {
       if (window.go?.main?.App?.SetHudMode) {
         window.go.main.App.SetHudMode(true);
       } else {
-        window.runtime?.WindowSetSize?.(280, 36);
+        window.runtime?.WindowSetSize?.(270, 36);
         window.runtime?.WindowSetAlwaysOnTop?.(true);
       }
     } else if (mode === 'mini') {
@@ -232,13 +232,12 @@ export function App() {
     return `${Math.round(kb)} KB/s`;
   };
 
-  // 1. FLOATING ALWAYS-ON-TOP SEE-THROUGH GLASS HUD
+  // 1. DISCORD GAME OVERLAY VIEW (No extra borders, rounded pill)
   if (viewMode === 'hud') {
     return (
       <FloatingHudView
         telemetry={telemetry}
         timerActive={timerActive}
-        onExpand={() => switchViewMode('full')}
         onClose={() => window.runtime?.WindowHide?.()}
       />
     );
@@ -269,7 +268,7 @@ export function App() {
             <button
               onClick={() => switchViewMode('hud')}
               className="p-1 rounded hover:bg-surfaceHover text-gray-400 hover:text-accent-lime transition-colors"
-              title="Pin as Floating See-Through HUD"
+              title="Pin as Discord Game Overlay"
             >
               <Pin className="w-3.5 h-3.5" />
             </button>
