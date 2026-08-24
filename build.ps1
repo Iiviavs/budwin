@@ -1,18 +1,15 @@
-# budwin Build Script (Go + React / TypeScript)
+# budwin Build Script (Wails + React / TypeScript)
 $ErrorActionPreference = "Stop"
 
-Write-Host "📦 1. Building React Frontend..." -ForegroundColor Cyan
-Set-Location ./frontend
-npm run build
-Set-Location ..
+$env:PATH = "$env:LOCALAPPDATA\go\bin;$env:USERPROFILE\go\bin;$env:PATH"
 
-$go = "$env:LOCALAPPDATA\go\bin\go.exe"
-if (!(Test-Path $go)) {
-    $go = "go"
+$wails = "$env:USERPROFILE\go\bin\wails.exe"
+if (!(Test-Path $wails)) {
+    $wails = "wails"
 }
 
-Write-Host "🔨 2. Compiling Standalone budwin.exe..." -ForegroundColor Cyan
-& $go build -ldflags "-H windowsgui -s -w" -o ./build/bin/budwin.exe .
+Write-Host "📦 Compiling budwin with Wails (React + Go)..." -ForegroundColor Cyan
+& $wails build -clean -platform windows/amd64 -o budwin.exe
 
-Write-Host "✅ Build Finished! Single-file executable ready at:" -ForegroundColor Green
+Write-Host "✅ Standalone executable built successfully at:" -ForegroundColor Green
 Get-Item ./build/bin/budwin.exe | Select-Object FullName, @{Name="Size_MB";Expression={[math]::Round($_.Length/1MB,2)}}, LastWriteTime | Format-List
