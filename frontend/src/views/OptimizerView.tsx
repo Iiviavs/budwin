@@ -120,7 +120,7 @@ export const OptimizerView: React.FC<OptimizerViewProps> = ({
     <div className="p-6 space-y-6 max-h-[calc(100vh-2.5rem)] overflow-y-auto">
       <div>
         <h2 className="text-lg font-bold text-white flex items-center space-x-2">
-          <Sparkles className="w-5 h-5 text-accent-lime" />
+          <Sparkles className="w-5 h-5 text-accent-theme" />
           <span>Performance & System Optimizer</span>
         </h2>
         <p className="text-xs text-gray-400 font-medium">1-Click Game Boost, input latency reduction, and system cleaning</p>
@@ -129,14 +129,14 @@ export const OptimizerView: React.FC<OptimizerViewProps> = ({
       {/* GAME BOOST / FOCUS MODE HERO BANNER */}
       <div className={`rounded-3xl p-6 border transition-all duration-300 shadow-2xl ${
         gameBoostActive
-          ? 'bg-gradient-to-br from-surface to-accent-lime/10 border-accent-lime/50 shadow-accent-lime/10'
+          ? 'bg-gradient-to-br from-surface to-accent-theme/10 border-accent-theme/50 shadow-accent-theme/10'
           : 'glass-card border-border'
       }`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <div className={`w-13 h-13 rounded-2xl flex items-center justify-center p-3 transition-all ${
               gameBoostActive
-                ? 'bg-accent-lime text-black shadow-lg shadow-accent-lime/30'
+                ? 'bg-accent-theme text-black shadow-lg shadow-accent-theme/30'
                 : 'bg-surfaceHover text-gray-400 border border-border'
             }`}>
               <Rocket className="w-7 h-7" />
@@ -147,7 +147,7 @@ export const OptimizerView: React.FC<OptimizerViewProps> = ({
                 <h3 className="text-base font-bold text-white">🚀 1-Click Game Boost & Focus Mode</h3>
                 <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
                   gameBoostActive
-                    ? 'bg-accent-lime/20 text-accent-lime border-accent-lime/40 animate-pulse'
+                    ? 'bg-accent-theme/20 text-accent-theme border-accent-theme/40 animate-pulse'
                     : 'bg-surface text-gray-400 border-border'
                 }`}>
                   {gameBoostActive ? 'BOOST ACTIVE' : 'READY'}
@@ -174,7 +174,7 @@ export const OptimizerView: React.FC<OptimizerViewProps> = ({
               onClick={handleToggleGameBoost}
               className={`px-5 py-2 rounded-xl text-xs font-bold transition-all shadow-lg active:scale-95 ${
                 gameBoostActive
-                  ? 'bg-accent-lime text-black shadow-accent-lime/30 hover:bg-lime-400'
+                  ? 'bg-accent-theme text-black shadow-accent-theme/30 hover:opacity-90'
                   : 'bg-surfaceHover hover:bg-border text-white border border-border/80'
               }`}
             >
@@ -184,7 +184,7 @@ export const OptimizerView: React.FC<OptimizerViewProps> = ({
         </div>
 
         {gameBoostResult && (
-          <div className="mt-3 p-2.5 rounded-xl bg-accent-lime/10 border border-accent-lime/30 text-accent-lime text-xs flex items-center space-x-2 font-medium">
+          <div className="mt-3 p-2.5 rounded-xl bg-accent-theme/10 border border-accent-theme/30 text-accent-theme text-xs flex items-center space-x-2 font-medium">
             <CheckCircle2 className="w-4 h-4 shrink-0" />
             <span>{gameBoostResult}</span>
           </div>
@@ -358,7 +358,7 @@ export const OptimizerView: React.FC<OptimizerViewProps> = ({
               <p className="text-xs text-gray-400">Controls CPU frequency scaling, heat output, and fan speeds</p>
             </div>
           </div>
-          <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-accent-lime/10 text-accent-lime border border-accent-lime/20">
+          <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-accent-theme/10 text-accent-theme border border-accent-theme/20">
             Active: {activePlan}
           </span>
         </div>

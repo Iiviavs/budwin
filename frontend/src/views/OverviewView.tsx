@@ -27,11 +27,11 @@ export const OverviewView: React.FC<OverviewViewProps> = ({ telemetry, history }
 
   return (
     <div className="space-y-4 p-6 overflow-y-auto max-h-[calc(100vh-2.5rem)]">
-      {/* HERO CARD (Matching Reference Image Style) */}
+      {/* HERO CARD */}
       <div className="glass-card rounded-3xl p-6 border border-border bg-gradient-to-br from-surface to-sidebar space-y-5 shadow-2xl">
         <div className="flex items-start justify-between">
           <div className="flex items-center space-x-4">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-accent-lime to-emerald-400 p-0.5 shadow-xl shadow-accent-lime/10">
+            <div className="w-14 h-14 rounded-2xl bg-accent-theme/20 border border-accent-theme/40 p-0.5 shadow-xl shadow-accent-theme/10">
               <div className="w-full h-full bg-surface rounded-2xl flex items-center justify-center overflow-hidden">
                 <img src="/logo.png" alt="budwin" className="w-full h-full object-cover scale-110" />
               </div>
@@ -39,7 +39,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({ telemetry, history }
 
             <div>
               <div className="flex items-center space-x-2">
-                <span className="text-[11px] font-bold text-accent-lime uppercase tracking-wider">
+                <span className="text-[11px] font-bold text-accent-theme uppercase tracking-wider">
                   Hardware Engine Active
                 </span>
                 <span className="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/20 font-bold">
@@ -56,7 +56,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({ telemetry, history }
           </div>
 
           <div className="flex items-center space-x-2">
-            <div className="px-3.5 py-1.5 rounded-xl bg-accent-lime/10 border border-accent-lime/30 text-accent-lime text-xs font-bold flex items-center space-x-1.5 shadow-sm">
+            <div className="px-3.5 py-1.5 rounded-xl bg-accent-theme/10 border border-accent-theme/30 text-accent-theme text-xs font-bold flex items-center space-x-1.5 shadow-sm">
               <ShieldCheck className="w-4 h-4" />
               <span>System Optimized</span>
             </div>
@@ -86,7 +86,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({ telemetry, history }
 
           <div className="bg-background/60 border border-border/80 rounded-xl p-3">
             <span className="text-[11px] text-gray-400 block font-medium">Timer Latency</span>
-            <span className="text-sm font-bold text-accent-lime mt-0.5 block">1.0ms Resolution</span>
+            <span className="text-sm font-bold text-accent-theme mt-0.5 block">1.0ms Resolution</span>
           </div>
         </div>
       </div>

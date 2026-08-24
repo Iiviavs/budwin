@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react';
 import { Titlebar } from './components/Titlebar';
 import { Sidebar, TabType } from './components/Sidebar';
+import { AlertBanner } from './components/AlertBanner';
 import { OverviewView } from './views/OverviewView';
 import { ProcessesView } from './views/ProcessesView';
 import { StorageView } from './views/StorageView';
 import { OptimizerView } from './views/OptimizerView';
 import { StartupView } from './views/StartupView';
+import { SettingsView } from './views/SettingsView';
 import { FloatingHudView } from './views/FloatingHudView';
-import { TelemetrySnapshot, ProcessItem, DriveItem, StartupItem } from './types';
+import { TelemetrySnapshot, ProcessItem, DriveItem, StartupItem, AlertItem, ThemeAccent } from './types';
 import { Sparkline } from './components/Sparkline';
 import { EndProcessModal } from './components/EndProcessModal';
 import { Maximize2, Cpu, Zap, HardDrive, Wifi, ShieldAlert, AlertTriangle, CheckCircle2, XCircle, Pin } from 'lucide-react';
@@ -15,9 +17,19 @@ import { Maximize2, Cpu, Zap, HardDrive, Wifi, ShieldAlert, AlertTriangle, Check
 export function App() {
   const [viewMode, setViewMode] = useState<'full' | 'mini' | 'hud'>('full');
   const [activeTab, setActiveTab] = useState<TabType>('overview');
+  const [themeAccent, setThemeAccent] = useState<ThemeAccent>(() => {
+    return (localStorage.getItem('budwin_theme') as ThemeAccent) || 'lime';
+  });
+
+  // Apply theme dynamically to document root
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', themeAccent);
+  }, [themeAccent]);
+
   const [telemetry, setTelemetry] = useState<TelemetrySnapshot | null>(null);
   const [processes, setProcesses] = useState<ProcessItem[]>([]);
   const [startupItems, setStartupItems] = useState<StartupItem[]>([]);
+  const [alerts, setAlerts] = useState<AlertItem[]>([]);
   const [drives, setDrives] = useState<DriveItem[]>([
     { letter: 'C', name: 'System', totalGb: 444.7, usedGb: 313.2, freeGb: 131.5, percentUsed: 70.4 },
     { letter: 'D', name: 'Games & Data', totalGb: 931.5, usedGb: 543.6, freeGb: 387.9, percentUsed: 58.4 },
@@ -45,7 +57,7 @@ export function App() {
       if (window.go?.main?.App?.SetHudMode) {
         window.go.main.App.SetHudMode(true);
       } else {
-        window.runtime?.WindowSetSize?.(270, 36);
+        window.runtime?.WindowSetSize?.(280, 36);
         window.runtime?.WindowSetAlwaysOnTop?.(true);
       }
     } else if (mode === 'mini') {
@@ -63,7 +75,7 @@ export function App() {
     }
   };
 
-  // Telemetry loop
+  // Telemetry & Alerts loop
   useEffect(() => {
     const fetchTelemetry = async () => {
       if (window.go?.main?.App?.GetTelemetry) {
@@ -73,10 +85,16 @@ export function App() {
 
           setHistory((prev) => ({
             cpu: [...prev.cpu.slice(1), telem.cpuPercent],
-            gpu: [...prev.gpu.slice(1), telem.gpu.isAvailable ? telem.gpu.coreUtilization : 0],
+            gpu: [...prev.gpu.slice(1), telem.gpu?.isAvailable ? telem.gpu.coreUtilization : 0],
             ram: [...prev.ram.slice(1), telem.ramPercent],
             net: [...prev.net.slice(1), telem.netInKb],
           }));
+
+          // Fetch active hardware alerts
+          if (window.go?.main?.App?.GetActiveAlerts) {
+            const activeAlerts = await window.go.main.App.GetActiveAlerts();
+            setAlerts(activeAlerts || []);
+          }
         } catch { }
       } else {
         const mockCpu = Math.floor(Math.random() * 20) + 12;
@@ -197,6 +215,21 @@ export function App() {
     return true;
   };
 
+  const handleDismissAlert = async (id: string) => {
+    if (window.go?.main?.App?.DismissAlert) {
+      await window.go.main.App.DismissAlert(id);
+    }
+    setAlerts((prev) => prev.filter((a) => a.id !== id));
+  };
+
+  const handleResolveAlert = async (id: string, type: string, targetPid?: number) => {
+    if (window.go?.main?.App?.ResolveAlert) {
+      await window.go.main.App.ResolveAlert(id, type, targetPid || 0);
+    }
+    setAlerts((prev) => prev.filter((a) => a.id !== id));
+    loadProcesses();
+  };
+
   const handleCleanTemp = async (): Promise<number> => {
     if (window.go?.main?.App?.CleanTempFiles) {
       return await window.go.main.App.CleanTempFiles();
@@ -232,14 +265,17 @@ export function App() {
     return `${Math.round(kb)} KB/s`;
   };
 
-  // 1. DISCORD GAME OVERLAY VIEW (No extra borders, rounded pill)
+  // 1. DISCORD GAME OVERLAY VIEW (With Maximize & Close buttons)
   if (viewMode === 'hud') {
     return (
-      <FloatingHudView
-        telemetry={telemetry}
-        timerActive={timerActive}
-        onClose={() => window.runtime?.WindowHide?.()}
-      />
+      <div data-theme={themeAccent} className="w-full h-full">
+        <FloatingHudView
+          telemetry={telemetry}
+          timerActive={timerActive}
+          onExpand={() => switchViewMode('full')}
+          onClose={() => window.runtime?.WindowHide?.()}
+        />
+      </div>
     );
   }
 
@@ -251,30 +287,30 @@ export function App() {
     const netInVal = telemetry ? telemetry.netInKb : 0;
 
     return (
-      <div className="h-screen w-screen bg-background border border-border flex flex-col justify-between p-3.5 select-none font-sans text-gray-100 rounded-2xl overflow-hidden">
+      <div data-theme={themeAccent} className="h-screen w-screen bg-background border border-border flex flex-col justify-between p-3.5 select-none font-sans text-gray-100 rounded-2xl overflow-hidden">
         {/* Header with Raccoon Mascot */}
         <div className="flex items-center justify-between pb-2.5 border-b border-border/80 draggable">
           <div className="flex items-center space-x-2.5 non-draggable">
-            <div className="w-7 h-7 rounded-full overflow-hidden border border-accent-lime/40 shadow-sm bg-surface">
+            <div className="w-7 h-7 rounded-full overflow-hidden border border-accent-theme/40 shadow-sm bg-surface">
               <img src="/logo.png" alt="budwin mascot" className="w-full h-full object-cover scale-110" />
             </div>
             <div>
               <span className="font-bold text-sm text-white block leading-tight">budwin</span>
-              <span className="text-[10px] text-accent-lime font-medium">Tray Widget</span>
+              <span className="text-[10px] text-accent-theme font-medium">Tray Widget</span>
             </div>
           </div>
 
           <div className="flex items-center space-x-1.5 non-draggable">
             <button
               onClick={() => switchViewMode('hud')}
-              className="p-1 rounded hover:bg-surfaceHover text-gray-400 hover:text-accent-lime transition-colors"
+              className="p-1 rounded hover:bg-surfaceHover text-gray-400 hover:text-accent-theme transition-colors"
               title="Pin as Discord Game Overlay"
             >
               <Pin className="w-3.5 h-3.5" />
             </button>
             <button
               onClick={() => switchViewMode('full')}
-              className="flex items-center space-x-1 px-2 py-1 rounded-lg bg-accent-lime/10 hover:bg-accent-lime/20 text-accent-lime border border-accent-lime/30 text-[11px] font-bold transition-all shadow-sm"
+              className="flex items-center space-x-1 px-2 py-1 rounded-lg bg-accent-theme/10 hover:bg-accent-theme/20 text-accent-theme border border-accent-theme/30 text-[11px] font-bold transition-all shadow-sm"
             >
               <span>See More</span>
               <Maximize2 className="w-3 h-3" />
@@ -361,14 +397,14 @@ export function App() {
         {/* Input Lag 1-Click Status Badge */}
         <div className="bg-surface border border-border rounded-xl p-2 flex items-center justify-between text-xs">
           <div className="flex items-center space-x-2">
-            <Zap className="w-3.5 h-3.5 text-accent-lime" />
+            <Zap className="w-3.5 h-3.5 text-accent-theme" />
             <span className="text-[11px] font-semibold text-gray-200">1.0ms Low Latency</span>
           </div>
           <button
             onClick={handleToggleTimer}
             className={`px-2.5 py-0.5 rounded text-[10px] font-bold border transition-colors ${
               timerActive
-                ? 'bg-accent-lime/10 text-accent-lime border-accent-lime/30'
+                ? 'bg-accent-theme/10 text-accent-theme border-accent-theme/30'
                 : 'bg-surfaceHover text-gray-400 border-border hover:text-white'
             }`}
           >
@@ -421,7 +457,7 @@ export function App() {
           {/* See More Banner */}
           <button
             onClick={() => switchViewMode('full')}
-            className="w-full mt-1.5 py-1.5 rounded-xl bg-accent-lime/10 hover:bg-accent-lime/20 text-center text-xs font-bold text-accent-lime border border-accent-lime/20 transition-all shadow-sm"
+            className="w-full mt-1.5 py-1.5 rounded-xl bg-accent-theme/10 hover:bg-accent-theme/20 text-center text-xs font-bold text-accent-theme border border-accent-theme/20 transition-all shadow-sm"
           >
             Open Full Dashboard & Optimizer ↗
           </button>
@@ -438,7 +474,7 @@ export function App() {
 
   // 3. FULL SIZED LUXURY DARK APP VIEW (Discord / Chompchain layout)
   return (
-    <div className="h-screen w-screen bg-background flex flex-col select-none text-gray-100 font-sans overflow-hidden border border-border rounded-2xl">
+    <div data-theme={themeAccent} className="h-screen w-screen bg-background flex flex-col select-none text-gray-100 font-sans overflow-hidden border border-border rounded-2xl">
       {/* Discord Style Frameless Titlebar */}
       <Titlebar
         timerActive={timerActive}
@@ -448,6 +484,13 @@ export function App() {
         onMinimize={() => window.runtime?.WindowMinimise?.()}
         onMaximize={() => window.runtime?.WindowToggleMaximise?.()}
         onClose={() => window.runtime?.WindowHide?.()}
+      />
+
+      {/* Hardware Thermal & Watchdog Alert Banners */}
+      <AlertBanner
+        alerts={alerts}
+        onDismiss={handleDismissAlert}
+        onResolve={handleResolveAlert}
       />
 
       {/* Main App Layout with Left Sidebar + View Container */}
@@ -483,6 +526,12 @@ export function App() {
               items={startupItems}
               onRefresh={loadStartupItems}
               onToggle={handleToggleStartupItem}
+            />
+          )}
+          {activeTab === 'settings' && (
+            <SettingsView
+              themeAccent={themeAccent}
+              setThemeAccent={setThemeAccent}
             />
           )}
         </main>

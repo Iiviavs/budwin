@@ -24,16 +24,16 @@ export const Titlebar: React.FC<TitlebarProps> = ({
     <div className="h-10 bg-sidebar border-b border-border/80 flex items-center justify-between px-3.5 select-none draggable text-xs">
       {/* Brand & Mascot */}
       <div className="flex items-center space-x-2.5 non-draggable">
-        <div className="w-6 h-6 rounded-full overflow-hidden border border-sky-400/40 shadow-sm bg-surface">
+        <div className="w-6 h-6 rounded-full overflow-hidden border border-accent-theme/40 shadow-sm bg-surface">
           <img src="/logo.png" alt="budwin logo" className="w-full h-full object-cover scale-110" />
         </div>
         <span className="font-bold text-sm tracking-tight text-white">budwin</span>
-        <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-accent-lime/10 text-accent-lime border border-accent-lime/20">
-          v1.2.0
+        <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-accent-theme/10 text-accent-theme border border-accent-theme/20">
+          v1.5.0
         </span>
       </div>
 
-      {/* Center Status Badges (From Mockup Style) */}
+      {/* Center Status Badges */}
       <div className="hidden md:flex items-center space-x-2 non-draggable">
         <div className="flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full bg-surface border border-border text-[11px]">
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
@@ -41,7 +41,7 @@ export const Titlebar: React.FC<TitlebarProps> = ({
           <span className="font-bold text-white">{powerPlan}</span>
         </div>
 
-        <div className="flex items-center space-x-1 px-2.5 py-0.5 rounded-full bg-accent-lime/10 border border-accent-lime/30 text-[11px] text-accent-lime font-bold">
+        <div className="flex items-center space-x-1 px-2.5 py-0.5 rounded-full bg-accent-theme/10 border border-accent-theme/30 text-[11px] text-accent-theme font-bold">
           <Zap className="w-3 h-3" />
           <span>{timerActive ? '1.0ms Latency: ON' : '15.6ms Timer'}</span>
         </div>

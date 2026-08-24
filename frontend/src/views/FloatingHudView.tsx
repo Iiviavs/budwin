@@ -1,16 +1,18 @@
 import React from 'react';
-import { Cpu, Zap, HardDrive, X } from 'lucide-react';
+import { Cpu, Zap, HardDrive, Maximize2, X } from 'lucide-react';
 import { TelemetrySnapshot } from '../types';
 
 interface FloatingHudViewProps {
   telemetry: TelemetrySnapshot | null;
   timerActive: boolean;
+  onExpand: () => void;
   onClose: () => void;
 }
 
 export const FloatingHudView: React.FC<FloatingHudViewProps> = ({
   telemetry,
   timerActive,
+  onExpand,
   onClose,
 }) => {
   const cpuPercent = telemetry ? Math.round(telemetry.cpuPercent) : 0;
@@ -22,7 +24,7 @@ export const FloatingHudView: React.FC<FloatingHudViewProps> = ({
     <div
       className="w-full h-full flex items-center justify-between px-3 select-none font-sans text-gray-100 rounded-full overflow-hidden draggable"
       style={{
-        backgroundColor: 'rgba(20, 22, 28, 0.85)', // Discord overlay solid glass
+        backgroundColor: 'rgba(20, 22, 28, 0.85)', // Discord overlay dark glass
         border: '1px solid rgba(255, 255, 255, 0.12)',
         boxShadow: '0 4px 16px rgba(0, 0, 0, 0.4)',
       }}
@@ -35,7 +37,7 @@ export const FloatingHudView: React.FC<FloatingHudViewProps> = ({
         </div>
 
         <div className="flex items-center space-x-1">
-          <span className="text-[9px] font-bold font-mono px-1.5 py-0.2 rounded-full bg-[#23a55a]/20 text-[#23a55a] border border-[#23a55a]/30">
+          <span className="text-[9px] font-bold font-mono px-1.5 py-0.2 rounded bg-[#23a55a]/20 text-[#23a55a] border border-[#23a55a]/30">
             {timerActive ? '1.0ms' : '15ms'}
           </span>
         </div>
@@ -63,12 +65,19 @@ export const FloatingHudView: React.FC<FloatingHudViewProps> = ({
         </div>
       </div>
 
-      {/* Close button only (No expand arrows) */}
-      <div className="flex items-center space-x-0.5 non-draggable text-gray-400 shrink-0">
+      {/* Controls: Maximize/Expand & Close */}
+      <div className="flex items-center space-x-1 non-draggable text-gray-400 shrink-0">
+        <button
+          onClick={onExpand}
+          className="p-1 rounded-full hover:bg-white/20 text-gray-300 hover:text-white transition-colors"
+          title="Expand to Full Dashboard"
+        >
+          <Maximize2 className="w-3 h-3" />
+        </button>
         <button
           onClick={onClose}
           className="p-1 rounded-full hover:bg-rose-500/50 text-gray-400 hover:text-white transition-colors"
-          title="Close Overlay"
+          title="Close to Tray"
         >
           <X className="w-3 h-3" />
         </button>

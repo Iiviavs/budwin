@@ -2,6 +2,42 @@
 @tailwind components;
 @tailwind utilities;
 
+:root, [data-theme="lime"] {
+  --accent-primary: #D4F63D;
+  --accent-glow: rgba(212, 246, 61, 0.25);
+  --accent-border: rgba(212, 246, 61, 0.40);
+}
+
+[data-theme="cyan"] {
+  --accent-primary: #38BDF8;
+  --accent-glow: rgba(56, 189, 248, 0.25);
+  --accent-border: rgba(56, 189, 248, 0.40);
+}
+
+[data-theme="blurple"] {
+  --accent-primary: #5865F2;
+  --accent-glow: rgba(88, 101, 242, 0.25);
+  --accent-border: rgba(88, 101, 242, 0.40);
+}
+
+[data-theme="amber"] {
+  --accent-primary: #FB923C;
+  --accent-glow: rgba(251, 146, 60, 0.25);
+  --accent-border: rgba(251, 146, 60, 0.40);
+}
+
+[data-theme="rose"] {
+  --accent-primary: #F43F5E;
+  --accent-glow: rgba(244, 63, 94, 0.25);
+  --accent-border: rgba(244, 63, 94, 0.40);
+}
+
+[data-theme="emerald"] {
+  --accent-primary: #22C55E;
+  --accent-glow: rgba(34, 197, 94, 0.25);
+  --accent-border: rgba(34, 197, 94, 0.40);
+}
+
 @layer base {
   ::-webkit-scrollbar {
     width: 6px;

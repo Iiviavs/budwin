@@ -6,7 +6,11 @@ import {optimizer} from '../models';
 
 export function CleanTempFiles():Promise<number>;
 
+export function DismissAlert(arg1:string):Promise<void>;
+
 export function FlushDNS():Promise<boolean>;
+
+export function GetActiveAlerts():Promise<Array<hardware.AlertItem>>;
 
 export function GetActivePowerPlan():Promise<string>;
 
@@ -29,6 +33,8 @@ export function KillProcess(arg1:number):Promise<boolean>;
 export function OptimizeInputLatency():Promise<boolean>;
 
 export function PurgeStandbyRAM():Promise<number>;
+
+export function ResolveAlert(arg1:string,arg2:string,arg3:number):Promise<boolean>;
 
 export function SetAlwaysOnTop(arg1:boolean):Promise<void>;
 
