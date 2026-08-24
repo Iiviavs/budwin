@@ -13,28 +13,29 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          dotnet-version: '8.0.x'
+          node-version: '20'
 
-      - name: Restore dependencies
-        run: dotnet restore Budwin.sln
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
 
-      - name: Publish Self-Contained Single-File Executable
-        run: >
-          dotnet publish src/Budwin/Budwin.csproj
-          -c Release
-          -r win-x64
-          --self-contained true
-          -p:PublishSingleFile=true
-          -p:IncludeNativeLibrariesForSelfExtract=true
-          -p:EnableCompressionInSingleFile=true
-          -o publish
+      - name: Build Frontend
+        working-directory: ./frontend
+        run: |
+          npm install
+          npm run build
+
+      - name: Build Standalone Executable
+        run: |
+          go build -ldflags "-H windowsgui -s -w" -o ./build/bin/budwin.exe .
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: publish/budwin.exe
+          files: build/bin/budwin.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
