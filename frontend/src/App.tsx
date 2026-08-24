@@ -45,7 +45,7 @@ export function App() {
       if (window.go?.main?.App?.SetHudMode) {
         window.go.main.App.SetHudMode(true);
       } else {
-        window.runtime?.WindowSetSize?.(320, 38);
+        window.runtime?.WindowSetSize?.(280, 36);
         window.runtime?.WindowSetAlwaysOnTop?.(true);
       }
     } else if (mode === 'mini') {
@@ -60,12 +60,6 @@ export function App() {
       }
       window.runtime?.WindowSetSize?.(1060, 700);
       window.runtime?.WindowSetAlwaysOnTop?.(false);
-    }
-  };
-
-  const handleSnap = (corner: string) => {
-    if (window.go?.main?.App?.SnapHudPosition) {
-      window.go.main.App.SnapHudPosition(corner);
     }
   };
 
@@ -246,7 +240,6 @@ export function App() {
         timerActive={timerActive}
         onExpand={() => switchViewMode('full')}
         onClose={() => window.runtime?.WindowHide?.()}
-        onSnap={handleSnap}
       />
     );
   }

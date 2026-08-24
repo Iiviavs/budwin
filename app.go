@@ -119,7 +119,7 @@ func (a *App) ToggleStartupItem(name string, location string, enable bool) bool 
 	return optimizer.ToggleStartupItem(name, location, enable)
 }
 
-// Window & HUD Controls
+// Window & Discord Game Overlay Controls
 func (a *App) SetAlwaysOnTop(onTop bool) {
 	runtime.WindowSetAlwaysOnTop(a.ctx, onTop)
 }
@@ -127,32 +127,24 @@ func (a *App) SetAlwaysOnTop(onTop bool) {
 func (a *App) SetHudMode(isHud bool) {
 	if isHud {
 		runtime.WindowSetAlwaysOnTop(a.ctx, true)
-		runtime.WindowSetMinSize(a.ctx, 240, 32)
-		runtime.WindowSetSize(a.ctx, 320, 38)
+		hudW, hudH := 310, 42
+		// Lock fixed size for Discord game overlay
+		runtime.WindowSetMinSize(a.ctx, hudW, hudH)
+		runtime.WindowSetMaxSize(a.ctx, hudW, hudH)
+		runtime.WindowSetSize(a.ctx, hudW, hudH)
+
+		// Auto-dock to Top-Right of active display (like Discord Overlay)
+		screenWidth, _ := getScreenSize()
+		if screenWidth == 0 {
+			screenWidth = 1920
+		}
+		runtime.WindowSetPosition(a.ctx, screenWidth-hudW-20, 20)
 	} else {
 		runtime.WindowSetAlwaysOnTop(a.ctx, false)
 		runtime.WindowSetMinSize(a.ctx, 380, 520)
+		runtime.WindowSetMaxSize(a.ctx, 3840, 2160)
 		runtime.WindowSetSize(a.ctx, 1060, 700)
-	}
-}
-
-func (a *App) SnapHudPosition(corner string) {
-	screenWidth, screenHeight := getScreenSize()
-	if screenWidth == 0 {
-		screenWidth = 1920
-		screenHeight = 1080
-	}
-	w, h := runtime.WindowGetSize(a.ctx)
-
-	switch corner {
-	case "top-left":
-		runtime.WindowSetPosition(a.ctx, 16, 16)
-	case "top-right":
-		runtime.WindowSetPosition(a.ctx, screenWidth-w-16, 16)
-	case "bottom-right":
-		runtime.WindowSetPosition(a.ctx, screenWidth-w-16, screenHeight-h-50)
-	case "bottom-left":
-		runtime.WindowSetPosition(a.ctx, 16, screenHeight-h-50)
+		runtime.WindowCenter(a.ctx)
 	}
 }
 

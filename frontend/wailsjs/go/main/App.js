@@ -70,10 +70,6 @@ export function ShowWindow() {
   return window['go']['main']['App']['ShowWindow']();
 }
 
-export function SnapHudPosition(arg1) {
-  return window['go']['main']['App']['SnapHudPosition'](arg1);
-}
-
 export function ToggleGameBoost(arg1) {
   return window['go']['main']['App']['ToggleGameBoost'](arg1);
 }
