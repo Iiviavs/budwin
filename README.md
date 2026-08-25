@@ -4,7 +4,7 @@
 
 **A high-performance, lightweight Windows 11/10 system monitor, process safety manager & competitive gaming optimizer.**
 
-[![Release](https://img.shields.io/github/v/release/Iiviavs/budwin?color=lime&style=flat-square)](https://github.com/Iiviavs/budwin/releases)
+[![Release](https://img.shields.io/github/v/release/Iiviavs/budwin?color=lime&style=flat-square)](https://github.com/Iiviavs/budwin/releases/tag/v1.9.0) 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=flat-square)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011-blue?style=flat-square)]()
 [![Go](https://img.shields.io/badge/Go-1.22+-00ADD8?style=flat-square&logo=go&logoColor=white)]()
