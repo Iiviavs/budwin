@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Trash2, Globe, Gauge, CheckCircle2, Sparkles, Loader2, Zap, MousePointer2, Gamepad2, Rocket, RefreshCw, Headphones, Volume2 } from 'lucide-react';
-import { AudioLatencyStatus } from '../types';
+import { Trash2, Globe, Gauge, CheckCircle2, Sparkles, Loader2, Zap, MousePointer2, Gamepad2, Rocket, RefreshCw, Headphones, Volume2, Wind, VolumeX, MonitorPlay } from 'lucide-react';
+import { AudioLatencyStatus, SilentModeStatus } from '../types';
 
 interface OptimizerViewProps {
   currentPowerPlan: string;
@@ -29,6 +29,16 @@ export const OptimizerView: React.FC<OptimizerViewProps> = ({
   // Game Boost State
   const [gameBoostActive, setGameBoostActive] = useState(false);
   const [gameBoostResult, setGameBoostResult] = useState<string | null>(null);
+
+  // Silent Mode State
+  const [silentMode, setSilentMode] = useState<SilentModeStatus>({
+    isSilentModeActive: false,
+    estimatedFanDb: 'Standard Gaming Profile',
+    cpuTempReductionC: 0.0,
+    profileName: 'Performance',
+  });
+  const [silentResult, setSilentResult] = useState<string | null>(null);
+  const [togglingSilent, setTogglingSilent] = useState(false);
 
   // Audio Latency State
   const [audioStatus, setAudioStatus] = useState<AudioLatencyStatus>({
@@ -61,10 +71,33 @@ export const OptimizerView: React.FC<OptimizerViewProps> = ({
     if (window.go?.main?.App?.GetAudioLatencyStatus) {
       window.go.main.App.GetAudioLatencyStatus().then((s) => setAudioStatus(s));
     }
-    if (window.go?.main?.App?.GetFpsOptimizationStatus) {
-      window.go.main.App.GetFpsOptimizationStatus().then((s) => setFpsStatus(s));
+    if (window.go?.main?.App?.GetSilentModeStatus) {
+      window.go.main.App.GetSilentModeStatus().then((s) => setSilentMode(s));
     }
   }, []);
+
+  const handleToggleSilentMode = async () => {
+    setTogglingSilent(true);
+    const nextState = !silentMode.isSilentModeActive;
+    try {
+      if (window.go?.main?.App?.ToggleScreenShareSilentMode) {
+        const res = await window.go.main.App.ToggleScreenShareSilentMode(nextState);
+        setSilentMode(res);
+        if (res.isSilentModeActive) {
+          setSilentResult('🤫 Screen Share Quiet Fan Mode Active: Downclocked idle CPU voltage, relaxed timer ticks, and silenced fan curves!');
+          setActivePlan('Balanced (Equilibrado)');
+          setTimerActive(false);
+        } else {
+          setSilentResult('⚡ Performance Mode Restored: Boost clocks re-engaged.');
+        }
+      } else {
+        setSilentMode((prev: SilentModeStatus) => ({ ...prev, isSilentModeActive: nextState }));
+        setSilentResult(nextState ? '🤫 Screen Share Quiet Fans Active' : 'Performance Mode Restored');
+      }
+    } finally {
+      setTogglingSilent(false);
+    }
+  };
 
   const handleApplyFpsMaxer = async () => {
     setApplyingFps(true);
@@ -244,7 +277,90 @@ export const OptimizerView: React.FC<OptimizerViewProps> = ({
         )}
       </div>
 
-      {/* 2. COMPETITIVE FPS MAXER & CPU CORE UNPARKER (Valorant & Esports) */}
+      {/* 2. SCREEN SHARE & STEALTH SILENT FAN PROFILE (Quiet Vents) */}
+      <div className="glass-card rounded-2xl p-5 space-y-3.5 shadow-xl">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3.5">
+            <div className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all ${
+              silentMode.isSilentModeActive
+                ? 'bg-emerald-500 text-black shadow-md'
+                : 'bg-[#24252A] text-sky-400'
+            }`}>
+              <Wind className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center space-x-2">
+                <h3 className="text-sm font-bold text-white">Screen Share & Quiet Fan Profile</h3>
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
+                  silentMode.isSilentModeActive
+                    ? 'bg-emerald-500/20 text-emerald-400'
+                    : 'bg-[#24252A] text-neutral-400'
+                }`}>
+                  {silentMode.isSilentModeActive ? '🤫 SILENT FANS ON' : 'OFF'}
+                </span>
+              </div>
+              <p className="text-xs text-neutral-400 mt-0.5">
+                Lowers CPU idle voltages and disables aggressive turbo spikes to eliminate loud vent noise while sharing screen or streaming.
+              </p>
+            </div>
+          </div>
+
+          <button
+            onClick={handleToggleSilentMode}
+            disabled={togglingSilent}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-md flex items-center space-x-2 ${
+              silentMode.isSilentModeActive
+                ? 'bg-emerald-500 text-black hover:opacity-90 active:scale-95'
+                : 'bg-[#24252A] hover:bg-[#2E3038] text-white'
+            }`}
+          >
+            {togglingSilent ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            ) : silentMode.isSilentModeActive ? (
+              <VolumeX className="w-3.5 h-3.5" />
+            ) : (
+              <MonitorPlay className="w-3.5 h-3.5" />
+            )}
+            <span>{silentMode.isSilentModeActive ? 'RESTORE GAMING BOOST' : 'QUIET VENTS FOR SCREEN SHARE'}</span>
+          </button>
+        </div>
+
+        {/* 3 Status Badges */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 pt-1">
+          <div className="bg-[#111215] rounded-xl p-3 flex items-center space-x-2.5">
+            <CheckCircle2 className={`w-4 h-4 shrink-0 ${silentMode.isSilentModeActive ? 'text-emerald-400' : 'text-neutral-500'}`} />
+            <div>
+              <span className="text-xs font-bold text-white block">Acoustic Fan Profile</span>
+              <span className="text-[10px] text-neutral-400">{silentMode.isSilentModeActive ? 'Whisper Quiet Mode' : 'Standard Gaming Curve'}</span>
+            </div>
+          </div>
+
+          <div className="bg-[#111215] rounded-xl p-3 flex items-center space-x-2.5">
+            <CheckCircle2 className={`w-4 h-4 shrink-0 ${silentMode.isSilentModeActive ? 'text-emerald-400' : 'text-neutral-500'}`} />
+            <div>
+              <span className="text-xs font-bold text-white block">CPU Thermal Target</span>
+              <span className="text-[10px] text-neutral-400">{silentMode.isSilentModeActive ? '-10°C to -15°C Cooler' : 'Full Turbo Clock'}</span>
+            </div>
+          </div>
+
+          <div className="bg-[#111215] rounded-xl p-3 flex items-center space-x-2.5">
+            <CheckCircle2 className={`w-4 h-4 shrink-0 ${silentMode.isSilentModeActive ? 'text-emerald-400' : 'text-neutral-500'}`} />
+            <div>
+              <span className="text-xs font-bold text-white block">Screen Capture Encode</span>
+              <span className="text-[10px] text-neutral-400">{silentMode.isSilentModeActive ? 'Hardware Accelerated Eco' : 'Standard'}</span>
+            </div>
+          </div>
+        </div>
+
+        {silentResult && (
+          <div className="p-2.5 rounded-xl bg-emerald-500/15 text-emerald-300 text-xs flex items-center space-x-2 font-medium">
+            <CheckCircle2 className="w-4 h-4 shrink-0" />
+            <span>{silentResult}</span>
+          </div>
+        )}
+      </div>
+
+      {/* 3. COMPETITIVE FPS MAXER & CPU CORE UNPARKER (Valorant & Esports) */}
       <div className="glass-card rounded-2xl p-5 space-y-3.5 shadow-xl">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3.5">
