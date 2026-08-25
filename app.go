@@ -94,6 +94,15 @@ func (a *App) GetFpsOptimizationStatus() optimizer.FpsTweakStatus {
 	return optimizer.GetFpsOptimizationStatus()
 }
 
+// Screen Share & Stealth Silent Fan Profile API
+func (a *App) ToggleScreenShareSilentMode(enable bool) optimizer.SilentModeStatus {
+	return optimizer.ToggleScreenShareSilentMode(enable)
+}
+
+func (a *App) GetSilentModeStatus() optimizer.SilentModeStatus {
+	return optimizer.GetSilentModeStatus()
+}
+
 func (a *App) KillProcess(pid int32) bool {
 	err := process.KillProcess(pid)
 	return err == nil

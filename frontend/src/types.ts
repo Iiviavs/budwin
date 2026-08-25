@@ -87,6 +87,13 @@ export interface FpsTweakStatus {
   gpuSchedulingUnlocked: boolean;
 }
 
+export interface SilentModeStatus {
+  isSilentModeActive: boolean;
+  estimatedFanDb: string;
+  cpuTempReductionC: number;
+  profileName: string;
+}
+
 export interface GameBoostResult {
   active: boolean;
   freedRamMb: number;
@@ -166,6 +173,8 @@ declare global {
           OptimizeAudioLatency?: () => Promise<AudioLatencyStatus>;
           ApplyUltimateFpsBoost?: () => Promise<FpsTweakStatus>;
           GetFpsOptimizationStatus?: () => Promise<FpsTweakStatus>;
+          ToggleScreenShareSilentMode?: (enable: boolean) => Promise<SilentModeStatus>;
+          GetSilentModeStatus?: () => Promise<SilentModeStatus>;
           KillProcess?: (pid: number) => Promise<boolean>;
           CleanTempFiles?: () => Promise<number>;
           FlushDNS?: () => Promise<boolean>;

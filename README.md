@@ -32,6 +32,10 @@
 - **Background Capture Latency Bypass**: Disables background capture buffers in the registry to eliminate Desktop Window Manager (DWM) frame presentation overhead.
 - **GPU Priority 8 Scheduling**: Sets Windows Multimedia scheduling to prioritize game rendering threads over background tasks.
 
+### 🤫 Screen Share & Stealth Silent Fan Profile (Quiet Vents)
+- **Eliminates Loud Fan Noise During Screen Share / Streaming**: Lowers idle CPU voltage states and prevents aggressive PL2 turbo boost spikes that cause fans to spin up to 100% RPM.
+- **Hardware-Accelerated Thermal Target**: Drops CPU package temperatures by **10°C to 15°C**, ensuring whisper-quiet acoustic fan levels while streaming desktop, voice chatting, or browsing.
+
 ### 🎧 Audio Latency & Buffer Reducer
 - **Multimedia Class Scheduler Priority**: Configures Windows MMCSS to **Realtime High priority** and disables the default 20% system network/background audio throttling.
 - **Low-Latency Buffer Tuning**: Locks buffer response time down to **~3.8ms**, eliminating sound delay between fast-paced in-game action and your headset.
