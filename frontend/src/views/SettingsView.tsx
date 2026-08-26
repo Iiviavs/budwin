@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { ShieldAlert, Zap, Github, Check, Flame, Sliders } from 'lucide-react';
 import { ThemeAccent } from '../types';
 
@@ -8,6 +8,32 @@ interface SettingsViewProps {
 }
 
 export const SettingsView: React.FC<SettingsViewProps> = ({ themeAccent, setThemeAccent }) => {
+  const [autoStartEnabled, setAutoStartEnabled] = useState(true);
+  const [togglingAutoStart, setTogglingAutoStart] = useState(false);
+
+  useEffect(() => {
+    if (window.go?.main?.App?.GetAutoStartEnabled) {
+      window.go.main.App.GetAutoStartEnabled().then((res) => setAutoStartEnabled(res));
+    }
+  }, []);
+
+  const handleToggleAutoStart = async () => {
+    setTogglingAutoStart(true);
+    const nextState = !autoStartEnabled;
+    try {
+      if (window.go?.main?.App?.SetAutoStartEnabled) {
+        const success = await window.go.main.App.SetAutoStartEnabled(nextState);
+        if (success) {
+          setAutoStartEnabled(nextState);
+        }
+      } else {
+        setAutoStartEnabled(nextState);
+      }
+    } finally {
+      setTogglingAutoStart(false);
+    }
+  };
+
   const themes: { id: ThemeAccent; label: string; color: string; desc: string }[] = [
     { id: 'rose', label: 'Neon Rose', color: '#F43F5E', desc: 'Vibrant neon cyberpunk pink' },
     { id: 'lime', label: 'Raccoon Lime', color: '#D4F63D', desc: 'High-contrast signature neon lime' },
@@ -128,6 +154,30 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ themeAccent, setThem
           <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-accent-theme/10 text-accent-theme border border-accent-theme/20">
             ENABLED
           </span>
+        </div>
+
+        {/* Row 4: Start With Windows */}
+        <div className="raycast-row">
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 rounded-lg bg-sky-500/10 text-sky-400 flex items-center justify-center">
+              <Check className="w-4 h-4" />
+            </div>
+            <div>
+              <span className="text-xs font-bold text-white block">Start budwin on Windows Boot</span>
+              <span className="text-[11px] text-neutral-400">Automatically launches and docks to system tray when your PC starts</span>
+            </div>
+          </div>
+          <button
+            onClick={handleToggleAutoStart}
+            disabled={togglingAutoStart}
+            className={`px-3 py-1 rounded-lg text-[10px] font-bold transition-all border ${
+              autoStartEnabled
+                ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/25'
+                : 'bg-surface border-border text-neutral-400 hover:text-white hover:bg-surfaceHover'
+            }`}
+          >
+            {autoStartEnabled ? 'AUTO-START ACTIVE' : 'ENABLE AUTO-START'}
+          </button>
         </div>
       </div>
 

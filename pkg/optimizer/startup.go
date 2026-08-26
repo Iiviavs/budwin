@@ -134,3 +134,40 @@ func ToggleStartupItem(name string, location string, enable bool) bool {
 
 	return false
 }
+
+// GetAutoStartEnabled checks if budwin is configured in Windows Startup Run registry key
+func GetAutoStartEnabled() bool {
+	k, err := registry.OpenKey(registry.CURRENT_USER, `Software\Microsoft\Windows\CurrentVersion\Run`, registry.QUERY_VALUE)
+	if err != nil {
+		return false
+	}
+	defer k.Close()
+
+	val, _, err := k.GetStringValue("budwin")
+	return err == nil && len(val) > 0
+}
+
+// SetAutoStartEnabled registers or removes budwin from Windows Startup Run registry key
+func SetAutoStartEnabled(enable bool) bool {
+	k, err := registry.OpenKey(registry.CURRENT_USER, `Software\Microsoft\Windows\CurrentVersion\Run`, registry.SET_VALUE|registry.QUERY_VALUE)
+	if err != nil {
+		return false
+	}
+	defer k.Close()
+
+	if enable {
+		exePath := `C:\Users\crynn\.gemini\antigravity\scratch\budwin\build\bin\budwin.exe`
+		_ = k.SetStringValue("budwin", `"`+exePath+`"`)
+
+		// Also ensure enabled in StartupApproved\Run
+		kApp, err := registry.OpenKey(registry.CURRENT_USER, `Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run`, registry.SET_VALUE)
+		if err == nil {
+			_ = kApp.SetBinaryValue("budwin", []byte{0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00})
+			kApp.Close()
+		}
+	} else {
+		_ = k.DeleteValue("budwin")
+	}
+
+	return true
+}

@@ -196,6 +196,8 @@ declare global {
           SetMultiMonitorSettings?: (settings: MultiMonitorSettings) => Promise<MultiMonitorSettings>;
           GetStartupItems?: () => Promise<StartupItem[]>;
           ToggleStartupItem?: (name: string, location: string, enable: boolean) => Promise<boolean>;
+          GetAutoStartEnabled?: () => Promise<boolean>;
+          SetAutoStartEnabled?: (enable: boolean) => Promise<boolean>;
           GetActiveAlerts?: () => Promise<AlertItem[]>;
           DismissAlert?: (id: string) => Promise<void>;
           ResolveAlert?: (id: string, alertType: string, targetPid: number) => Promise<boolean>;

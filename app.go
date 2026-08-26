@@ -193,6 +193,14 @@ func (a *App) ToggleStartupItem(name string, location string, enable bool) bool 
 	return optimizer.ToggleStartupItem(name, location, enable)
 }
 
+func (a *App) GetAutoStartEnabled() bool {
+	return optimizer.GetAutoStartEnabled()
+}
+
+func (a *App) SetAutoStartEnabled(enable bool) bool {
+	return optimizer.SetAutoStartEnabled(enable)
+}
+
 // Multi-Monitor Gaming Mode API
 func (a *App) GetMonitors() []optimizer.MonitorInfo {
 	return optimizer.GetMonitors()
