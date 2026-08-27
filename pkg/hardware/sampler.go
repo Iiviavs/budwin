@@ -79,8 +79,12 @@ func (s *Sampler) GetTelemetry() TelemetrySnapshot {
 		elapsedSec := now.Sub(s.prevNetTime).Seconds()
 
 		if elapsedSec > 0 && s.prevNetIn > 0 {
-			snapshot.NetInKb = float64(totalIn-s.prevNetIn) / (elapsedSec * 1024)
-			snapshot.NetOutKb = float64(totalOut-s.prevNetOut) / (elapsedSec * 1024)
+			if totalIn >= s.prevNetIn {
+				snapshot.NetInKb = float64(totalIn-s.prevNetIn) / (elapsedSec * 1024)
+			}
+			if totalOut >= s.prevNetOut {
+				snapshot.NetOutKb = float64(totalOut-s.prevNetOut) / (elapsedSec * 1024)
+			}
 		}
 
 		s.prevNetIn = totalIn

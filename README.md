@@ -1,100 +1,81 @@
 <div align="center">
+  <img src="frontend/public/logo.png" width="96" height="96" alt="budwin" />
+  <h1>budwin</h1>
+  <p>A minimalist Windows tray companion for hardware monitoring, latency tuning, and quick system tweaks.</p>
 
-# 🦝 budwin
-
-**A high-performance, lightweight Windows 11/10 system monitor, process safety manager & competitive gaming optimizer.**
-
-[![Release](https://img.shields.io/github/v/release/Iiviavs/budwin?color=lime&style=flat-square)](https://github.com/Iiviavs/budwin/releases/tag/v1.9.0) 
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=flat-square)](LICENSE)
-[![Platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011-blue?style=flat-square)]()
-[![Go](https://img.shields.io/badge/Go-1.22+-00ADD8?style=flat-square&logo=go&logoColor=white)]()
-[![React](https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react&logoColor=black)]()
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?style=flat-square&logo=typescript&logoColor=white)]()
-
-<br/>
-
-<img src="frontend/public/logo.png" width="130" height="130" style="border-radius: 50%;" alt="budwin mascot" />
-
-<br/>
-<br/>
-
-*Real-time hardware telemetry, CPU core unparking, low-latency audio tuning, storage reclaiming, and process management — all in a single ~12MB standalone portable executable.*
-
+  <p>
+    <a href="https://github.com/Iiviavs/budwin/releases"><img src="https://img.shields.io/github/v/release/Iiviavs/budwin?color=crimson&style=flat-square" alt="Release" /></a>
+    <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square" alt="License" /></a>
+    <img src="https://img.shields.io/badge/platform-Windows%2010%20%2F%2011-23272e?style=flat-square" alt="Windows" />
+    <img src="https://img.shields.io/badge/stack-Go%20%2B%20React-23272e?style=flat-square" alt="Stack" />
+  </p>
 </div>
 
 ---
 
-## ✨ Features
+**budwin** runs as a lightweight (~12MB) standalone app in your system tray. It's built for people who want quick system stats, snappy latency optimizations, and hassle-free cache cleaning without running heavy background bloatware.
 
-### 🎯 Competitive FPS Maxer & CPU Core Unparker
-- **12-Core CPU Unparking**: Forces all logical processor cores to remain 100% active, preventing power-saving sleep transitions that cause in-game stuttering.
-- **Ultimate Performance Activation**: Unlocks and activates Windows maximum power delivery to lock CPU clocks at peak frequencies.
-- **Background Capture Latency Bypass**: Disables background capture buffers in the registry to eliminate Desktop Window Manager (DWM) frame presentation overhead.
-- **GPU Priority 8 Scheduling**: Sets Windows Multimedia scheduling to prioritize game rendering threads over background tasks.
+<br/>
 
-### 🤫 Screen Share & Stealth Silent Fan Profile (Quiet Vents)
-- **Eliminates Loud Fan Noise During Screen Share / Streaming**: Lowers idle CPU voltage states and prevents aggressive PL2 turbo boost spikes that cause fans to spin up to 100% RPM.
-- **Hardware-Accelerated Thermal Target**: Drops CPU package temperatures by **10°C to 15°C**, ensuring whisper-quiet acoustic fan levels while streaming desktop, voice chatting, or browsing.
+## Highlights
 
-### 🎧 Audio Latency & Buffer Reducer
-- **Multimedia Class Scheduler Priority**: Configures Windows MMCSS to **Realtime High priority** and disables the default 20% system network/background audio throttling.
-- **Low-Latency Buffer Tuning**: Locks buffer response time down to **~3.8ms**, eliminating sound delay between fast-paced in-game action and your headset.
+### ⚡ Low Latency & Gaming
+- **1.0ms High-Resolution Timer**: Enforces a 1000 Hz kernel clock (`timeBeginPeriod`) to keep mouse and keyboard polling tight.
+- **CPU Core Unparking**: Stops Windows from putting logical cores to sleep mid-game to prevent micro-stuttering.
+- **Audio Buffer Tuning (MMCSS)**: Sets WASAPI scheduling to high realtime priority for lower sound latency.
+- **1:1 Raw Input**: Removes Windows mouse acceleration curves directly.
 
-### ⚡ Ultra-Low Input Latency Engine
-- **1.0ms High-Resolution Timer (`winmm.dll timeBeginPeriod(1)`)**: Drops Windows scheduling tick from 15.6ms to 1.0ms for instantaneous mouse and keyboard polling.
-- **1:1 Raw Mouse Input**: Strips Windows acceleration curves for pure linear sensor mapping.
-- **Input Latency Lab**: Live mouse polling rate arena (125Hz to 8000Hz) and real-time gamepad/controller button and analog stick inspector.
+### 🤫 Quiet Fan / Screen Share Mode
+- **No loud vents during screen share**: Downclocks aggressive turbo boost spikes when capturing or streaming desktop, dropping CPU temps by ~10–15°C so fans stay quiet.
 
-### 💾 Deep Storage Reclaimer & Game Duplicate Hunter
-- **1-Click Multi-Target Reclaimer**: Scans and safely purges:
-  - ⚡ *DirectX & GPU Shader Caches*
-  - 🔄 *Windows Update Delivery Optimization Caches*
-  - 🌐 *Browser & Client Web Caches*
-  - 🗑️ *System & User %TEMP% Logs and Crash Dumps*
-  - 📦 *Windows Recycle Bin*
-- **Game Duplicate Hunter**: Scans game libraries across all drives (`C:`, `D:`, `E:`) for redundant installer packages and leftover staging chunks.
+### 🧹 Disk & Cache Cleaner
+- **Shader Caches**: Clears bloated DirectX, NVIDIA, and Vulkan shader cache files.
+- **System Junk**: Wipes `%TEMP%`, crash dumps, and Windows Update download leftovers.
+- **Game Duplicate Hunter**: Finds and purges redundant DirectX/VC++ redistributable packages and leftover game download chunks.
 
-### 📊 Real-Time Telemetry & Benchmark Logger
-- **Live Metrics**: 60-second animated trendlines for CPU load, GPU utilization, VRAM, temperatures, RAM usage, Network throughput, and Disk I/O.
-- **Benchmark Stability Logger**: Tracks average/peak FPS loads, thermal limits, and stability ratings during gaming sessions.
+### 📊 Telemetry & HUD
+- **Real-time Sparklines**: 60-second rolling charts for CPU, GPU (with VRAM & temps), RAM, Network, and Disk.
+- **Floating Mini HUD**: Transparent overlay pill you can keep pinned over games or double-click to expand.
+- **Tray-Docked Mini Companion**: Left-click the tray icon to quickly glance at stats right above the taskbar.
 
-### 🛡️ Smart Process Safety Shields
-- Searchable process tree sorted by RAM usage with friendly descriptions.
-- **Category Shields:** 🟢 User Apps (Safe to Kill), 🟡 Background Helpers (Warning), 🔴 Critical System (`explorer`, `dwm`, `svchost`, `csrss` — protected against accidental termination).
-
-### 🪟 Smart Window Modes & Floating HUD
-- **Full Dashboard Mode**: High-density `1060x700` overview on initial startup.
-- **Tray-Docked Mini Companion**: Clicking the system tray icon docks the widget at the bottom-right corner of your screen right above the taskbar.
-- **Floating In-Game HUD**: Ultra-lightweight transparent overlay pill with CPU%, GPU%, RAM%, double-click to expand, and a prominent Maximize button (`↗`).
+### 🛡️ Process Manager
+- Searchable list sorted by RAM usage with safety shields (🟢 Safe user apps, 🟡 Background helpers, 🔴 Protected system processes like `dwm.exe` and `explorer.exe`).
 
 ---
 
-## 🚀 Quick Start
+## Download
 
-### 1. Download Pre-built Executable
-Download the latest **`budwin.exe`** directly from [GitHub Releases](https://github.com/Iiviavs/budwin/releases) and run. No installer or dependencies needed.
+Grab the latest standalone **`budwin.exe`** from the [**Releases**](https://github.com/Iiviavs/budwin/releases) page.
 
-### 2. Build from Source
+No installation required — just download and run.
 
-**Prerequisites:** [Go 1.22+](https://go.dev/dl/) & [Node.js](https://nodejs.org/)
+> **Tip:** You can enable **Start with Windows** inside *Preferences* to keep it docked to your tray on boot.
+
+---
+
+## Build from Source
+
+Requirements: [Go 1.22+](https://go.dev/dl/) and [Node.js 18+](https://nodejs.org/).
 
 ```powershell
-# 1. Clone repository
+# Clone
 git clone https://github.com/Iiviavs/budwin.git
 cd budwin
 
-# 2. Install frontend dependencies and build assets
+# Build frontend
 cd frontend
 npm install
 npm run build
 cd ..
 
-# 3. Build standalone binary
+# Compile standalone executable
 go build -tags desktop,production -ldflags "-w -s -H windowsgui" -o build/bin/budwin.exe .
 ```
 
+Or just run `./build.ps1`.
+
 ---
 
-## 📄 License
+## License
 
-This project is licensed under the [MIT License](LICENSE).
+MIT © [Iiviavs](https://github.com/Iiviavs)

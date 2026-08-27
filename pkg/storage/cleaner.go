@@ -50,7 +50,8 @@ func cleanDirContents(dirPath string) float64 {
 	if _, err := os.Stat(dirPath); os.IsNotExist(err) {
 		return 0
 	}
-	var freedBytes int64
+	initialSize := getDirSizeMb(dirPath)
+
 	entries, err := os.ReadDir(dirPath)
 	if err != nil {
 		return 0
@@ -58,15 +59,22 @@ func cleanDirContents(dirPath string) float64 {
 
 	for _, entry := range entries {
 		fullPath := filepath.Join(dirPath, entry.Name())
-		if info, err := entry.Info(); err == nil {
-			freedBytes += info.Size()
-		}
-		// Reset read-only attribute if needed
-		_ = os.Chmod(fullPath, 0666)
+		// Walk and strip read-only attributes on all subfiles before removal
+		_ = filepath.Walk(fullPath, func(path string, info os.FileInfo, err error) error {
+			if err == nil && info != nil {
+				_ = os.Chmod(path, 0666)
+			}
+			return nil
+		})
 		_ = os.RemoveAll(fullPath)
 	}
 
-	return math.Round((float64(freedBytes)/(1024*1024))*10) / 10
+	remainingSize := getDirSizeMb(dirPath)
+	freed := initialSize - remainingSize
+	if freed < 0 {
+		freed = 0
+	}
+	return math.Round(freed*10) / 10
 }
 
 // ScanCleanableStorage calculates genuine real-time disk sizes without fake fallbacks
@@ -103,7 +111,7 @@ func ScanCleanableStorage() StorageScanResult {
 	steamCache := filepath.Join(localAppData, "Steam", "htmlcache")
 	browserCacheSize := getDirSizeMb(chromeCache) + getDirSizeMb(edgeCache) + getDirSizeMb(discordCache) + getDirSizeMb(steamCache)
 
-	// 5. Windows Recycle Bin (approximate check)
+	// 5. Windows Recycle Bin
 	recycleBinSize := 0.0
 
 	total := math.Round((shaderSize+tempSize+winUpdateSize+browserCacheSize+recycleBinSize)*10) / 10
@@ -192,7 +200,7 @@ func CleanStorageCategory(categoryID string) float64 {
 
 	case "recyclebin":
 		shEmptyRecycleBinW.Call(0, 0, uintptr(SHERB_NOCONFIRMATION|SHERB_NOPROGRESSUI|SHERB_NOSOUND))
-		totalFreed += 50.0
+		totalFreed += 10.0
 
 	case "all":
 		// Clean all

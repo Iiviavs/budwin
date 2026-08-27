@@ -360,7 +360,7 @@ export const OptimizerView: React.FC<OptimizerViewProps> = ({
         )}
       </div>
 
-      {/* 3. COMPETITIVE FPS MAXER & CPU CORE UNPARKER (Valorant & Esports) */}
+      {/* 3. COMPETITIVE FPS MAXER & CPU CORE UNPARKER */}
       <div className="glass-card rounded-2xl p-5 space-y-3.5 shadow-xl">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3.5">
@@ -386,7 +386,7 @@ export const OptimizerView: React.FC<OptimizerViewProps> = ({
             className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-black text-xs font-bold transition-all shadow-md flex items-center space-x-2"
           >
             {applyingFps ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Zap className="w-3.5 h-3.5" />}
-            <span>Maximize Valorant / Game FPS</span>
+            <span>Maximize Game FPS</span>
           </button>
         </div>
 

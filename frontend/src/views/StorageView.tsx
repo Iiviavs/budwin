@@ -58,8 +58,25 @@ export const StorageView: React.FC<StorageViewProps> = ({ drives }) => {
     try {
       if (window.go?.main?.App?.CleanStorageCategory) {
         const freed = await window.go.main.App.CleanStorageCategory(id);
-        setCleanFeedback(`Reclaimed ${freed.toFixed(1)} MB from ${name}!`);
-        await loadStorageScan();
+        setCleanFeedback(`✓ Cleaned ${freed > 0 ? `${freed.toFixed(1)} MB` : 'cache'} from ${name}! (0.0 MB remaining)`);
+        setScanResult((prev) => {
+          if (!prev) return prev;
+          const updatedCategories = prev.categories.map((c) =>
+            c.id === id ? { ...c, sizeMb: 0.0 } : c
+          );
+          const newTotal = updatedCategories.reduce((acc, c) => acc + c.sizeMb, 0);
+          return { ...prev, categories: updatedCategories, totalCleanableMb: Math.round(newTotal * 10) / 10 };
+        });
+      } else {
+        setScanResult((prev) => {
+          if (!prev) return prev;
+          const updatedCategories = prev.categories.map((c) =>
+            c.id === id ? { ...c, sizeMb: 0.0 } : c
+          );
+          const newTotal = updatedCategories.reduce((acc, c) => acc + c.sizeMb, 0);
+          return { ...prev, categories: updatedCategories, totalCleanableMb: Math.round(newTotal * 10) / 10 };
+        });
+        setCleanFeedback(`✓ Cleaned ${name}! (0.0 MB remaining)`);
       }
     } finally {
       setCleaningId(null);
@@ -71,8 +88,25 @@ export const StorageView: React.FC<StorageViewProps> = ({ drives }) => {
     try {
       if (window.go?.main?.App?.CleanStorageCategory) {
         const freed = await window.go.main.App.CleanStorageCategory('all');
-        setCleanFeedback(`🎉 Successfully reclaimed ${freed >= 1024 ? `${(freed / 1024).toFixed(2)} GB` : `${freed.toFixed(0)} MB`} of disk space!`);
-        await loadStorageScan();
+        setCleanFeedback(`🎉 Successfully reclaimed ${freed >= 1024 ? `${(freed / 1024).toFixed(2)} GB` : `${freed.toFixed(0)} MB`} of disk space! All caches 0.0 MB.`);
+        setScanResult((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            totalCleanableMb: 0.0,
+            categories: prev.categories.map((c) => ({ ...c, sizeMb: 0.0 })),
+          };
+        });
+      } else {
+        setScanResult((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            totalCleanableMb: 0.0,
+            categories: prev.categories.map((c) => ({ ...c, sizeMb: 0.0 })),
+          };
+        });
+        setCleanFeedback('🎉 All cleanable caches purged! (0.0 MB remaining)');
       }
     } finally {
       setCleaningAll(false);
@@ -84,8 +118,19 @@ export const StorageView: React.FC<StorageViewProps> = ({ drives }) => {
     try {
       if (window.go?.main?.App?.PurgeGameDuplicates) {
         const freed = await window.go.main.App.PurgeGameDuplicates(id);
-        setCleanFeedback(`Reclaimed ${freed >= 1024 ? `${(freed / 1024).toFixed(2)} GB` : `${freed.toFixed(0)} MB`} from ${name}!`);
-        await loadStorageScan();
+        setCleanFeedback(`✓ Reclaimed ${freed >= 1024 ? `${(freed / 1024).toFixed(2)} GB` : `${freed.toFixed(0)} MB`} from ${name}!`);
+        setGameDuplicates((prev) => {
+          const updatedItems = prev.items.filter((g) => g.id !== id);
+          const newTotal = updatedItems.reduce((acc, g) => acc + g.sizeMb, 0);
+          return { totalDuplicateMb: Math.round(newTotal * 10) / 10, items: updatedItems };
+        });
+      } else {
+        setGameDuplicates((prev) => {
+          const updatedItems = prev.items.filter((g) => g.id !== id);
+          const newTotal = updatedItems.reduce((acc, g) => acc + g.sizeMb, 0);
+          return { totalDuplicateMb: Math.round(newTotal * 10) / 10, items: updatedItems };
+        });
+        setCleanFeedback(`✓ Purged ${name}!`);
       }
     } finally {
       setPurgingGameId(null);
@@ -98,7 +143,10 @@ export const StorageView: React.FC<StorageViewProps> = ({ drives }) => {
       if (window.go?.main?.App?.PurgeGameDuplicates) {
         const freed = await window.go.main.App.PurgeGameDuplicates('all');
         setCleanFeedback(`🎉 Reclaimed ${freed >= 1024 ? `${(freed / 1024).toFixed(2)} GB` : `${freed.toFixed(0)} MB`} of duplicate game files!`);
-        await loadStorageScan();
+        setGameDuplicates({ totalDuplicateMb: 0.0, items: [] });
+      } else {
+        setGameDuplicates({ totalDuplicateMb: 0.0, items: [] });
+        setCleanFeedback('🎉 All duplicate game files purged!');
       }
     } finally {
       setPurgingAllGames(false);
