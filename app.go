@@ -233,6 +233,15 @@ func (a *App) ResolveAlert(id string, alertType string, targetPid int32) bool {
 	return true
 }
 
+// GitHub Release Update Checker API
+func (a *App) CheckForUpdates() optimizer.UpdateInfo {
+	return optimizer.CheckForUpdates()
+}
+
+func (a *App) OpenUrlInBrowser(url string) bool {
+	return optimizer.OpenUrlInBrowser(url)
+}
+
 // Window & Discord Game Overlay Controls
 func (a *App) SetAlwaysOnTop(onTop bool) {
 	runtime.WindowSetAlwaysOnTop(a.ctx, onTop)

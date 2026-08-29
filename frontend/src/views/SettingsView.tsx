@@ -1,21 +1,53 @@
 import React, { useState, useEffect } from 'react';
-import { ShieldAlert, Zap, Github, Check, Flame, Sliders } from 'lucide-react';
-import { ThemeAccent } from '../types';
+import { ShieldAlert, Zap, Github, Check, Flame, Sliders, RefreshCw, Sparkles, Download } from 'lucide-react';
+import { ThemeAccent, UpdateInfo } from '../types';
 
 interface SettingsViewProps {
   themeAccent: ThemeAccent;
   setThemeAccent: (accent: ThemeAccent) => void;
+  updateInfo?: UpdateInfo | null;
+  onRefreshUpdate?: () => Promise<void>;
 }
 
-export const SettingsView: React.FC<SettingsViewProps> = ({ themeAccent, setThemeAccent }) => {
+export const SettingsView: React.FC<SettingsViewProps> = ({
+  themeAccent,
+  setThemeAccent,
+  updateInfo: initialUpdateInfo,
+}) => {
   const [autoStartEnabled, setAutoStartEnabled] = useState(true);
   const [togglingAutoStart, setTogglingAutoStart] = useState(false);
+  const [updateInfo, setUpdateInfo] = useState<UpdateInfo | null>(initialUpdateInfo || null);
+  const [checkingUpdate, setCheckingUpdate] = useState(false);
 
   useEffect(() => {
     if (window.go?.main?.App?.GetAutoStartEnabled) {
       window.go.main.App.GetAutoStartEnabled().then((res) => setAutoStartEnabled(res));
     }
-  }, []);
+    if (!initialUpdateInfo && window.go?.main?.App?.CheckForUpdates) {
+      window.go.main.App.CheckForUpdates().then((res) => setUpdateInfo(res));
+    }
+  }, [initialUpdateInfo]);
+
+  const handleCheckUpdates = async () => {
+    setCheckingUpdate(true);
+    try {
+      if (window.go?.main?.App?.CheckForUpdates) {
+        const info = await window.go.main.App.CheckForUpdates();
+        setUpdateInfo(info);
+      }
+    } finally {
+      setCheckingUpdate(false);
+    }
+  };
+
+  const handleDownloadUpdate = () => {
+    const url = updateInfo?.downloadUrl || 'https://github.com/Iiviavs/budwin/releases';
+    if (window.go?.main?.App?.OpenUrlInBrowser) {
+      window.go.main.App.OpenUrlInBrowser(url);
+    } else {
+      window.open(url, '_blank');
+    }
+  };
 
   const handleToggleAutoStart = async () => {
     setTogglingAutoStart(true);
@@ -181,7 +213,78 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ themeAccent, setThem
         </div>
       </div>
 
-      {/* 3. ABOUT BUDWIN (Raycast Footer Card) */}
+      {/* 3. SOFTWARE UPDATES & RELEASES */}
+      <div className="glass-card rounded-2xl overflow-hidden border border-border shadow-xl">
+        <div className="raycast-row">
+          <div>
+            <span className="text-xs font-bold text-white block">Updates & GitHub Releases</span>
+            <span className="text-[11px] text-neutral-400">Checks GitHub for new features, game compatibility patches, and optimizations</span>
+          </div>
+
+          <button
+            onClick={handleCheckUpdates}
+            disabled={checkingUpdate}
+            className="px-3 py-1 rounded-lg bg-surfaceHover hover:bg-border text-xs font-semibold text-neutral-200 flex items-center space-x-1.5 transition-colors"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${checkingUpdate ? 'animate-spin' : ''}`} />
+            <span>{checkingUpdate ? 'Checking...' : 'Check for Updates'}</span>
+          </button>
+        </div>
+
+        <div className="p-4 bg-sidebar/40">
+          {updateInfo?.hasUpdate ? (
+            <div className="p-4 rounded-xl bg-accent-theme/10 border border-accent-theme/30 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2.5">
+                  <Sparkles className="w-5 h-5 text-accent-theme" />
+                  <div>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-xs font-bold text-white">New Version Available!</span>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-accent-theme text-black">
+                        {updateInfo.latestVersion}
+                      </span>
+                    </div>
+                    <span className="text-[11px] text-neutral-300 block mt-0.5">{updateInfo.releaseName || 'Latest Release'}</span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleDownloadUpdate}
+                  className="px-4 py-2 rounded-xl bg-accent-theme hover:opacity-90 active:scale-95 text-black text-xs font-bold transition-all shadow-md flex items-center space-x-2"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Download Update</span>
+                </button>
+              </div>
+
+              {updateInfo.releaseNotes && (
+                <div className="text-[11px] text-neutral-400 bg-[#111215] p-3 rounded-lg border border-white/[0.04] max-h-32 overflow-y-auto whitespace-pre-line font-mono">
+                  {updateInfo.releaseNotes}
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
+                  <Check className="w-4 h-4" />
+                </div>
+                <div>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-xs font-bold text-white">budwin is up to date</span>
+                    <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-white/10 text-neutral-300">
+                      {updateInfo?.currentVersion || 'v1.9.2'}
+                    </span>
+                  </div>
+                  <span className="text-[11px] text-neutral-400">You are running the latest version with all optimizations.</span>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* 4. ABOUT BUDWIN (Raycast Footer Card) */}
       <div className="glass-card rounded-2xl p-4 border border-border flex items-center justify-between shadow-xl">
         <div className="flex items-center space-x-3.5">
           <div className="w-10 h-10 rounded-xl overflow-hidden border border-accent-theme/40 bg-surface">
@@ -191,22 +294,26 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ themeAccent, setThem
             <div className="flex items-center space-x-2">
               <h3 className="text-xs font-bold text-white">budwin System & Latency Monitor</h3>
               <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-accent-theme/10 text-accent-theme border border-accent-theme/20">
-                v1.6.0
+                v1.9.2
               </span>
             </div>
             <p className="text-[11px] text-neutral-400 mt-0.5">Built with Go, React & Wails in Raycast Matte Obsidian theme.</p>
           </div>
         </div>
 
-        <a
-          href="https://github.com/Iiviavs/budwin"
-          target="_blank"
-          rel="noopener noreferrer"
+        <button
+          onClick={() => {
+            if (window.go?.main?.App?.OpenUrlInBrowser) {
+              window.go.main.App.OpenUrlInBrowser('https://github.com/Iiviavs/budwin');
+            } else {
+              window.open('https://github.com/Iiviavs/budwin', '_blank');
+            }
+          }}
           className="px-3 py-1.5 rounded-lg bg-surfaceHover hover:bg-border border border-border text-xs font-semibold text-white flex items-center space-x-2 transition-colors"
         >
           <Github className="w-3.5 h-3.5" />
           <span>GitHub</span>
-        </a>
+        </button>
       </div>
     </div>
   );

@@ -11,7 +11,7 @@ import { BenchmarkView } from './views/BenchmarkView';
 import { LatencyTesterView } from './views/LatencyTesterView';
 import { SettingsView } from './views/SettingsView';
 import { FloatingHudView } from './views/FloatingHudView';
-import { TelemetrySnapshot, ProcessItem, DriveItem, StartupItem, AlertItem, ThemeAccent, AutoBoostStatus, MonitorInfo, MultiMonitorSettings } from './types';
+import { TelemetrySnapshot, ProcessItem, DriveItem, StartupItem, AlertItem, ThemeAccent, AutoBoostStatus, MonitorInfo, MultiMonitorSettings, UpdateInfo } from './types';
 import { Sparkline } from './components/Sparkline';
 import { EndProcessModal } from './components/EndProcessModal';
 import { Maximize2, Cpu, Zap, HardDrive, Wifi, ShieldAlert, AlertTriangle, CheckCircle2, XCircle, Pin } from 'lucide-react';
@@ -46,10 +46,20 @@ export function App() {
   const [alerts, setAlerts] = useState<AlertItem[]>([]);
   const [autoBoostStatus, setAutoBoostStatus] = useState<AutoBoostStatus | null>(null);
   const [monitors, setMonitors] = useState<MonitorInfo[]>([]);
+  const [updateInfo, setUpdateInfo] = useState<UpdateInfo | null>(null);
   const [multiMonitorSettings, setMultiMonitorSettings] = useState<MultiMonitorSettings>({
     dimSecondaryMonitors: false,
     autoDimOnGameLaunch: true,
   });
+
+  // Background GitHub Release Update Check on app start
+  useEffect(() => {
+    if (window.go?.main?.App?.CheckForUpdates) {
+      window.go.main.App.CheckForUpdates().then((res) => {
+        if (res) setUpdateInfo(res);
+      });
+    }
+  }, []);
 
   const [drives, setDrives] = useState<DriveItem[]>([
     { letter: 'C', name: 'System', totalGb: 444.7, usedGb: 313.2, freeGb: 131.5, percentUsed: 70.4 },
@@ -570,6 +580,7 @@ export function App() {
           gameBoostActive={autoBoostStatus?.isBoosting || false}
           activeGameName={autoBoostStatus?.activeGameName}
           onQuickPurge={handleQuickPurge}
+          updateInfo={updateInfo}
         />
 
         <main className="flex-1 h-full overflow-y-auto bg-[#0E0F12]">
@@ -616,6 +627,13 @@ export function App() {
             <SettingsView
               themeAccent={themeAccent}
               setThemeAccent={setThemeAccent}
+              updateInfo={updateInfo}
+              onRefreshUpdate={async () => {
+                if (window.go?.main?.App?.CheckForUpdates) {
+                  const res = await window.go.main.App.CheckForUpdates();
+                  setUpdateInfo(res);
+                }
+              }}
             />
           )}
         </main>

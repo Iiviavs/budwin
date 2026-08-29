@@ -108,6 +108,16 @@ export interface AutoBoostStatus {
   isBoosting: boolean;
 }
 
+export interface UpdateInfo {
+  hasUpdate: boolean;
+  currentVersion: string;
+  latestVersion: string;
+  releaseName: string;
+  releaseNotes: string;
+  downloadUrl: string;
+  publishedAt: string;
+}
+
 export interface BenchmarkSummary {
   isRunning: boolean;
   durationSeconds: number;
@@ -201,6 +211,8 @@ declare global {
           GetActiveAlerts?: () => Promise<AlertItem[]>;
           DismissAlert?: (id: string) => Promise<void>;
           ResolveAlert?: (id: string, alertType: string, targetPid: number) => Promise<boolean>;
+          CheckForUpdates?: () => Promise<UpdateInfo>;
+          OpenUrlInBrowser?: (url: string) => Promise<boolean>;
           SetAlwaysOnTop?: (onTop: boolean) => Promise<void>;
           SetHudMode?: (isHud: boolean) => Promise<void>;
           SetMiniMode?: (isMini: boolean) => Promise<void>;
