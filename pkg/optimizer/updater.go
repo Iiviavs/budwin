@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-const AppVersion = "v1.9.2"
+const AppVersion = "v1.9.3"
 
 type UpdateInfo struct {
 	HasUpdate      bool   `json:"hasUpdate"`

@@ -273,7 +273,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                   <div className="flex items-center space-x-2">
                     <span className="text-xs font-bold text-white">budwin is up to date</span>
                     <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-white/10 text-neutral-300">
-                      {updateInfo?.currentVersion || 'v1.9.2'}
+                      {updateInfo?.currentVersion || 'v1.9.3'}
                     </span>
                   </div>
                   <span className="text-[11px] text-neutral-400">You are running the latest version with all optimizations.</span>
@@ -294,7 +294,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             <div className="flex items-center space-x-2">
               <h3 className="text-xs font-bold text-white">budwin System & Latency Monitor</h3>
               <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-accent-theme/10 text-accent-theme border border-accent-theme/20">
-                v1.9.2
+                v1.9.3
               </span>
             </div>
             <p className="text-[11px] text-neutral-400 mt-0.5">Built with Go, React & Wails in Raycast Matte Obsidian theme.</p>
