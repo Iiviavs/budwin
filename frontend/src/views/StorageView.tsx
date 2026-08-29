@@ -35,16 +35,12 @@ export const StorageView: React.FC<StorageViewProps> = ({ drives }) => {
     if (window.go?.main?.App?.ScanGameDuplicates) {
       try {
         const gRes = await window.go.main.App.ScanGameDuplicates();
-        setGameDuplicates(gRes);
-      } catch { }
+        setGameDuplicates(gRes || { totalDuplicateMb: 0.0, items: [] });
+      } catch {
+        setGameDuplicates({ totalDuplicateMb: 0.0, items: [] });
+      }
     } else {
-      setGameDuplicates({
-        totalDuplicateMb: 3080.5,
-        items: [
-          { id: 'directx_shared_redist', gameName: 'Steam Shared Redundancies', category: 'Duplicate DirectX / VC++', path: 'C:\\Steam\\steamapps\\common\\_CommonRedist', sizeMb: 1840.5, description: 'Redundant DirectX and VC++ installers already configured in Windows.' },
-          { id: 'steam_download_cache', gameName: 'Steam Staging Cache', category: 'Orphaned Workshop Depots', path: 'D:\\SteamLibrary\\steamapps\\downloading', sizeMb: 1240.0, description: 'Orphaned workshop mod files and temp download chunks.' },
-        ],
-      });
+      setGameDuplicates({ totalDuplicateMb: 0.0, items: [] });
     }
     setScanning(false);
   };
@@ -344,8 +340,15 @@ export const StorageView: React.FC<StorageViewProps> = ({ drives }) => {
         </div>
 
         <div className="divide-y divide-white/[0.04]">
-          {gameDuplicates.items.map((item) => (
-            <div key={item.id} className="raycast-row">
+          {gameDuplicates.items.length === 0 ? (
+            <div className="p-6 text-center text-neutral-400 text-xs flex flex-col items-center justify-center space-y-1.5">
+              <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+              <span className="font-semibold text-white">No Duplicate Game Packages Found</span>
+              <span className="text-[11px] text-neutral-500">Your Steam and game directories are completely clean of redundant DirectX/VC++ installers.</span>
+            </div>
+          ) : (
+            gameDuplicates.items.map((item) => (
+              <div key={item.id} className="raycast-row">
               <div className="flex items-center space-x-3">
                 <div className="w-8 h-8 rounded-lg bg-[#24252A] flex items-center justify-center text-purple-400">
                   <Package className="w-4 h-4" />
@@ -387,7 +390,7 @@ export const StorageView: React.FC<StorageViewProps> = ({ drives }) => {
                 </button>
               </div>
             </div>
-          ))}
+          )))}
         </div>
       </div>
 
@@ -415,21 +418,23 @@ export const StorageView: React.FC<StorageViewProps> = ({ drives }) => {
                 <span className="text-xs font-mono font-bold text-white">
                   {cat.sizeMb >= 1024
                     ? `${(cat.sizeMb / 1024).toFixed(1)} GB`
-                    : `${cat.sizeMb.toFixed(1)} MB`}
+                    : cat.sizeMb > 0.1
+                    ? `${cat.sizeMb.toFixed(1)} MB`
+                    : '0.0 MB'}
                 </span>
 
                 <button
                   onClick={() => handleCleanCategory(cat.id, cat.name)}
-                  disabled={cleaningId === cat.id || cat.sizeMb === 0}
+                  disabled={cleaningId === cat.id || cat.sizeMb <= 0.1}
                   className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
-                    cat.sizeMb > 0
+                    cat.sizeMb > 0.1
                       ? 'bg-[#24252A] hover:bg-[#2E3038] text-neutral-200'
                       : 'bg-transparent text-neutral-600 cursor-not-allowed'
                   }`}
                 >
                   {cleaningId === cat.id ? (
                     <Loader2 className="w-3 h-3 animate-spin" />
-                  ) : cat.sizeMb > 0 ? (
+                  ) : cat.sizeMb > 0.1 ? (
                     'Clean'
                   ) : (
                     'Cleaned'

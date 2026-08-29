@@ -4,6 +4,7 @@ import (
 	"math"
 	"os"
 	"path/filepath"
+	"strings"
 	"syscall"
 )
 
@@ -32,13 +33,32 @@ type StorageScanResult struct {
 	Categories       []StorageCategoryItem `json:"categories"`
 }
 
+// isFileCleanable checks if a file is safe to clean and NOT locked by an active process or virtual disk
+func isFileCleanable(path string, info os.FileInfo) bool {
+	if info == nil || info.IsDir() {
+		return false
+	}
+	name := strings.ToLower(info.Name())
+	// Ignore WSL/Docker virtual disk images and active system drivers
+	if strings.HasSuffix(name, ".vhdx") || strings.HasSuffix(name, ".vhd") || strings.HasSuffix(name, ".sys") || strings.HasPrefix(name, "swap") {
+		return false
+	}
+	// Try opening in read-write mode to verify the file is not currently locked by an active application
+	f, err := os.OpenFile(path, os.O_RDWR, 0666)
+	if err != nil {
+		return false
+	}
+	f.Close()
+	return true
+}
+
 func getDirSizeMb(dirPath string) float64 {
 	if _, err := os.Stat(dirPath); os.IsNotExist(err) {
 		return 0
 	}
 	var totalSize int64
 	_ = filepath.Walk(dirPath, func(path string, info os.FileInfo, err error) error {
-		if err == nil && info != nil && !info.IsDir() {
+		if err == nil && isFileCleanable(path, info) {
 			totalSize += info.Size()
 		}
 		return nil
@@ -59,7 +79,7 @@ func cleanDirContents(dirPath string) float64 {
 
 	for _, entry := range entries {
 		fullPath := filepath.Join(dirPath, entry.Name())
-		// Walk and strip read-only attributes on all subfiles before removal
+		// Walk and strip read-only attributes on subfiles before removal
 		_ = filepath.Walk(fullPath, func(path string, info os.FileInfo, err error) error {
 			if err == nil && info != nil {
 				_ = os.Chmod(path, 0666)
@@ -77,7 +97,7 @@ func cleanDirContents(dirPath string) float64 {
 	return math.Round(freed*10) / 10
 }
 
-// ScanCleanableStorage calculates genuine real-time disk sizes without fake fallbacks
+// ScanCleanableStorage calculates genuine real-time cleanable disk sizes
 func ScanCleanableStorage() StorageScanResult {
 	userProfile := os.Getenv("USERPROFILE")
 	localAppData := os.Getenv("LOCALAPPDATA")
@@ -93,7 +113,7 @@ func ScanCleanableStorage() StorageScanResult {
 	amdCache := filepath.Join(localAppData, "AMD", "DxCache")
 	shaderSize := getDirSizeMb(d3dCache) + getDirSizeMb(nvCache) + getDirSizeMb(nvGlCache) + getDirSizeMb(amdCache)
 
-	// 2. Windows Temp, Logs & Crash Dumps
+	// 2. Windows Temp, Logs & Crash Dumps (cleanable files only)
 	userTemp := os.TempDir()
 	winTemp := filepath.Join(windir, "Temp")
 	crashDumps := filepath.Join(localAppData, "CrashDumps")
@@ -122,7 +142,7 @@ func ScanCleanableStorage() StorageScanResult {
 			Name:        "DirectX & GPU Shader Cache",
 			Description: "Compiled game shaders (NVIDIA/AMD/D3D). Cleans texture stutter.",
 			SizeMb:      shaderSize,
-			Cleanable:   true,
+			Cleanable:   shaderSize > 0.1,
 			IconType:    "zap",
 		},
 		{
@@ -130,7 +150,7 @@ func ScanCleanableStorage() StorageScanResult {
 			Name:        "Browser & Client Web Caches",
 			Description: "Chrome, Edge, Steam & Discord HTTP cache assets.",
 			SizeMb:      browserCacheSize,
-			Cleanable:   true,
+			Cleanable:   browserCacheSize > 0.1,
 			IconType:    "layers",
 		},
 		{
@@ -138,7 +158,7 @@ func ScanCleanableStorage() StorageScanResult {
 			Name:        "System & User Temp / Crash Dumps",
 			Description: "%TEMP% application logs, crash dumps, and installer traces.",
 			SizeMb:      tempSize,
-			Cleanable:   true,
+			Cleanable:   tempSize > 0.1,
 			IconType:    "trash",
 		},
 		{
@@ -146,7 +166,7 @@ func ScanCleanableStorage() StorageScanResult {
 			Name:        "Windows Update Download Cache",
 			Description: "Leftover installers from completed Windows updates.",
 			SizeMb:      winUpdateSize,
-			Cleanable:   true,
+			Cleanable:   winUpdateSize > 0.1,
 			IconType:    "refresh",
 		},
 		{
@@ -154,7 +174,7 @@ func ScanCleanableStorage() StorageScanResult {
 			Name:        "Windows Recycle Bin",
 			Description: "Permanently empty deleted trash items from all drives.",
 			SizeMb:      recycleBinSize,
-			Cleanable:   true,
+			Cleanable:   false,
 			IconType:    "archive",
 		},
 	}
@@ -200,7 +220,7 @@ func CleanStorageCategory(categoryID string) float64 {
 
 	case "recyclebin":
 		shEmptyRecycleBinW.Call(0, 0, uintptr(SHERB_NOCONFIRMATION|SHERB_NOPROGRESSUI|SHERB_NOSOUND))
-		totalFreed += 10.0
+		totalFreed += 0.0
 
 	case "all":
 		// Clean all

@@ -34,6 +34,8 @@ func CleanTempFiles() (float64, error) {
 		info, err := entry.Info()
 		if err == nil {
 			size := info.Size()
+			// Strip read-only attribute if needed
+			_ = os.Chmod(fullPath, 0666)
 			err = os.RemoveAll(fullPath)
 			if err == nil {
 				totalBytesFreed += size
@@ -42,10 +44,6 @@ func CleanTempFiles() (float64, error) {
 	}
 
 	freedMb := float64(totalBytesFreed) / (1024 * 1024)
-	if freedMb < 1.0 {
-		freedMb = 12.5 // Minimum visual acknowledgment
-	}
-
 	return freedMb, nil
 }
 
@@ -61,7 +59,7 @@ func SetPowerPlan(plan string) error {
 		guid = GuidHighPerformance
 	}
 
-	cmd := exec.Command("powercfg", "/setactive", guid)
+	cmd := exec.Command("powercfg", "/s", guid)
 	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
 	return cmd.Run()
 }
@@ -73,10 +71,15 @@ func GetActivePowerPlan() string {
 	if err != nil {
 		return "Balanced"
 	}
-
-	str := string(out)
-	if strings.Contains(str, "Alto desempenho") || strings.Contains(str, "High performance") {
+	s := strings.ToLower(string(out))
+	if strings.Contains(s, "desempenho m") || strings.Contains(s, "ultimate") {
+		return "Ultimate Performance (Desempenho Máximo)"
+	}
+	if strings.Contains(s, "high") || strings.Contains(s, "alto desempenho") {
 		return "High Performance"
+	}
+	if strings.Contains(s, "econom") || strings.Contains(s, "saver") {
+		return "Power Saver"
 	}
 	return "Balanced"
 }
