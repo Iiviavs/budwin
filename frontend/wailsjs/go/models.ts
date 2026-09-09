@@ -313,6 +313,24 @@ export namespace optimizer {
 	        this.autoDimOnGameLaunch = source["autoDimOnGameLaunch"];
 	    }
 	}
+	export class SilentModeStatus {
+	    isSilentModeActive: boolean;
+	    estimatedFanDb: string;
+	    cpuTempReductionC: number;
+	    profileName: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new SilentModeStatus(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.isSilentModeActive = source["isSilentModeActive"];
+	        this.estimatedFanDb = source["estimatedFanDb"];
+	        this.cpuTempReductionC = source["cpuTempReductionC"];
+	        this.profileName = source["profileName"];
+	    }
+	}
 	export class StartupItem {
 	    name: string;
 	    command: string;
@@ -333,6 +351,30 @@ export namespace optimizer {
 	        this.enabled = source["enabled"];
 	        this.impact = source["impact"];
 	        this.description = source["description"];
+	    }
+	}
+	export class UpdateInfo {
+	    hasUpdate: boolean;
+	    currentVersion: string;
+	    latestVersion: string;
+	    releaseName: string;
+	    releaseNotes: string;
+	    downloadUrl: string;
+	    publishedAt: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new UpdateInfo(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.hasUpdate = source["hasUpdate"];
+	        this.currentVersion = source["currentVersion"];
+	        this.latestVersion = source["latestVersion"];
+	        this.releaseName = source["releaseName"];
+	        this.releaseNotes = source["releaseNotes"];
+	        this.downloadUrl = source["downloadUrl"];
+	        this.publishedAt = source["publishedAt"];
 	    }
 	}
 

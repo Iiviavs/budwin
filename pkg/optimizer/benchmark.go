@@ -25,15 +25,15 @@ type BenchmarkSummary struct {
 }
 
 type BenchmarkEngine struct {
-	mu           sync.RWMutex
-	isRunning    bool
-	startTime    time.Time
-	cpuSamples   []float64
-	ramSamples   []float64
-	gpuSamples   []uint32
-	gpuTemps     []uint32
-	lastSummary  BenchmarkSummary
-	stopChan     chan struct{}
+	mu          sync.RWMutex
+	isRunning   bool
+	startTime   time.Time
+	cpuSamples  []float64
+	ramSamples  []float64
+	gpuSamples  []uint32
+	gpuTemps    []uint32
+	lastSummary BenchmarkSummary
+	stopChan    chan struct{}
 }
 
 var (
@@ -44,10 +44,10 @@ var (
 func GetBenchmarkEngine() *BenchmarkEngine {
 	benchOnce.Do(func() {
 		benchInstance = &BenchmarkEngine{
-			cpuSamples:  make([]float64, 0),
-			ramSamples:  make([]float64, 0),
-			gpuSamples:  make([]uint32, 0),
-			gpuTemps:    make([]uint32, 0),
+			cpuSamples: make([]float64, 0),
+			ramSamples: make([]float64, 0),
+			gpuSamples: make([]uint32, 0),
+			gpuTemps:   make([]uint32, 0),
 		}
 	})
 	return benchInstance
@@ -89,6 +89,10 @@ func (b *BenchmarkEngine) StopBenchmark() BenchmarkSummary {
 }
 
 func (b *BenchmarkEngine) samplingLoop() {
+	b.mu.RLock()
+	stopChan := b.stopChan
+	b.mu.RUnlock()
+
 	ticker := time.NewTicker(1 * time.Second)
 	defer ticker.Stop()
 
@@ -96,7 +100,7 @@ func (b *BenchmarkEngine) samplingLoop() {
 		select {
 		case <-ticker.C:
 			b.recordSample()
-		case <-b.stopChan:
+		case <-stopChan:
 			return
 		}
 	}

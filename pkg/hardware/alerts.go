@@ -10,8 +10,8 @@ import (
 
 type AlertItem struct {
 	ID          string    `json:"id"`
-	Type        string    `json:"type"`        // "thermal" | "rogue_cpu" | "memory_spike"
-	Severity    string    `json:"severity"`    // "warning" | "critical"
+	Type        string    `json:"type"`     // "thermal" | "rogue_cpu" | "memory_spike"
+	Severity    string    `json:"severity"` // "warning" | "critical"
 	Title       string    `json:"title"`
 	Description string    `json:"description"`
 	ActionLabel string    `json:"actionLabel"`
@@ -90,7 +90,13 @@ func (ae *AlertEngine) CheckTelemetry(telemetry TelemetrySnapshot) {
 func (ae *AlertEngine) GetAlerts() []AlertItem {
 	ae.mu.RLock()
 	defer ae.mu.RUnlock()
-	return ae.alerts
+
+	// Return a snapshot instead of exposing the backing array. Callers (including
+	// Wails' JSON marshaller) must not be able to mutate shared state after the
+	// read lock has been released.
+	alerts := make([]AlertItem, len(ae.alerts))
+	copy(alerts, ae.alerts)
+	return alerts
 }
 
 func (ae *AlertEngine) DismissAlert(id string) {

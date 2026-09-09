@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Titlebar } from './components/Titlebar';
 import { Sidebar, TabType } from './components/Sidebar';
 import { AlertBanner } from './components/AlertBanner';
@@ -31,12 +31,19 @@ export function App() {
   // Listen to Tray Open Events
   useEffect(() => {
     if (window.runtime?.EventsOn) {
-      window.runtime.EventsOn('tray-open-mini', () => {
+      const onTrayOpenMini = () => {
         switchViewMode('mini');
-      });
-      window.runtime.EventsOn('tray-open-full', () => {
+      };
+      const onTrayOpenFull = () => {
         switchViewMode('full');
-      });
+      };
+      window.runtime.EventsOn('tray-open-mini', onTrayOpenMini);
+      window.runtime.EventsOn('tray-open-full', onTrayOpenFull);
+
+      return () => {
+        window.runtime?.EventsOff?.('tray-open-mini', onTrayOpenMini);
+        window.runtime?.EventsOff?.('tray-open-full', onTrayOpenFull);
+      };
     }
   }, []);
 
@@ -68,6 +75,7 @@ export function App() {
   const [powerPlan, setPowerPlan] = useState('Balanced');
   const [targetProcess, setTargetProcess] = useState<ProcessItem | null>(null);
   const [timerActive, setTimerActive] = useState(true);
+  const telemetryInFlight = useRef(false);
 
   // 60-point history buffers
   const [history, setHistory] = useState<{
@@ -111,6 +119,9 @@ export function App() {
   // Telemetry & Alerts loop
   useEffect(() => {
     const fetchTelemetry = async () => {
+      if (telemetryInFlight.current) return;
+      telemetryInFlight.current = true;
+
       if (window.go?.main?.App?.GetTelemetry) {
         try {
           const telem = await window.go.main.App.GetTelemetry();
@@ -134,7 +145,11 @@ export function App() {
             const ab = await window.go.main.App.GetAutoBoostStatus();
             setAutoBoostStatus(ab);
           }
-        } catch { }
+        } catch (error) {
+          console.error('Failed to refresh telemetry', error);
+        } finally {
+          telemetryInFlight.current = false;
+        }
       } else {
         const mockCpu = Math.floor(Math.random() * 20) + 12;
         const mockGpu = Math.floor(Math.random() * 10) + 4;
@@ -171,6 +186,7 @@ export function App() {
           ram: [...prev.ram.slice(1), mockRam],
           net: [...prev.net.slice(1), mockNetIn],
         }));
+        telemetryInFlight.current = false;
       }
     };
 
@@ -184,7 +200,9 @@ export function App() {
       try {
         const list = await window.go.main.App.GetProcesses();
         setProcesses(list);
-      } catch { }
+      } catch (error) {
+        console.error('Failed to load processes', error);
+      }
     } else {
       setProcesses([
         { pid: 27004, name: 'chrome.exe', description: 'Google Chrome Web Browser', memoryMb: 1420.5, cpuPercent: 4.2, category: 'safe', categoryLabel: 'User Application' },
@@ -203,7 +221,9 @@ export function App() {
       try {
         const list = await window.go.main.App.GetStartupItems();
         setStartupItems(list);
-      } catch { }
+      } catch (error) {
+        console.error('Failed to load startup items', error);
+      }
     } else {
       setStartupItems([
         { name: 'Discord', command: 'C:\\Users\\crynn\\AppData\\Local\\Discord\\app-1.0.9000\\Discord.exe', location: 'HKCU', enabled: true, impact: 'High', description: 'Discord Voice & Chat' },
@@ -219,7 +239,9 @@ export function App() {
       try {
         const d = await window.go.main.App.GetDrives();
         setDrives(d);
-      } catch { }
+      } catch (error) {
+        console.error('Failed to load drives', error);
+      }
     }
   };
 
@@ -228,7 +250,9 @@ export function App() {
       try {
         const m = await window.go.main.App.GetMonitors();
         setMonitors(m || []);
-      } catch { }
+      } catch (error) {
+        console.error('Failed to load monitors', error);
+      }
     } else {
       setMonitors([
         { index: 0, name: '\\\\.\\DISPLAY1', isPrimary: true, width: 1920, height: 1080 },
@@ -261,7 +285,8 @@ export function App() {
 
   const handleToggleStartupItem = async (name: string, location: string, enable: boolean): Promise<boolean> => {
     if (window.go?.main?.App?.ToggleStartupItem) {
-      await window.go.main.App.ToggleStartupItem(name, location, enable);
+      const success = await window.go.main.App.ToggleStartupItem(name, location, enable);
+      if (!success) return false;
     }
     setStartupItems((prev) =>
       prev.map((i) => (i.name === name && i.location === location ? { ...i, enabled: enable } : i))
@@ -271,7 +296,8 @@ export function App() {
 
   const handleToggleAutoBoost = async (enable: boolean): Promise<boolean> => {
     if (window.go?.main?.App?.SetAutoBoostEnabled) {
-      await window.go.main.App.SetAutoBoostEnabled(enable);
+      const success = await window.go.main.App.SetAutoBoostEnabled(enable);
+      if (!success) return false;
     }
     setAutoBoostStatus((prev) => prev ? { ...prev, autoBoostEnabled: enable } : null);
     return true;
@@ -320,17 +346,20 @@ export function App() {
   };
 
   const handleSetPowerPlan = async (plan: string): Promise<boolean> => {
-    setPowerPlan(plan);
     if (window.go?.main?.App?.SetPowerPlan) {
-      return await window.go.main.App.SetPowerPlan(plan);
+      const success = await window.go.main.App.SetPowerPlan(plan);
+      if (success) setPowerPlan(plan);
+      return success;
     }
+    setPowerPlan(plan);
     return true;
   };
 
   const handleToggleTimer = async () => {
     const nextState = !timerActive;
     if (window.go?.main?.App?.ToggleHighPrecisionTimer) {
-      await window.go.main.App.ToggleHighPrecisionTimer(nextState);
+      const success = await window.go.main.App.ToggleHighPrecisionTimer(nextState);
+      if (!success) return;
     }
     setTimerActive(nextState);
   };

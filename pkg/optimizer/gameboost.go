@@ -2,6 +2,7 @@ package optimizer
 
 import (
 	"math"
+	"sync"
 	"syscall"
 	"unsafe"
 
@@ -28,13 +29,14 @@ const (
 )
 
 type GameBoostResult struct {
-	Active     bool    `json:"active"`
-	FreedRamMb float64 `json:"freedRamMb"`
-	TimerActive bool   `json:"timerActive"`
-	PowerPlan  string  `json:"powerPlan"`
+	Active      bool    `json:"active"`
+	FreedRamMb  float64 `json:"freedRamMb"`
+	TimerActive bool    `json:"timerActive"`
+	PowerPlan   string  `json:"powerPlan"`
 }
 
 var isGameBoostActive = false
+var gameBoostMu sync.RWMutex
 
 // PurgeStandbyRAM frees unused pages and working set across all non-critical user applications
 func PurgeStandbyRAM() float64 {
@@ -125,6 +127,8 @@ func SetProcessHighPriority(pid int32) bool {
 
 // EnableGameBoost executes full latency, memory, and performance optimizations
 func EnableGameBoost() GameBoostResult {
+	gameBoostMu.Lock()
+	defer gameBoostMu.Unlock()
 	isGameBoostActive = true
 
 	// 1. Force 1.0ms timer resolution
@@ -153,6 +157,8 @@ func EnableGameBoost() GameBoostResult {
 
 // DisableGameBoost restores silent Balanced power plan and standard settings
 func DisableGameBoost() GameBoostResult {
+	gameBoostMu.Lock()
+	defer gameBoostMu.Unlock()
 	isGameBoostActive = false
 
 	// Restore Balanced power scheme for cool temps & silent fans
@@ -167,5 +173,7 @@ func DisableGameBoost() GameBoostResult {
 }
 
 func IsGameBoostActive() bool {
+	gameBoostMu.RLock()
+	defer gameBoostMu.RUnlock()
 	return isGameBoostActive
 }

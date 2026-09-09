@@ -223,6 +223,7 @@ declare global {
     };
     runtime?: {
       EventsOn?: (eventName: string, callback: (...args: any[]) => void) => void;
+      EventsOff?: (eventName: string, callback: (...args: any[]) => void) => void;
       WindowMinimise?: () => void;
       WindowToggleMaximise?: () => void;
       WindowSetSize?: (width: number, height: number) => void;

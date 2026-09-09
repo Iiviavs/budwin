@@ -13,6 +13,7 @@ frontend/dist/
 
 # Go
 bin/
+.gocache/
 *.test
 *.out
 

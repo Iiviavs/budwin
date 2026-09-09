@@ -4,6 +4,7 @@ import (
 	"math"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"syscall"
 )
@@ -72,21 +73,40 @@ func cleanDirContents(dirPath string) float64 {
 	}
 	initialSize := getDirSizeMb(dirPath)
 
-	entries, err := os.ReadDir(dirPath)
+	var files []string
+	var dirs []string
+	err := filepath.Walk(dirPath, func(path string, info os.FileInfo, walkErr error) error {
+		if walkErr != nil || info == nil {
+			return nil
+		}
+		if info.Mode()&os.ModeSymlink != 0 {
+			return nil
+		}
+		if info.IsDir() {
+			dirs = append(dirs, path)
+			return nil
+		}
+		if isFileCleanable(path, info) {
+			files = append(files, path)
+		}
+		return nil
+	})
 	if err != nil {
 		return 0
 	}
 
-	for _, entry := range entries {
-		fullPath := filepath.Join(dirPath, entry.Name())
-		// Walk and strip read-only attributes on subfiles before removal
-		_ = filepath.Walk(fullPath, func(path string, info os.FileInfo, err error) error {
-			if err == nil && info != nil {
-				_ = os.Chmod(path, 0666)
-			}
-			return nil
-		})
-		_ = os.RemoveAll(fullPath)
+	for _, path := range files {
+		_ = os.Chmod(path, 0666)
+		_ = os.Remove(path)
+	}
+
+	// Remove only directories that became empty. This preserves locked or
+	// intentionally skipped files and never follows/removes symlink targets.
+	sort.Slice(dirs, func(i, j int) bool { return len(dirs[i]) > len(dirs[j]) })
+	for _, dir := range dirs {
+		if dir != dirPath {
+			_ = os.Remove(dir)
+		}
 	}
 
 	remainingSize := getDirSizeMb(dirPath)

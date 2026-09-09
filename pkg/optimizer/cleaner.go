@@ -23,23 +23,34 @@ func CleanTempFiles() (float64, error) {
 	}
 
 	var totalBytesFreed int64
+	var cleanableFiles []string
 
-	entries, err := os.ReadDir(tempDir)
+	err := filepath.Walk(tempDir, func(path string, info os.FileInfo, walkErr error) error {
+		if walkErr != nil {
+			return nil // Locked/inaccessible entries should not abort the cleanup.
+		}
+		if info == nil || info.IsDir() || info.Mode()&os.ModeSymlink != 0 {
+			return nil
+		}
+		file, openErr := os.OpenFile(path, os.O_RDWR, 0666)
+		if openErr == nil {
+			_ = file.Close()
+			cleanableFiles = append(cleanableFiles, path)
+		}
+		return nil
+	})
 	if err != nil {
 		return 0, err
 	}
 
-	for _, entry := range entries {
-		fullPath := filepath.Join(tempDir, entry.Name())
-		info, err := entry.Info()
-		if err == nil {
-			size := info.Size()
-			// Strip read-only attribute if needed
-			_ = os.Chmod(fullPath, 0666)
-			err = os.RemoveAll(fullPath)
-			if err == nil {
-				totalBytesFreed += size
-			}
+	for _, path := range cleanableFiles {
+		info, statErr := os.Stat(path)
+		if statErr != nil {
+			continue
+		}
+		_ = os.Chmod(path, 0666)
+		if removeErr := os.Remove(path); removeErr == nil {
+			totalBytesFreed += info.Size()
 		}
 	}
 

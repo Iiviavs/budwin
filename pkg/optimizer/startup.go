@@ -1,6 +1,8 @@
 package optimizer
 
 import (
+	"os"
+	"path/filepath"
 	"strings"
 
 	"golang.org/x/sys/windows/registry"
@@ -156,17 +158,34 @@ func SetAutoStartEnabled(enable bool) bool {
 	defer k.Close()
 
 	if enable {
-		exePath := `C:\Users\crynn\.gemini\antigravity\scratch\budwin\build\bin\budwin.exe`
-		_ = k.SetStringValue("budwin", `"`+exePath+`"`)
+		exePath, err := os.Executable()
+		if err != nil {
+			return false
+		}
+		exePath, err = filepath.Abs(exePath)
+		if err != nil {
+			return false
+		}
+		if err := k.SetStringValue("budwin", `"`+exePath+`"`); err != nil {
+			return false
+		}
 
 		// Also ensure enabled in StartupApproved\Run
 		kApp, err := registry.OpenKey(registry.CURRENT_USER, `Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run`, registry.SET_VALUE)
 		if err == nil {
-			_ = kApp.SetBinaryValue("budwin", []byte{0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00})
+			if err := kApp.SetBinaryValue("budwin", []byte{0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}); err != nil {
+				kApp.Close()
+				return false
+			}
 			kApp.Close()
 		}
 	} else {
-		_ = k.DeleteValue("budwin")
+		if err := k.DeleteValue("budwin"); err != nil {
+			// Deleting an already absent value is an idempotent success.
+			if err != registry.ErrNotExist {
+				return false
+			}
+		}
 	}
 
 	return true

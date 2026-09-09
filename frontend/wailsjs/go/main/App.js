@@ -6,6 +6,10 @@ export function ApplyUltimateFpsBoost() {
   return window['go']['main']['App']['ApplyUltimateFpsBoost']();
 }
 
+export function CheckForUpdates() {
+  return window['go']['main']['App']['CheckForUpdates']();
+}
+
 export function CleanStorageCategory(arg1) {
   return window['go']['main']['App']['CleanStorageCategory'](arg1);
 }
@@ -38,6 +42,10 @@ export function GetAutoBoostStatus() {
   return window['go']['main']['App']['GetAutoBoostStatus']();
 }
 
+export function GetAutoStartEnabled() {
+  return window['go']['main']['App']['GetAutoStartEnabled']();
+}
+
 export function GetBenchmarkStatus() {
   return window['go']['main']['App']['GetBenchmarkStatus']();
 }
@@ -62,6 +70,10 @@ export function GetProcesses() {
   return window['go']['main']['App']['GetProcesses']();
 }
 
+export function GetSilentModeStatus() {
+  return window['go']['main']['App']['GetSilentModeStatus']();
+}
+
 export function GetStartupItems() {
   return window['go']['main']['App']['GetStartupItems']();
 }
@@ -84,6 +96,10 @@ export function IsTimerActive() {
 
 export function KillProcess(arg1) {
   return window['go']['main']['App']['KillProcess'](arg1);
+}
+
+export function OpenUrlInBrowser(arg1) {
+  return window['go']['main']['App']['OpenUrlInBrowser'](arg1);
 }
 
 export function OptimizeAudioLatency() {
@@ -122,6 +138,10 @@ export function SetAutoBoostEnabled(arg1) {
   return window['go']['main']['App']['SetAutoBoostEnabled'](arg1);
 }
 
+export function SetAutoStartEnabled(arg1) {
+  return window['go']['main']['App']['SetAutoStartEnabled'](arg1);
+}
+
 export function SetHudMode(arg1) {
   return window['go']['main']['App']['SetHudMode'](arg1);
 }
@@ -156,6 +176,10 @@ export function ToggleGameBoost(arg1) {
 
 export function ToggleHighPrecisionTimer(arg1) {
   return window['go']['main']['App']['ToggleHighPrecisionTimer'](arg1);
+}
+
+export function ToggleScreenShareSilentMode(arg1) {
+  return window['go']['main']['App']['ToggleScreenShareSilentMode'](arg1);
 }
 
 export function ToggleStartupItem(arg1, arg2, arg3) {
