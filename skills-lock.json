@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "ai-debt-detector": {
+      "source": "wshobson/agents",
+      "sourceType": "github",
+      "skillPath": "plugins/skill-forge-essentials/skills/ai-debt-detector/SKILL.md",
+      "computedHash": "c39efa23167f8977ff6c9e4a0e51ed4ec1b14937a45179b5a1eb20d52e81f934"
+    }
+  }
+}

@@ -25,31 +25,29 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   return (
     <header className="h-14 border-b border-border bg-surface/80 backdrop-blur-md px-4 flex items-center justify-between select-none">
-      {/* Brand & Mascot */}
       <div className="flex items-center space-x-3">
-        <div className="w-8 h-8 rounded-full overflow-hidden border border-sky-400/40 shadow-md shadow-sky-500/20 bg-surface">
-          <img src="/logo.png" alt="budwin mascot" className="w-full h-full object-cover scale-110" />
+        <div className="w-8 h-8 rounded-full overflow-hidden border border-border shadow-sm bg-surfaceSubtle flex items-center justify-center">
+          <img src="/logo.png" alt="logo" className="w-full h-full object-cover scale-110" />
         </div>
         <div className="flex items-center space-x-2">
-          <span className="font-bold text-base text-white tracking-tight">budwin</span>
-          <span className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-sky-500/10 text-sky-400 border border-sky-500/20">
-            v1.2
+          <span className="font-semibold text-base text-textPrimary tracking-tight">budwin</span>
+          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-surfaceSubtle text-textSecondary border border-border">
+            v1.6
           </span>
         </div>
       </div>
 
-      {/* Tabs */}
-      <nav className="flex items-center space-x-1 bg-background/60 p-1 rounded-lg border border-border/50">
+      <nav className="flex items-center space-x-1 bg-surfaceSubtle p-1 rounded-xl border border-border">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
           return (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as TabType)}
-              className={`flex items-center space-x-2 px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-150 ${
+              className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all active:scale-[0.96] ${
                 isActive
-                  ? 'bg-surface text-white shadow-sm border border-border/80'
-                  : 'text-gray-400 hover:text-gray-200 hover:bg-surfaceHover/50'
+                  ? 'bg-surface text-textPrimary border border-borderFocus'
+                  : 'text-textSecondary hover:text-textPrimary hover:bg-surfaceHover'
               }`}
             >
               {tab.icon}
@@ -59,12 +57,11 @@ export const Navbar: React.FC<NavbarProps> = ({
         })}
       </nav>
 
-      {/* Window Controls */}
       <div className="flex items-center space-x-2">
         {onMinimize && (
           <button
             onClick={onMinimize}
-            className="flex items-center space-x-1 px-2.5 py-1 rounded-lg bg-surfaceHover hover:bg-border text-gray-300 hover:text-white text-xs font-semibold transition-colors"
+            className="flex items-center space-x-1 px-2.5 py-1.5 rounded-xl bg-surface hover:bg-surfaceHover border border-border text-textPrimary text-xs font-medium transition-all active:scale-[0.96]"
             title="Switch to Compact Mini View"
           >
             <Minimize2 className="w-3.5 h-3.5" />
@@ -74,8 +71,9 @@ export const Navbar: React.FC<NavbarProps> = ({
         {onClose && (
           <button
             onClick={onClose}
-            className="w-7 h-7 rounded-lg hover:bg-rose-500/20 hover:text-rose-400 flex items-center justify-center text-gray-400 transition-colors"
+            className="w-7 h-7 rounded-xl hover:bg-surfaceSubtle hover:text-textPrimary flex items-center justify-center text-textSecondary transition-all active:scale-[0.9]"
             title="Minimize to Tray"
+            aria-label="Close"
           >
             <X className="w-3.5 h-3.5" />
           </button>

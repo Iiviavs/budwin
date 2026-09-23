@@ -30,70 +30,74 @@ export const StartupView: React.FC<StartupViewProps> = ({ items, onRefresh, onTo
   const highImpactCount = items.filter((i) => i.enabled && i.impact === 'High').length;
 
   return (
-    <div className="p-6 space-y-4 max-h-[calc(100vh-2.5rem)] flex flex-col h-full overflow-hidden font-sans">
-      {/* Header Banner (Borderless Raycast) */}
-      <div className="glass-card rounded-2xl p-5 flex items-center justify-between shadow-xl">
+    <div className="p-6 md:p-8 space-y-4 max-h-[calc(100vh-2.5rem)] flex flex-col h-full overflow-hidden font-sans max-w-5xl mx-auto">
+      <div className="bg-surface rounded-2xl p-5 flex items-center justify-between">
         <div className="flex items-center space-x-3.5">
-          <div className="w-11 h-11 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-xl bg-surfaceSubtle flex items-center justify-center text-textSecondary">
             <Power className="w-5 h-5" />
           </div>
           <div>
             <div className="flex items-center space-x-2">
-              <h2 className="text-sm font-bold text-white">Windows Startup Apps Optimizer</h2>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-[#24252A] text-neutral-300">
-                {enabledCount} Active at Boot
+              <h2 className="text-sm font-semibold text-textPrimary">Boot Applications</h2>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-surfaceSubtle text-textSecondary">
+                {enabledCount} Active
               </span>
             </div>
-            <p className="text-xs text-neutral-400 mt-0.5">
-              Control apps that launch with Windows to cut boot time and free memory.
+            <p className="text-xs text-textSecondary mt-0.5 font-normal">
+              Control background processes initialized on boot to minimize memory usage
             </p>
           </div>
         </div>
 
         <div className="flex items-center space-x-4">
           <div className="text-right">
-            <span className="text-[10px] text-neutral-400 block font-medium">High Impact Load</span>
-            <span className={`text-xs font-bold block ${highImpactCount > 0 ? 'text-rose-400' : 'text-emerald-400'}`}>
-              {highImpactCount} Heavy Apps
+            <span className="text-[10px] text-textTertiary block font-mono">High Impact Load</span>
+            <span className="text-xs font-mono font-medium block text-textPrimary">
+              {highImpactCount} Heavy Tasks
             </span>
           </div>
         </div>
       </div>
 
-      {/* Search & Filters */}
       <div className="flex items-center justify-between gap-3">
         <div className="relative flex-1">
-          <Search className="w-3.5 h-3.5 text-neutral-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <Search className="w-3.5 h-3.5 text-textTertiary absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             type="text"
-            placeholder="Search startup programs or publishers..."
+            placeholder="Search boot apps..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-[#18191E] rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-neutral-500 focus:outline-none focus:bg-[#202127] transition-colors"
+            className="w-full bg-surface rounded-xl pl-9 pr-4 py-2 text-xs text-textPrimary placeholder:text-textTertiary focus:outline-none focus-visible:ring-2 focus-visible:ring-borderFocus transition-colors"
           />
         </div>
 
-        <div className="flex items-center space-x-1 bg-[#18191E] p-1 rounded-xl">
+        <div className="flex items-center space-x-1 bg-surface p-1 rounded-xl">
           <button
             onClick={() => setFilter('all')}
-            className={`px-3 py-1 rounded-lg text-xs font-semibold transition-colors ${
-              filter === 'all' ? 'bg-[#282A33] text-white' : 'text-neutral-400 hover:text-white'
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all active:scale-[0.96] ${
+              filter === 'all'
+                ? 'bg-surfaceSubtle text-textPrimary'
+                : 'text-textSecondary hover:text-textPrimary'
             }`}
           >
             All ({items.length})
           </button>
           <button
             onClick={() => setFilter('high')}
-            className={`px-3 py-1 rounded-lg text-xs font-semibold transition-colors ${
-              filter === 'high' ? 'bg-[#282A33] text-rose-400' : 'text-neutral-400 hover:text-white'
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all active:scale-[0.96] ${
+              filter === 'high'
+                ? 'bg-surfaceSubtle text-textPrimary'
+                : 'text-textSecondary hover:text-textPrimary'
             }`}
           >
             High Impact
           </button>
           <button
             onClick={() => setFilter('enabled')}
-            className={`px-3 py-1 rounded-lg text-xs font-semibold transition-colors ${
-              filter === 'enabled' ? 'bg-[#282A33] text-emerald-400' : 'text-neutral-400 hover:text-white'
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all active:scale-[0.96] ${
+              filter === 'enabled'
+                ? 'bg-surfaceSubtle text-textPrimary'
+                : 'text-textSecondary hover:text-textPrimary'
             }`}
           >
             Enabled
@@ -102,72 +106,54 @@ export const StartupView: React.FC<StartupViewProps> = ({ items, onRefresh, onTo
 
         <button
           onClick={onRefresh}
-          className="p-2 rounded-xl bg-[#18191E] hover:bg-[#202127] text-neutral-300 transition-colors"
+          className="p-2 rounded-xl bg-surface hover:bg-surfaceHover text-textSecondary hover:text-textPrimary transition-all active:scale-[0.96]"
           title="Refresh Startup Entries"
+          aria-label="Refresh startup entries"
         >
           <RefreshCw className="w-4 h-4" />
         </button>
       </div>
 
-      {/* Startup Table (Raycast List Card) */}
-      <div className="glass-card rounded-2xl flex-1 overflow-hidden flex flex-col shadow-xl">
-        <div className="grid grid-cols-12 gap-3 px-5 py-2.5 bg-[#141518] text-[11px] font-bold text-neutral-400 uppercase tracking-wider">
-          <div className="col-span-4">Application Name</div>
-          <div className="col-span-4">Description & Command</div>
-          <div className="col-span-2 text-center">Boot Impact</div>
-          <div className="col-span-2 text-right">Startup State</div>
+      <div className="bg-surface rounded-2xl flex-1 overflow-hidden flex flex-col">
+        <div className="grid grid-cols-12 gap-3 px-5 py-2.5 bg-surfaceSubtle text-[10px] font-medium text-textTertiary uppercase tracking-wider">
+          <div className="col-span-4">Application</div>
+          <div className="col-span-4">Command</div>
+          <div className="col-span-2 text-center">Impact</div>
+          <div className="col-span-2 text-right">State</div>
         </div>
 
-        <div className="overflow-y-auto flex-1 divide-y divide-white/[0.04]">
+        <div className="overflow-y-auto flex-1">
           {filteredItems.map((item) => {
-            const isHigh = item.impact === 'High';
-            const isMedium = item.impact === 'Medium';
-
             return (
               <div
                 key={item.name + item.location}
-                className="grid grid-cols-12 gap-3 px-5 py-3 items-center hover:bg-white/[0.02] transition-colors text-xs"
+                className="grid grid-cols-12 gap-3 px-5 py-3 items-center hover:bg-surfaceHover transition-colors text-xs"
               >
-                {/* Name */}
                 <div className="col-span-4 flex items-center space-x-2.5 truncate">
-                  <div className="w-7 h-7 rounded-lg bg-[#24252A] flex items-center justify-center text-accent-theme font-bold text-xs shrink-0">
-                    ⚡
-                  </div>
                   <div className="truncate">
-                    <span className="font-semibold text-white block truncate">{item.name}</span>
-                    <span className="text-[10px] text-neutral-500 font-mono block">{item.location}</span>
+                    <span className="font-medium text-textPrimary block truncate">{item.name}</span>
+                    <span className="text-[10px] text-textTertiary font-mono block">{item.location}</span>
                   </div>
                 </div>
 
-                {/* Description */}
-                <div className="col-span-4 truncate text-neutral-300 font-normal text-[11px]">
-                  <span className="block truncate text-white">{item.description}</span>
-                  <span className="block truncate text-[10px] text-neutral-500 font-mono">{item.command}</span>
+                <div className="col-span-4 truncate text-textSecondary font-normal text-[11px]">
+                  <span className="block truncate text-textPrimary">{item.description || item.name}</span>
+                  <span className="block truncate text-[10px] text-textTertiary font-mono">{item.command}</span>
                 </div>
 
-                {/* Impact */}
                 <div className="col-span-2 flex justify-center">
-                  <span
-                    className={`px-2.5 py-0.5 rounded-md text-[10px] font-bold ${
-                      isHigh
-                        ? 'bg-rose-500/15 text-rose-400'
-                        : isMedium
-                        ? 'bg-amber-500/15 text-amber-400'
-                        : 'bg-emerald-500/15 text-emerald-400'
-                    }`}
-                  >
-                    {item.impact} Impact
+                  <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-surfaceSubtle text-textSecondary">
+                    {item.impact}
                   </span>
                 </div>
 
-                {/* Toggle Button */}
                 <div className="col-span-2 flex justify-end">
                   <button
                     onClick={() => onToggle(item.name, item.location, !item.enabled)}
-                    className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                    className={`px-3 py-1.5 rounded-lg text-xs font-mono transition-all active:scale-[0.96] ${
                       item.enabled
-                        ? 'bg-accent-theme/15 text-accent-theme hover:bg-accent-theme/25'
-                        : 'bg-[#24252A] text-neutral-400 hover:text-white'
+                        ? 'bg-surfaceSubtle text-textPrimary'
+                        : 'bg-transparent text-textTertiary hover:text-textPrimary'
                     }`}
                   >
                     {item.enabled ? 'ENABLED' : 'DISABLED'}
@@ -178,9 +164,9 @@ export const StartupView: React.FC<StartupViewProps> = ({ items, onRefresh, onTo
           })}
 
           {filteredItems.length === 0 && (
-            <div className="p-8 text-center text-xs text-neutral-500 flex flex-col items-center justify-center space-y-2">
-              <ShieldCheck className="w-8 h-8 text-neutral-600" />
-              <span>No startup applications match your filter.</span>
+            <div className="p-8 text-center text-xs text-textTertiary flex flex-col items-center justify-center space-y-2 font-mono">
+              <ShieldCheck className="w-8 h-8 text-textTertiary" />
+              <span>No startup applications match the filter.</span>
             </div>
           )}
         </div>
