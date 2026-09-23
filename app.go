@@ -224,11 +224,22 @@ func (a *App) DismissAlert(id string) {
 }
 
 func (a *App) ResolveAlert(id string, alertType string, targetPid int32) bool {
-	if alertType == "thermal" {
-		optimizer.SetPowerPlan("Balanced")
-	} else if alertType == "rogue_cpu" && targetPid > 0 {
-		process.KillProcess(targetPid)
+	var err error
+	switch alertType {
+	case "thermal":
+		err = optimizer.SetPowerPlan("Balanced")
+	case "rogue_cpu":
+		if targetPid <= 0 {
+			return false
+		}
+		err = process.KillProcess(targetPid)
+	default:
+		return false
 	}
+	if err != nil {
+		return false
+	}
+
 	hardware.GetAlertEngine().DismissAlert(id)
 	return true
 }

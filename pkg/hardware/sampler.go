@@ -2,6 +2,7 @@ package hardware
 
 import (
 	"bytes"
+	"context"
 	"math"
 	"os/exec"
 	"strconv"
@@ -123,7 +124,9 @@ func sampleNvidiaGpu() GpuTelemetry {
 	var gpu GpuTelemetry
 	gpu.IsAvailable = false
 
-	cmd := exec.Command("nvidia-smi", "--query-gpu=name,utilization.gpu,utilization.memory,memory.total,memory.used,temperature.gpu,fan.speed,power.draw", "--format=csv,noheader,nounits")
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, "nvidia-smi", "--query-gpu=name,utilization.gpu,utilization.memory,memory.total,memory.used,temperature.gpu,fan.speed,power.draw", "--format=csv,noheader,nounits")
 	// Hide console window popup
 	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
 
