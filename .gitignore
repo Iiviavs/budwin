@@ -1,0 +1,25 @@
+# Binaries & Builds
+build/bin/
+publish/
+*.exe
+*.dll
+*.pdb
+
+# Node.js & Frontend
+node_modules/
+frontend/node_modules/
+frontend/dist/
+.vite/
+
+# Go
+bin/
+.gocache/
+*.test
+*.out
+
+# IDEs & OS
+.vs/
+.vscode/
+.idea/
+*.user
+Thumbs.db

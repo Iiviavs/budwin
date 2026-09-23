@@ -1,0 +1,52 @@
+name: Build and Release budwin
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 'stable'
+          cache: false
+
+      - name: Build Frontend Assets
+        working-directory: frontend
+        run: |
+          npm install
+          npm run build
+
+      - name: Download Go Dependencies
+        run: |
+          go mod download
+
+      - name: Build Standalone Executable
+        run: |
+          go build -v -tags desktop,production -ldflags "-w -s -H windowsgui" -o build/bin/budwin.exe .
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/bin/budwin.exe
+          name: budwin ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

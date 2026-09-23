@@ -1,0 +1,20 @@
+{
+  "$schema": "https://wails.io/schemas/config.v2.json",
+  "name": "budwin",
+  "outputfilename": "budwin",
+  "frontend:install": "npm install",
+  "frontend:build": "npm run build",
+  "frontend:dev:watcher": "npm run dev",
+  "frontend:dev:serverUrl": "auto",
+  "author": {
+    "name": "Budwin Contributors",
+    "email": "noreply@github.com"
+  },
+  "info": {
+    "companyName": "Budwin Open Source",
+    "productName": "budwin",
+    "productVersion": "1.9.3",
+    "copyright": "Copyright (c) 2026 Budwin Contributors",
+    "comments": "A lightweight Windows system monitor"
+  }
+}

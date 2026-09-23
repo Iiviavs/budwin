@@ -1,0 +1,82 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root, [data-theme="lime"] {
+  --accent-primary: #D4F63D;
+  --accent-glow: rgba(212, 246, 61, 0.15);
+}
+
+[data-theme="cyan"] {
+  --accent-primary: #38BDF8;
+  --accent-glow: rgba(56, 189, 248, 0.15);
+}
+
+[data-theme="blurple"] {
+  --accent-primary: #5865F2;
+  --accent-glow: rgba(88, 101, 242, 0.15);
+}
+
+[data-theme="amber"] {
+  --accent-primary: #FB923C;
+  --accent-glow: rgba(251, 146, 60, 0.15);
+}
+
+[data-theme="rose"] {
+  --accent-primary: #F43F5E;
+  --accent-glow: rgba(244, 63, 94, 0.15);
+}
+
+[data-theme="emerald"] {
+  --accent-primary: #22C55E;
+  --accent-glow: rgba(34, 197, 94, 0.15);
+}
+
+@layer base {
+  ::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #25262C;
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #32343C;
+  }
+}
+
+.draggable {
+  --wails-draggable: drag;
+  -webkit-app-region: drag;
+}
+
+.non-draggable {
+  --wails-draggable: no-drag;
+  -webkit-app-region: no-drag;
+}
+
+/* Pure Borderless Raycast Card */
+.glass-card {
+  background: #16171B;
+}
+
+.raycast-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  transition: background-color 0.15s ease;
+}
+
+.raycast-row:last-child {
+  border-bottom: none;
+}
+
+.raycast-row:hover {
+  background-color: rgba(255, 255, 255, 0.02);
+}
