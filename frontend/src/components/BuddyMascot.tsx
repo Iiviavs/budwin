@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Sparkles, Heart } from 'lucide-react';
 import { TelemetrySnapshot } from '../types';
 
@@ -19,6 +19,16 @@ export const BuddyMascot: React.FC<BuddyMascotProps> = ({
 }) => {
   const [petted, setPetted] = useState(false);
   const [bubbleText, setBubbleText] = useState<string | null>(null);
+  const feedbackTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const mounted = useRef(false);
+
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+      if (feedbackTimeout.current) clearTimeout(feedbackTimeout.current);
+    };
+  }, []);
 
   const cpu = telemetry ? telemetry.cpuPercent : 15;
   const gpuTemp = telemetry?.gpu.isAvailable ? telemetry.gpu.temperatureC : 50;
@@ -54,12 +64,19 @@ export const BuddyMascot: React.FC<BuddyMascotProps> = ({
     setBubbleText(picked);
 
     if (onQuickPurge) {
-      await onQuickPurge();
+      try {
+        await onQuickPurge();
+      } catch (error) {
+        console.error('Failed to purge standby memory', error);
+      }
     }
 
-    setTimeout(() => {
+    if (!mounted.current) return;
+    if (feedbackTimeout.current) clearTimeout(feedbackTimeout.current);
+    feedbackTimeout.current = setTimeout(() => {
       setPetted(false);
       setBubbleText(null);
+      feedbackTimeout.current = null;
     }, 2800);
   };
 

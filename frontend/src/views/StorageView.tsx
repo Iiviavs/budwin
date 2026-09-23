@@ -30,7 +30,9 @@ export const StorageView: React.FC<StorageViewProps> = ({ drives }) => {
       try {
         const res = await window.go.main.App.ScanCleanableStorage();
         setScanResult(res);
-      } catch { }
+      } catch (error) {
+        console.error('Failed to scan cleanable storage', error);
+      }
     }
     if (window.go?.main?.App?.ScanGameDuplicates) {
       try {

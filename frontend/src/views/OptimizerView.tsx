@@ -63,16 +63,24 @@ export const OptimizerView: React.FC<OptimizerViewProps> = ({
 
   useEffect(() => {
     if (window.go?.main?.App?.IsTimerActive) {
-      window.go.main.App.IsTimerActive().then((active) => setTimerActive(active));
+      window.go.main.App.IsTimerActive()
+        .then((active) => setTimerActive(active))
+        .catch((error) => console.error('Failed to load timer state', error));
     }
     if (window.go?.main?.App?.IsGameBoostActive) {
-      window.go.main.App.IsGameBoostActive().then((active) => setGameBoostActive(active));
+      window.go.main.App.IsGameBoostActive()
+        .then((active) => setGameBoostActive(active))
+        .catch((error) => console.error('Failed to load game boost state', error));
     }
     if (window.go?.main?.App?.GetAudioLatencyStatus) {
-      window.go.main.App.GetAudioLatencyStatus().then((s) => setAudioStatus(s));
+      window.go.main.App.GetAudioLatencyStatus()
+        .then((s) => setAudioStatus(s))
+        .catch((error) => console.error('Failed to load audio latency status', error));
     }
     if (window.go?.main?.App?.GetSilentModeStatus) {
-      window.go.main.App.GetSilentModeStatus().then((s) => setSilentMode(s));
+      window.go.main.App.GetSilentModeStatus()
+        .then((s) => setSilentMode(s))
+        .catch((error) => console.error('Failed to load silent mode status', error));
     }
   }, []);
 

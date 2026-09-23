@@ -214,10 +214,14 @@ export function App() {
     loadDrives();
     loadMonitors();
     if (window.go?.main?.App?.GetActivePowerPlan) {
-      window.go.main.App.GetActivePowerPlan().then((p) => setPowerPlan(p));
+      window.go.main.App.GetActivePowerPlan()
+        .then((p) => setPowerPlan(p))
+        .catch((error) => console.error('Failed to load active power plan', error));
     }
     if (window.go?.main?.App?.IsTimerActive) {
-      window.go.main.App.IsTimerActive().then((t) => setTimerActive(t));
+      window.go.main.App.IsTimerActive()
+        .then((t) => setTimerActive(t))
+        .catch((error) => console.error('Failed to load timer state', error));
     }
   }, []);
 

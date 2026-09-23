@@ -21,10 +21,14 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
   useEffect(() => {
     if (window.go?.main?.App?.GetAutoStartEnabled) {
-      window.go.main.App.GetAutoStartEnabled().then((res) => setAutoStartEnabled(res));
+      window.go.main.App.GetAutoStartEnabled()
+        .then((res) => setAutoStartEnabled(res))
+        .catch((error) => console.error('Failed to load auto-start state', error));
     }
     if (!initialUpdateInfo && window.go?.main?.App?.CheckForUpdates) {
-      window.go.main.App.CheckForUpdates().then((res) => setUpdateInfo(res));
+      window.go.main.App.CheckForUpdates()
+        .then((res) => setUpdateInfo(res))
+        .catch((error) => console.error('Failed to check for updates', error));
     }
   }, [initialUpdateInfo]);
 
@@ -35,6 +39,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         const info = await window.go.main.App.CheckForUpdates();
         setUpdateInfo(info);
       }
+    } catch (error) {
+      console.error('Failed to check for updates', error);
     } finally {
       setCheckingUpdate(false);
     }
@@ -61,6 +67,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       } else {
         setAutoStartEnabled(nextState);
       }
+    } catch (error) {
+      console.error('Failed to update auto-start state', error);
     } finally {
       setTogglingAutoStart(false);
     }

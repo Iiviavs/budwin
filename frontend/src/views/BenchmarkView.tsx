@@ -37,7 +37,9 @@ export const BenchmarkView: React.FC<BenchmarkViewProps> = ({
           if (s.isRunning) {
             setTimer(s.durationSeconds);
           }
-        } catch { }
+        } catch (error) {
+          console.error('Failed to load benchmark status', error);
+        }
       }
     };
 
