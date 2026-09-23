@@ -87,6 +87,13 @@ export interface FpsTweakStatus {
   gpuSchedulingUnlocked: boolean;
 }
 
+export interface SilentModeStatus {
+  isSilentModeActive: boolean;
+  estimatedFanDb: string;
+  cpuTempReductionC: number;
+  profileName: string;
+}
+
 export interface GameBoostResult {
   active: boolean;
   freedRamMb: number;
@@ -99,6 +106,16 @@ export interface AutoBoostStatus {
   activeGameName: string;
   activeGamePid: number;
   isBoosting: boolean;
+}
+
+export interface UpdateInfo {
+  hasUpdate: boolean;
+  currentVersion: string;
+  latestVersion: string;
+  releaseName: string;
+  releaseNotes: string;
+  downloadUrl: string;
+  publishedAt: string;
 }
 
 export interface BenchmarkSummary {
@@ -166,6 +183,8 @@ declare global {
           OptimizeAudioLatency?: () => Promise<AudioLatencyStatus>;
           ApplyUltimateFpsBoost?: () => Promise<FpsTweakStatus>;
           GetFpsOptimizationStatus?: () => Promise<FpsTweakStatus>;
+          ToggleScreenShareSilentMode?: (enable: boolean) => Promise<SilentModeStatus>;
+          GetSilentModeStatus?: () => Promise<SilentModeStatus>;
           KillProcess?: (pid: number) => Promise<boolean>;
           CleanTempFiles?: () => Promise<number>;
           FlushDNS?: () => Promise<boolean>;
@@ -187,9 +206,13 @@ declare global {
           SetMultiMonitorSettings?: (settings: MultiMonitorSettings) => Promise<MultiMonitorSettings>;
           GetStartupItems?: () => Promise<StartupItem[]>;
           ToggleStartupItem?: (name: string, location: string, enable: boolean) => Promise<boolean>;
+          GetAutoStartEnabled?: () => Promise<boolean>;
+          SetAutoStartEnabled?: (enable: boolean) => Promise<boolean>;
           GetActiveAlerts?: () => Promise<AlertItem[]>;
           DismissAlert?: (id: string) => Promise<void>;
           ResolveAlert?: (id: string, alertType: string, targetPid: number) => Promise<boolean>;
+          CheckForUpdates?: () => Promise<UpdateInfo>;
+          OpenUrlInBrowser?: (url: string) => Promise<boolean>;
           SetAlwaysOnTop?: (onTop: boolean) => Promise<void>;
           SetHudMode?: (isHud: boolean) => Promise<void>;
           SetMiniMode?: (isMini: boolean) => Promise<void>;
@@ -200,6 +223,7 @@ declare global {
     };
     runtime?: {
       EventsOn?: (eventName: string, callback: (...args: any[]) => void) => void;
+      EventsOff?: (eventName: string, callback: (...args: any[]) => void) => void;
       WindowMinimise?: () => void;
       WindowToggleMaximise?: () => void;
       WindowSetSize?: (width: number, height: number) => void;

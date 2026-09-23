@@ -13,6 +13,7 @@ interface SidebarProps {
   gameBoostActive: boolean;
   activeGameName?: string;
   onQuickPurge?: () => Promise<void>;
+  updateInfo?: { hasUpdate: boolean; latestVersion: string } | null;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -23,6 +24,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   gameBoostActive,
   activeGameName,
   onQuickPurge,
+  updateInfo,
 }) => {
   const items = [
     { id: 'overview', label: 'Dashboard', icon: <Activity className="w-4 h-4" /> },
@@ -42,20 +44,28 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div className="space-y-0.5 pt-1">
           {items.map((item) => {
             const isActive = activeTab === item.id;
+            const hasUpdateBadge = item.id === 'settings' && updateInfo?.hasUpdate;
             return (
               <button
                 key={item.id}
                 onClick={() => setActiveTab(item.id as TabType)}
-                className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-xs transition-colors duration-150 ${
+                className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs transition-colors duration-150 ${
                   isActive
                     ? 'bg-[#24252A] text-white font-semibold'
                     : 'text-neutral-400 hover:text-neutral-200 hover:bg-[#18191E] font-medium'
                 }`}
               >
-                <span className={isActive ? 'text-white' : 'text-neutral-400'}>
-                  {item.icon}
-                </span>
-                <span>{item.label}</span>
+                <div className="flex items-center space-x-3">
+                  <span className={isActive ? 'text-white' : 'text-neutral-400'}>
+                    {item.icon}
+                  </span>
+                  <span>{item.label}</span>
+                </div>
+                {hasUpdateBadge && (
+                  <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-accent-theme text-black animate-pulse shadow-sm">
+                    UPDATE
+                  </span>
+                )}
               </button>
             );
           })}

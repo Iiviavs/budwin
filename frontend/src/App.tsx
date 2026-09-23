@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Titlebar } from './components/Titlebar';
 import { Sidebar, TabType } from './components/Sidebar';
 import { AlertBanner } from './components/AlertBanner';
@@ -11,7 +11,7 @@ import { BenchmarkView } from './views/BenchmarkView';
 import { LatencyTesterView } from './views/LatencyTesterView';
 import { SettingsView } from './views/SettingsView';
 import { FloatingHudView } from './views/FloatingHudView';
-import { TelemetrySnapshot, ProcessItem, DriveItem, StartupItem, AlertItem, ThemeAccent, AutoBoostStatus, MonitorInfo, MultiMonitorSettings } from './types';
+import { TelemetrySnapshot, ProcessItem, DriveItem, StartupItem, AlertItem, ThemeAccent, AutoBoostStatus, MonitorInfo, MultiMonitorSettings, UpdateInfo } from './types';
 import { Sparkline } from './components/Sparkline';
 import { EndProcessModal } from './components/EndProcessModal';
 import { Maximize2, Cpu, Zap, HardDrive, Wifi, ShieldAlert, AlertTriangle, CheckCircle2, XCircle, Pin } from 'lucide-react';
@@ -31,12 +31,19 @@ export function App() {
   // Listen to Tray Open Events
   useEffect(() => {
     if (window.runtime?.EventsOn) {
-      window.runtime.EventsOn('tray-open-mini', () => {
+      const onTrayOpenMini = () => {
         switchViewMode('mini');
-      });
-      window.runtime.EventsOn('tray-open-full', () => {
+      };
+      const onTrayOpenFull = () => {
         switchViewMode('full');
-      });
+      };
+      window.runtime.EventsOn('tray-open-mini', onTrayOpenMini);
+      window.runtime.EventsOn('tray-open-full', onTrayOpenFull);
+
+      return () => {
+        window.runtime?.EventsOff?.('tray-open-mini', onTrayOpenMini);
+        window.runtime?.EventsOff?.('tray-open-full', onTrayOpenFull);
+      };
     }
   }, []);
 
@@ -46,18 +53,26 @@ export function App() {
   const [alerts, setAlerts] = useState<AlertItem[]>([]);
   const [autoBoostStatus, setAutoBoostStatus] = useState<AutoBoostStatus | null>(null);
   const [monitors, setMonitors] = useState<MonitorInfo[]>([]);
+  const [updateInfo, setUpdateInfo] = useState<UpdateInfo | null>(null);
   const [multiMonitorSettings, setMultiMonitorSettings] = useState<MultiMonitorSettings>({
     dimSecondaryMonitors: false,
     autoDimOnGameLaunch: true,
   });
 
-  const [drives, setDrives] = useState<DriveItem[]>([
-    { letter: 'C', name: 'System', totalGb: 444.7, usedGb: 313.2, freeGb: 131.5, percentUsed: 70.4 },
-    { letter: 'D', name: 'Games & Data', totalGb: 931.5, usedGb: 543.6, freeGb: 387.9, percentUsed: 58.4 },
-  ]);
+  // Background GitHub Release Update Check on app start
+  useEffect(() => {
+    if (window.go?.main?.App?.CheckForUpdates) {
+      window.go.main.App.CheckForUpdates().then((res) => {
+        if (res) setUpdateInfo(res);
+      });
+    }
+  }, []);
+
+  const [drives, setDrives] = useState<DriveItem[]>([]);
   const [powerPlan, setPowerPlan] = useState('Balanced');
   const [targetProcess, setTargetProcess] = useState<ProcessItem | null>(null);
   const [timerActive, setTimerActive] = useState(true);
+  const telemetryInFlight = useRef(false);
 
   // 60-point history buffers
   const [history, setHistory] = useState<{
@@ -66,10 +81,10 @@ export function App() {
     ram: number[];
     net: number[];
   }>({
-    cpu: Array(60).fill(15),
-    gpu: Array(60).fill(5),
-    ram: Array(60).fill(72),
-    net: Array(60).fill(120),
+    cpu: [],
+    gpu: [],
+    ram: [],
+    net: [],
   });
 
   const switchViewMode = (mode: 'full' | 'mini' | 'hud') => {
@@ -101,6 +116,9 @@ export function App() {
   // Telemetry & Alerts loop
   useEffect(() => {
     const fetchTelemetry = async () => {
+      if (telemetryInFlight.current) return;
+      telemetryInFlight.current = true;
+
       if (window.go?.main?.App?.GetTelemetry) {
         try {
           const telem = await window.go.main.App.GetTelemetry();
@@ -124,43 +142,14 @@ export function App() {
             const ab = await window.go.main.App.GetAutoBoostStatus();
             setAutoBoostStatus(ab);
           }
-        } catch { }
+        } catch (error) {
+          console.error('Failed to refresh telemetry', error);
+        } finally {
+          telemetryInFlight.current = false;
+        }
       } else {
-        const mockCpu = Math.floor(Math.random() * 20) + 12;
-        const mockGpu = Math.floor(Math.random() * 10) + 4;
-        const mockRam = 72.8;
-        const mockNetIn = Math.floor(Math.random() * 300) + 50;
-
-        setTelemetry({
-          cpuPercent: mockCpu,
-          cpuCores: 12,
-          cpuModel: 'Example CPU',
-          ramPercent: mockRam,
-          ramUsedGb: 11.6,
-          ramTotalGb: 15.8,
-          netInKb: mockNetIn,
-          netOutKb: 32,
-          diskReadMb: 0.8,
-          diskWriteMb: 0.2,
-          gpu: {
-            isAvailable: true,
-            name: 'Example GPU',
-            coreUtilization: mockGpu,
-            memoryUtilization: 14,
-            vramTotalMb: 8192,
-            vramUsedMb: 970,
-            temperatureC: 54,
-            fanSpeedPercent: 0,
-            powerWatts: 28,
-          },
-        });
-
-        setHistory((prev) => ({
-          cpu: [...prev.cpu.slice(1), mockCpu],
-          gpu: [...prev.gpu.slice(1), mockGpu],
-          ram: [...prev.ram.slice(1), mockRam],
-          net: [...prev.net.slice(1), mockNetIn],
-        }));
+        setTelemetry(null);
+        telemetryInFlight.current = false;
       }
     };
 
@@ -174,17 +163,11 @@ export function App() {
       try {
         const list = await window.go.main.App.GetProcesses();
         setProcesses(list);
-      } catch { }
+      } catch (error) {
+        console.error('Failed to load processes', error);
+      }
     } else {
-      setProcesses([
-        { pid: 27004, name: 'chrome.exe', description: 'Google Chrome Web Browser', memoryMb: 1420.5, cpuPercent: 4.2, category: 'safe', categoryLabel: 'User Application' },
-        { pid: 17396, name: 'steamwebhelper.exe', description: 'Steam Client Web Helper', memoryMb: 980.2, cpuPercent: 1.1, category: 'safe', categoryLabel: 'User Application' },
-        { pid: 24110, name: 'Discord.exe', description: 'Discord Voice & Text Chat', memoryMb: 850.4, cpuPercent: 1.8, category: 'safe', categoryLabel: 'User Application' },
-        { pid: 8740, name: 'nvcontainer.exe', description: 'NVIDIA Container Service', memoryMb: 96.0, cpuPercent: 0.2, category: 'background', categoryLabel: 'Background Helper' },
-        { pid: 10292, name: 'explorer.exe', description: 'Windows Shell & Taskbar', memoryMb: 227.7, cpuPercent: 0.5, category: 'protected', categoryLabel: 'Critical System' },
-        { pid: 5172, name: 'ShellHost.exe', description: 'Windows Shell Host', memoryMb: 110.2, cpuPercent: 0.1, category: 'protected', categoryLabel: 'Critical System' },
-        { pid: 12936, name: 'example-app.exe', description: 'Example User Application', memoryMb: 860.0, cpuPercent: 2.5, category: 'safe', categoryLabel: 'User Application' },
-      ]);
+      setProcesses([]);
     }
   };
 
@@ -193,14 +176,11 @@ export function App() {
       try {
         const list = await window.go.main.App.GetStartupItems();
         setStartupItems(list);
-      } catch { }
+      } catch (error) {
+        console.error('Failed to load startup items', error);
+      }
     } else {
-      setStartupItems([
-        { name: 'Discord', command: '%LOCALAPPDATA%\\ExampleApp\\ExampleApp.exe', location: 'HKCU', enabled: true, impact: 'High', description: 'Discord Voice & Chat' },
-        { name: 'Steam', command: '%PROGRAMFILES%\\ExampleLauncher\\launcher.exe -silent', location: 'HKCU', enabled: true, impact: 'High', description: 'Steam Gaming Client' },
-        { name: 'Spotify', command: '%APPDATA%\\ExampleUtility\\utility.exe', location: 'HKCU', enabled: false, impact: 'High', description: 'Spotify Music Streaming' },
-        { name: 'NvBackend', command: 'C:\\Program Files\\NVIDIA Corporation\\Update Core\\NvBackend.exe', location: 'HKLM', enabled: true, impact: 'Medium', description: 'NVIDIA Display & Driver Helper' },
-      ]);
+      setStartupItems([]);
     }
   };
 
@@ -209,7 +189,9 @@ export function App() {
       try {
         const d = await window.go.main.App.GetDrives();
         setDrives(d);
-      } catch { }
+      } catch (error) {
+        console.error('Failed to load drives', error);
+      }
     }
   };
 
@@ -218,12 +200,11 @@ export function App() {
       try {
         const m = await window.go.main.App.GetMonitors();
         setMonitors(m || []);
-      } catch { }
+      } catch (error) {
+        console.error('Failed to load monitors', error);
+      }
     } else {
-      setMonitors([
-        { index: 0, name: '\\\\.\\DISPLAY1', isPrimary: true, width: 1920, height: 1080 },
-        { index: 1, name: '\\\\.\\DISPLAY2', isPrimary: false, width: 1920, height: 1080 },
-      ]);
+      setMonitors([]);
     }
   };
 
@@ -244,14 +225,13 @@ export function App() {
     if (window.go?.main?.App?.KillProcess) {
       await window.go.main.App.KillProcess(pid);
       loadProcesses();
-    } else {
-      setProcesses((prev) => prev.filter((p) => p.pid !== pid));
     }
   };
 
   const handleToggleStartupItem = async (name: string, location: string, enable: boolean): Promise<boolean> => {
     if (window.go?.main?.App?.ToggleStartupItem) {
-      await window.go.main.App.ToggleStartupItem(name, location, enable);
+      const success = await window.go.main.App.ToggleStartupItem(name, location, enable);
+      if (!success) return false;
     }
     setStartupItems((prev) =>
       prev.map((i) => (i.name === name && i.location === location ? { ...i, enabled: enable } : i))
@@ -261,7 +241,8 @@ export function App() {
 
   const handleToggleAutoBoost = async (enable: boolean): Promise<boolean> => {
     if (window.go?.main?.App?.SetAutoBoostEnabled) {
-      await window.go.main.App.SetAutoBoostEnabled(enable);
+      const success = await window.go.main.App.SetAutoBoostEnabled(enable);
+      if (!success) return false;
     }
     setAutoBoostStatus((prev) => prev ? { ...prev, autoBoostEnabled: enable } : null);
     return true;
@@ -296,33 +277,29 @@ export function App() {
   };
 
   const handleCleanTemp = async (): Promise<number> => {
-    if (window.go?.main?.App?.CleanTempFiles) {
-      return await window.go.main.App.CleanTempFiles();
-    }
-    return 342.8;
+    if (!window.go?.main?.App?.CleanTempFiles) return 0;
+    return await window.go.main.App.CleanTempFiles();
   };
 
   const handleFlushDNS = async (): Promise<boolean> => {
-    if (window.go?.main?.App?.FlushDNS) {
-      return await window.go.main.App.FlushDNS();
-    }
-    return true;
+    if (!window.go?.main?.App?.FlushDNS) return false;
+    return await window.go.main.App.FlushDNS();
   };
 
   const handleSetPowerPlan = async (plan: string): Promise<boolean> => {
-    setPowerPlan(plan);
     if (window.go?.main?.App?.SetPowerPlan) {
-      return await window.go.main.App.SetPowerPlan(plan);
+      const success = await window.go.main.App.SetPowerPlan(plan);
+      if (success) setPowerPlan(plan);
+      return success;
     }
-    return true;
+    return false;
   };
 
   const handleToggleTimer = async () => {
+    if (!window.go?.main?.App?.ToggleHighPrecisionTimer) return;
     const nextState = !timerActive;
-    if (window.go?.main?.App?.ToggleHighPrecisionTimer) {
-      await window.go.main.App.ToggleHighPrecisionTimer(nextState);
-    }
-    setTimerActive(nextState);
+    const success = await window.go.main.App.ToggleHighPrecisionTimer(nextState);
+    if (success) setTimerActive(nextState);
   };
 
   const formatSpeed = (kb: number) => {
@@ -347,10 +324,10 @@ export function App() {
 
   // 2. MINI TRAY COMPANION VIEW (Borderless Raycast)
   if (viewMode === 'mini') {
-    const cpuVal = telemetry ? Math.round(telemetry.cpuPercent) : 0;
-    const gpuVal = telemetry?.gpu.isAvailable ? Math.round(telemetry.gpu.coreUtilization) : 0;
-    const ramVal = telemetry ? Math.round(telemetry.ramPercent) : 0;
-    const netInVal = telemetry ? telemetry.netInKb : 0;
+    const cpuVal = telemetry ? Math.round(telemetry.cpuPercent) : null;
+    const gpuVal = telemetry?.gpu.isAvailable ? Math.round(telemetry.gpu.coreUtilization) : null;
+    const ramVal = telemetry ? Math.round(telemetry.ramPercent) : null;
+    const netInVal = telemetry ? telemetry.netInKb : null;
 
     return (
       <div data-theme={themeAccent} className="h-screen w-screen bg-[#0E0F12] flex flex-col justify-between p-3 select-none font-sans text-gray-100 rounded-2xl overflow-hidden shadow-2xl">
@@ -401,7 +378,7 @@ export function App() {
                 <Cpu className="w-3.5 h-3.5" />
                 <span>CPU</span>
               </span>
-              <span className="font-bold text-white text-sm">{cpuVal}%</span>
+              <span className="font-bold text-white text-sm">{cpuVal === null ? 'N/A' : `${cpuVal}%`}</span>
             </div>
             <div className="my-1.5">
               <Sparkline data={history.cpu} max={100} color="#38bdf8" gradientId="miniCpu" height={28} />
@@ -435,13 +412,13 @@ export function App() {
                 <HardDrive className="w-3.5 h-3.5" />
                 <span>RAM</span>
               </span>
-              <span className="font-bold text-white text-sm">{ramVal}%</span>
+              <span className="font-bold text-white text-sm">{ramVal === null ? 'N/A' : `${ramVal}%`}</span>
             </div>
             <div className="w-full bg-[#111215] h-1.5 rounded-full overflow-hidden my-2">
-              <div className="bg-purple-500 h-full rounded-full" style={{ width: `${ramVal}%` }} />
+              <div className="bg-purple-500 h-full rounded-full" style={{ width: `${ramVal ?? 0}%` }} />
             </div>
             <span className="text-[9px] text-neutral-400 truncate">
-              {telemetry?.ramUsedGb.toFixed(1)} / {telemetry?.ramTotalGb.toFixed(0)} GB
+              {telemetry ? `${telemetry.ramUsedGb.toFixed(1)} / ${telemetry.ramTotalGb.toFixed(0)} GB` : 'Unavailable'}
             </span>
           </div>
 
@@ -452,7 +429,7 @@ export function App() {
                 <Wifi className="w-3.5 h-3.5" />
                 <span>NET</span>
               </span>
-              <span className="font-bold text-white text-xs truncate">{formatSpeed(netInVal)}</span>
+              <span className="font-bold text-white text-xs truncate">{netInVal === null ? 'N/A' : formatSpeed(netInVal)}</span>
             </div>
             <div className="my-1.5">
               <Sparkline data={history.net} max={3000} color="#22d3ee" gradientId="miniNet" height={28} />
@@ -570,6 +547,7 @@ export function App() {
           gameBoostActive={autoBoostStatus?.isBoosting || false}
           activeGameName={autoBoostStatus?.activeGameName}
           onQuickPurge={handleQuickPurge}
+          updateInfo={updateInfo}
         />
 
         <main className="flex-1 h-full overflow-y-auto bg-[#0E0F12]">
@@ -616,6 +594,13 @@ export function App() {
             <SettingsView
               themeAccent={themeAccent}
               setThemeAccent={setThemeAccent}
+              updateInfo={updateInfo}
+              onRefreshUpdate={async () => {
+                if (window.go?.main?.App?.CheckForUpdates) {
+                  const res = await window.go.main.App.CheckForUpdates();
+                  setUpdateInfo(res);
+                }
+              }}
             />
           )}
         </main>

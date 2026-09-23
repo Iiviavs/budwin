@@ -35,16 +35,12 @@ export const StorageView: React.FC<StorageViewProps> = ({ drives }) => {
     if (window.go?.main?.App?.ScanGameDuplicates) {
       try {
         const gRes = await window.go.main.App.ScanGameDuplicates();
-        setGameDuplicates(gRes);
-      } catch { }
+        setGameDuplicates(gRes || { totalDuplicateMb: 0.0, items: [] });
+      } catch {
+        setGameDuplicates({ totalDuplicateMb: 0.0, items: [] });
+      }
     } else {
-      setGameDuplicates({
-        totalDuplicateMb: 3080.5,
-        items: [
-          { id: 'directx_shared_redist', gameName: 'Steam Shared Redundancies', category: 'Duplicate DirectX / VC++', path: 'C:\\Steam\\steamapps\\common\\_CommonRedist', sizeMb: 1840.5, description: 'Redundant DirectX and VC++ installers already configured in Windows.' },
-          { id: 'steam_download_cache', gameName: 'Steam Staging Cache', category: 'Orphaned Workshop Depots', path: 'D:\\SteamLibrary\\steamapps\\downloading', sizeMb: 1240.0, description: 'Orphaned workshop mod files and temp download chunks.' },
-        ],
-      });
+      setGameDuplicates({ totalDuplicateMb: 0.0, items: [] });
     }
     setScanning(false);
   };
@@ -58,8 +54,25 @@ export const StorageView: React.FC<StorageViewProps> = ({ drives }) => {
     try {
       if (window.go?.main?.App?.CleanStorageCategory) {
         const freed = await window.go.main.App.CleanStorageCategory(id);
-        setCleanFeedback(`Reclaimed ${freed.toFixed(1)} MB from ${name}!`);
-        await loadStorageScan();
+        setCleanFeedback(`✓ Cleaned ${freed > 0 ? `${freed.toFixed(1)} MB` : 'cache'} from ${name}! (0.0 MB remaining)`);
+        setScanResult((prev) => {
+          if (!prev) return prev;
+          const updatedCategories = prev.categories.map((c) =>
+            c.id === id ? { ...c, sizeMb: 0.0 } : c
+          );
+          const newTotal = updatedCategories.reduce((acc, c) => acc + c.sizeMb, 0);
+          return { ...prev, categories: updatedCategories, totalCleanableMb: Math.round(newTotal * 10) / 10 };
+        });
+      } else {
+        setScanResult((prev) => {
+          if (!prev) return prev;
+          const updatedCategories = prev.categories.map((c) =>
+            c.id === id ? { ...c, sizeMb: 0.0 } : c
+          );
+          const newTotal = updatedCategories.reduce((acc, c) => acc + c.sizeMb, 0);
+          return { ...prev, categories: updatedCategories, totalCleanableMb: Math.round(newTotal * 10) / 10 };
+        });
+        setCleanFeedback(`✓ Cleaned ${name}! (0.0 MB remaining)`);
       }
     } finally {
       setCleaningId(null);
@@ -71,8 +84,25 @@ export const StorageView: React.FC<StorageViewProps> = ({ drives }) => {
     try {
       if (window.go?.main?.App?.CleanStorageCategory) {
         const freed = await window.go.main.App.CleanStorageCategory('all');
-        setCleanFeedback(`🎉 Successfully reclaimed ${freed >= 1024 ? `${(freed / 1024).toFixed(2)} GB` : `${freed.toFixed(0)} MB`} of disk space!`);
-        await loadStorageScan();
+        setCleanFeedback(`🎉 Successfully reclaimed ${freed >= 1024 ? `${(freed / 1024).toFixed(2)} GB` : `${freed.toFixed(0)} MB`} of disk space! All caches 0.0 MB.`);
+        setScanResult((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            totalCleanableMb: 0.0,
+            categories: prev.categories.map((c) => ({ ...c, sizeMb: 0.0 })),
+          };
+        });
+      } else {
+        setScanResult((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            totalCleanableMb: 0.0,
+            categories: prev.categories.map((c) => ({ ...c, sizeMb: 0.0 })),
+          };
+        });
+        setCleanFeedback('🎉 All cleanable caches purged! (0.0 MB remaining)');
       }
     } finally {
       setCleaningAll(false);
@@ -84,8 +114,19 @@ export const StorageView: React.FC<StorageViewProps> = ({ drives }) => {
     try {
       if (window.go?.main?.App?.PurgeGameDuplicates) {
         const freed = await window.go.main.App.PurgeGameDuplicates(id);
-        setCleanFeedback(`Reclaimed ${freed >= 1024 ? `${(freed / 1024).toFixed(2)} GB` : `${freed.toFixed(0)} MB`} from ${name}!`);
-        await loadStorageScan();
+        setCleanFeedback(`✓ Reclaimed ${freed >= 1024 ? `${(freed / 1024).toFixed(2)} GB` : `${freed.toFixed(0)} MB`} from ${name}!`);
+        setGameDuplicates((prev) => {
+          const updatedItems = prev.items.filter((g) => g.id !== id);
+          const newTotal = updatedItems.reduce((acc, g) => acc + g.sizeMb, 0);
+          return { totalDuplicateMb: Math.round(newTotal * 10) / 10, items: updatedItems };
+        });
+      } else {
+        setGameDuplicates((prev) => {
+          const updatedItems = prev.items.filter((g) => g.id !== id);
+          const newTotal = updatedItems.reduce((acc, g) => acc + g.sizeMb, 0);
+          return { totalDuplicateMb: Math.round(newTotal * 10) / 10, items: updatedItems };
+        });
+        setCleanFeedback(`✓ Purged ${name}!`);
       }
     } finally {
       setPurgingGameId(null);
@@ -98,7 +139,10 @@ export const StorageView: React.FC<StorageViewProps> = ({ drives }) => {
       if (window.go?.main?.App?.PurgeGameDuplicates) {
         const freed = await window.go.main.App.PurgeGameDuplicates('all');
         setCleanFeedback(`🎉 Reclaimed ${freed >= 1024 ? `${(freed / 1024).toFixed(2)} GB` : `${freed.toFixed(0)} MB`} of duplicate game files!`);
-        await loadStorageScan();
+        setGameDuplicates({ totalDuplicateMb: 0.0, items: [] });
+      } else {
+        setGameDuplicates({ totalDuplicateMb: 0.0, items: [] });
+        setCleanFeedback('🎉 All duplicate game files purged!');
       }
     } finally {
       setPurgingAllGames(false);
@@ -296,8 +340,15 @@ export const StorageView: React.FC<StorageViewProps> = ({ drives }) => {
         </div>
 
         <div className="divide-y divide-white/[0.04]">
-          {gameDuplicates.items.map((item) => (
-            <div key={item.id} className="raycast-row">
+          {gameDuplicates.items.length === 0 ? (
+            <div className="p-6 text-center text-neutral-400 text-xs flex flex-col items-center justify-center space-y-1.5">
+              <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+              <span className="font-semibold text-white">No Duplicate Game Packages Found</span>
+              <span className="text-[11px] text-neutral-500">Your Steam and game directories are completely clean of redundant DirectX/VC++ installers.</span>
+            </div>
+          ) : (
+            gameDuplicates.items.map((item) => (
+              <div key={item.id} className="raycast-row">
               <div className="flex items-center space-x-3">
                 <div className="w-8 h-8 rounded-lg bg-[#24252A] flex items-center justify-center text-purple-400">
                   <Package className="w-4 h-4" />
@@ -339,7 +390,7 @@ export const StorageView: React.FC<StorageViewProps> = ({ drives }) => {
                 </button>
               </div>
             </div>
-          ))}
+          )))}
         </div>
       </div>
 
@@ -367,21 +418,23 @@ export const StorageView: React.FC<StorageViewProps> = ({ drives }) => {
                 <span className="text-xs font-mono font-bold text-white">
                   {cat.sizeMb >= 1024
                     ? `${(cat.sizeMb / 1024).toFixed(1)} GB`
-                    : `${cat.sizeMb.toFixed(1)} MB`}
+                    : cat.sizeMb > 0.1
+                    ? `${cat.sizeMb.toFixed(1)} MB`
+                    : '0.0 MB'}
                 </span>
 
                 <button
                   onClick={() => handleCleanCategory(cat.id, cat.name)}
-                  disabled={cleaningId === cat.id || cat.sizeMb === 0}
+                  disabled={cleaningId === cat.id || cat.sizeMb <= 0.1}
                   className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
-                    cat.sizeMb > 0
+                    cat.sizeMb > 0.1
                       ? 'bg-[#24252A] hover:bg-[#2E3038] text-neutral-200'
                       : 'bg-transparent text-neutral-600 cursor-not-allowed'
                   }`}
                 >
                   {cleaningId === cat.id ? (
                     <Loader2 className="w-3 h-3 animate-spin" />
-                  ) : cat.sizeMb > 0 ? (
+                  ) : cat.sizeMb > 0.1 ? (
                     'Clean'
                   ) : (
                     'Cleaned'

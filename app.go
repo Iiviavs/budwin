@@ -94,6 +94,15 @@ func (a *App) GetFpsOptimizationStatus() optimizer.FpsTweakStatus {
 	return optimizer.GetFpsOptimizationStatus()
 }
 
+// Screen Share & Stealth Silent Fan Profile API
+func (a *App) ToggleScreenShareSilentMode(enable bool) optimizer.SilentModeStatus {
+	return optimizer.ToggleScreenShareSilentMode(enable)
+}
+
+func (a *App) GetSilentModeStatus() optimizer.SilentModeStatus {
+	return optimizer.GetSilentModeStatus()
+}
+
 func (a *App) KillProcess(pid int32) bool {
 	err := process.KillProcess(pid)
 	return err == nil
@@ -184,6 +193,14 @@ func (a *App) ToggleStartupItem(name string, location string, enable bool) bool 
 	return optimizer.ToggleStartupItem(name, location, enable)
 }
 
+func (a *App) GetAutoStartEnabled() bool {
+	return optimizer.GetAutoStartEnabled()
+}
+
+func (a *App) SetAutoStartEnabled(enable bool) bool {
+	return optimizer.SetAutoStartEnabled(enable)
+}
+
 // Multi-Monitor Gaming Mode API
 func (a *App) GetMonitors() []optimizer.MonitorInfo {
 	return optimizer.GetMonitors()
@@ -214,6 +231,15 @@ func (a *App) ResolveAlert(id string, alertType string, targetPid int32) bool {
 	}
 	hardware.GetAlertEngine().DismissAlert(id)
 	return true
+}
+
+// GitHub Release Update Checker API
+func (a *App) CheckForUpdates() optimizer.UpdateInfo {
+	return optimizer.CheckForUpdates()
+}
+
+func (a *App) OpenUrlInBrowser(url string) bool {
+	return optimizer.OpenUrlInBrowser(url)
 }
 
 // Window & Discord Game Overlay Controls

@@ -7,6 +7,8 @@ import {storage} from '../models';
 
 export function ApplyUltimateFpsBoost():Promise<optimizer.FpsTweakStatus>;
 
+export function CheckForUpdates():Promise<optimizer.UpdateInfo>;
+
 export function CleanStorageCategory(arg1:string):Promise<number>;
 
 export function CleanTempFiles():Promise<number>;
@@ -23,6 +25,8 @@ export function GetAudioLatencyStatus():Promise<optimizer.AudioLatencyStatus>;
 
 export function GetAutoBoostStatus():Promise<optimizer.AutoBoostStatus>;
 
+export function GetAutoStartEnabled():Promise<boolean>;
+
 export function GetBenchmarkStatus():Promise<optimizer.BenchmarkSummary>;
 
 export function GetDrives():Promise<Array<hardware.DriveItem>>;
@@ -35,6 +39,8 @@ export function GetMultiMonitorSettings():Promise<optimizer.MultiMonitorSettings
 
 export function GetProcesses():Promise<Array<process.ProcessItem>>;
 
+export function GetSilentModeStatus():Promise<optimizer.SilentModeStatus>;
+
 export function GetStartupItems():Promise<Array<optimizer.StartupItem>>;
 
 export function GetTelemetry():Promise<hardware.TelemetrySnapshot>;
@@ -46,6 +52,8 @@ export function IsGameBoostActive():Promise<boolean>;
 export function IsTimerActive():Promise<boolean>;
 
 export function KillProcess(arg1:number):Promise<boolean>;
+
+export function OpenUrlInBrowser(arg1:string):Promise<boolean>;
 
 export function OptimizeAudioLatency():Promise<optimizer.AudioLatencyStatus>;
 
@@ -65,6 +73,8 @@ export function SetAlwaysOnTop(arg1:boolean):Promise<void>;
 
 export function SetAutoBoostEnabled(arg1:boolean):Promise<boolean>;
 
+export function SetAutoStartEnabled(arg1:boolean):Promise<boolean>;
+
 export function SetHudMode(arg1:boolean):Promise<void>;
 
 export function SetMiniMode(arg1:boolean):Promise<void>;
@@ -82,5 +92,7 @@ export function StopBenchmark():Promise<optimizer.BenchmarkSummary>;
 export function ToggleGameBoost(arg1:boolean):Promise<optimizer.GameBoostResult>;
 
 export function ToggleHighPrecisionTimer(arg1:boolean):Promise<boolean>;
+
+export function ToggleScreenShareSilentMode(arg1:boolean):Promise<optimizer.SilentModeStatus>;
 
 export function ToggleStartupItem(arg1:string,arg2:string,arg3:boolean):Promise<boolean>;

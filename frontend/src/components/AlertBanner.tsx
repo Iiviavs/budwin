@@ -22,13 +22,13 @@ export const AlertBanner: React.FC<AlertBannerProps> = ({ alerts, onDismiss, onR
             className={`rounded-2xl p-3.5 border flex items-center justify-between shadow-xl animate-fadeIn ${
               isThermal
                 ? 'bg-rose-950/40 border-rose-500/40 text-rose-200'
-                : 'bg-amber-950/40 border-amber-500/40 text-amber-200'
+                : 'bg-surface border-accent-theme/30 text-white shadow-accent-theme/5'
             }`}
           >
             <div className="flex items-center space-x-3">
               <div
                 className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
-                  isThermal ? 'bg-rose-500/20 text-rose-400' : 'bg-amber-500/20 text-amber-400'
+                  isThermal ? 'bg-rose-500/20 text-rose-400' : 'bg-accent-theme/15 text-accent-theme'
                 }`}
               >
                 {isThermal ? <Flame className="w-5 h-5 animate-pulse" /> : <AlertTriangle className="w-5 h-5" />}
@@ -38,16 +38,16 @@ export const AlertBanner: React.FC<AlertBannerProps> = ({ alerts, onDismiss, onR
                 <div className="flex items-center space-x-2">
                   <span className="text-xs font-bold text-white">{alert.title}</span>
                   <span
-                    className={`text-[9px] font-bold px-1.5 py-0.2 rounded-full uppercase tracking-wider border ${
+                    className={`text-[9px] font-bold px-1.5 py-0.2 rounded-md uppercase tracking-wider border ${
                       isThermal
                         ? 'bg-rose-500/20 text-rose-400 border-rose-500/30'
-                        : 'bg-amber-500/20 text-amber-400 border-amber-500/30'
+                        : 'bg-accent-theme/15 text-accent-theme border-accent-theme/30'
                     }`}
                   >
                     {alert.severity}
                   </span>
                 </div>
-                <p className="text-[11px] text-gray-300 mt-0.5">{alert.description}</p>
+                <p className="text-[11px] text-neutral-300 mt-0.5">{alert.description}</p>
               </div>
             </div>
 
@@ -57,14 +57,14 @@ export const AlertBanner: React.FC<AlertBannerProps> = ({ alerts, onDismiss, onR
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-md active:scale-95 ${
                   isThermal
                     ? 'bg-rose-500 hover:bg-rose-400 text-white'
-                    : 'bg-amber-500 hover:bg-amber-400 text-black'
+                    : 'bg-accent-theme hover:opacity-90 text-black'
                 }`}
               >
                 {alert.actionLabel}
               </button>
               <button
                 onClick={() => onDismiss(alert.id)}
-                className="p-1.5 rounded-xl hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
+                className="p-1.5 rounded-xl hover:bg-white/10 text-neutral-400 hover:text-white transition-colors"
                 title="Dismiss Alert"
               >
                 <X className="w-4 h-4" />

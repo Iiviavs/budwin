@@ -14,8 +14,8 @@ interface OverviewViewProps {
 }
 
 export const OverviewView: React.FC<OverviewViewProps> = ({ telemetry, history }) => {
-  const cpuPercent = telemetry ? Math.round(telemetry.cpuPercent) : 0;
-  const ramPercent = telemetry ? Math.round(telemetry.ramPercent) : 0;
+  const cpuPercent = telemetry ? Math.round(telemetry.cpuPercent) : null;
+  const ramPercent = telemetry ? Math.round(telemetry.ramPercent) : null;
   const gpuPercent = telemetry?.gpu.isAvailable ? Math.round(telemetry.gpu.coreUtilization) : 0;
   const netIn = telemetry ? telemetry.netInKb : 0;
   const netOut = telemetry ? telemetry.netOutKb : 0;
@@ -38,17 +38,17 @@ export const OverviewView: React.FC<OverviewViewProps> = ({ telemetry, history }
             <div>
               <div className="flex items-center space-x-2">
                 <span className="text-[10px] font-bold text-accent-theme uppercase tracking-wider">
-                  Hardware Engine Active
+                  {telemetry ? 'Hardware telemetry active' : 'Waiting for Windows telemetry'}
                 </span>
                 <span className="text-[10px] bg-emerald-500/15 text-emerald-400 px-2 py-0.5 rounded-md font-bold">
-                  1Hz Telemetry
+                  {telemetry ? '1Hz Telemetry' : 'Unavailable'}
                 </span>
               </div>
               <h1 className="text-base font-bold text-white tracking-tight mt-0.5">
-                {telemetry?.cpuModel || 'Example CPU'}
+                {telemetry?.cpuModel || 'CPU details unavailable'}
               </h1>
               <p className="text-xs text-neutral-400 mt-0.5 font-normal">
-                {telemetry?.cpuCores || 12} Logical Cores • {telemetry?.gpu.name || 'Example GPU'}
+                {telemetry ? `${telemetry.cpuCores} Cores` : 'Hardware details unavailable'} • {telemetry?.gpu.isAvailable ? telemetry.gpu.name : 'GPU not detected'}
               </p>
             </div>
           </div>
@@ -56,7 +56,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({ telemetry, history }
           <div className="flex items-center space-x-2">
             <div className="px-3 py-1.5 rounded-lg bg-[#24252A] text-white text-xs font-semibold flex items-center space-x-1.5">
               <ShieldCheck className="w-4 h-4 text-emerald-400" />
-              <span>System Protected</span>
+              <span>Windows status</span>
             </div>
           </div>
         </div>
@@ -65,11 +65,11 @@ export const OverviewView: React.FC<OverviewViewProps> = ({ telemetry, history }
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 pt-2 border-t border-white/[0.04]">
           <div className="bg-[#111215] rounded-xl p-3">
             <span className="text-[11px] text-neutral-400 block">Total Memory</span>
-            <span className="text-xs font-bold text-white mt-0.5 block">{telemetry?.ramTotalGb || 16} GB DDR4</span>
+            <span className="text-xs font-bold text-white mt-0.5 block">{telemetry ? `${telemetry.ramTotalGb.toFixed(1)} GB` : 'N/A'}</span>
           </div>
 
           <div className="bg-[#111215] rounded-xl p-3">
-            <span className="text-[11px] text-neutral-400 block">NVIDIA VRAM</span>
+            <span className="text-[11px] text-neutral-400 block">GPU VRAM</span>
             <span className="text-xs font-bold text-white mt-0.5 block">
               {telemetry?.gpu.isAvailable ? `${(telemetry.gpu.vramTotalMb / 1024).toFixed(0)} GB GDDR6` : 'N/A'}
             </span>
@@ -78,13 +78,13 @@ export const OverviewView: React.FC<OverviewViewProps> = ({ telemetry, history }
           <div className="bg-[#111215] rounded-xl p-3">
             <span className="text-[11px] text-neutral-400 block">GPU Thermal</span>
             <span className="text-xs font-bold text-white mt-0.5 block">
-              {telemetry?.gpu.isAvailable ? `${telemetry.gpu.temperatureC}°C (Cool)` : 'N/A'}
+              {telemetry?.gpu.isAvailable ? `${telemetry.gpu.temperatureC}°C` : 'N/A'}
             </span>
           </div>
 
           <div className="bg-[#111215] rounded-xl p-3">
-            <span className="text-[11px] text-neutral-400 block">Timer Latency</span>
-            <span className="text-xs font-bold text-accent-theme mt-0.5 block">1.0ms Resolution</span>
+            <span className="text-[11px] text-neutral-400 block">Telemetry</span>
+            <span className="text-xs font-bold text-accent-theme mt-0.5 block">{telemetry ? 'Live' : 'Unavailable'}</span>
           </div>
         </div>
       </div>
@@ -94,8 +94,8 @@ export const OverviewView: React.FC<OverviewViewProps> = ({ telemetry, history }
         {/* CPU Card */}
         <MetricCard
           title="CPU UTILIZATION"
-          value={`${cpuPercent}%`}
-          subValue={`Load: ${cpuPercent}% • 60s Trend`}
+          value={cpuPercent === null ? 'N/A' : `${cpuPercent}%`}
+          subValue={cpuPercent === null ? 'Waiting for Windows telemetry' : `Load: ${cpuPercent}% • 60s Trend`}
           icon={<Cpu className="w-4 h-4" />}
           accentColor="#38bdf8"
           gradientId="cpuGrad"
@@ -120,8 +120,8 @@ export const OverviewView: React.FC<OverviewViewProps> = ({ telemetry, history }
         {/* RAM Card */}
         <MetricCard
           title="MEMORY FOOTPRINT"
-          value={`${ramPercent}%`}
-          subValue={`Used: ${telemetry?.ramUsedGb.toFixed(1) || 0} / ${telemetry?.ramTotalGb.toFixed(1) || 16} GB`}
+          value={ramPercent === null ? 'N/A' : `${ramPercent}%`}
+          subValue={telemetry ? `Used: ${telemetry.ramUsedGb.toFixed(1)} / ${telemetry.ramTotalGb.toFixed(1)} GB` : 'Memory telemetry unavailable'}
           icon={<HardDrive className="w-4 h-4" />}
           accentColor="#c084fc"
           gradientId="ramGrad"
@@ -131,8 +131,8 @@ export const OverviewView: React.FC<OverviewViewProps> = ({ telemetry, history }
         {/* Network Card */}
         <MetricCard
           title="NETWORK THROUGHPUT"
-          value={formatSpeed(netIn)}
-          subValue={`↓ ${formatSpeed(netIn)}  •  ↑ ${formatSpeed(netOut)}`}
+          value={telemetry ? formatSpeed(netIn) : 'N/A'}
+          subValue={telemetry ? `↓ ${formatSpeed(netIn)}  •  ↑ ${formatSpeed(netOut)}` : 'Network telemetry unavailable'}
           icon={<Wifi className="w-4 h-4" />}
           accentColor="#22d3ee"
           gradientId="netGrad"
@@ -167,11 +167,11 @@ export const OverviewView: React.FC<OverviewViewProps> = ({ telemetry, history }
         <div className="glass-card rounded-2xl p-4 flex items-center justify-between">
           <div>
             <div className="text-xs text-neutral-400 font-medium">Disk Read Speed</div>
-            <div className="text-sm font-bold text-white">{telemetry?.diskReadMb.toFixed(1) || 0} MB/s</div>
+            <div className="text-sm font-bold text-white">{telemetry ? `${telemetry.diskReadMb.toFixed(1)} MB/s` : 'N/A'}</div>
           </div>
           <div className="text-right">
             <div className="text-xs text-neutral-400 font-medium">Disk Write Speed</div>
-            <div className="text-sm font-bold text-white">{telemetry?.diskWriteMb.toFixed(1) || 0} MB/s</div>
+            <div className="text-sm font-bold text-white">{telemetry ? `${telemetry.diskWriteMb.toFixed(1)} MB/s` : 'N/A'}</div>
           </div>
         </div>
       </div>
