@@ -52,6 +52,7 @@ export function App() {
   const [telemetry, setTelemetry] = useState<TelemetrySnapshot | null>(null);
   const [processes, setProcesses] = useState<ProcessItem[]>([]);
   const [startupItems, setStartupItems] = useState<StartupItem[]>([]);
+  const [startupItemsStatus, setStartupItemsStatus] = useState<'loading' | 'ready' | 'error'>('loading');
   const [alerts, setAlerts] = useState<AlertItem[]>([]);
   const [autoBoostStatus, setAutoBoostStatus] = useState<AutoBoostStatus | null>(null);
   const [monitors, setMonitors] = useState<MonitorInfo[]>([]);
@@ -169,15 +170,19 @@ export function App() {
   };
 
   const loadStartupItems = async () => {
-    if (window.go?.main?.App?.GetStartupItems) {
-      try {
-        const list = await window.go.main.App.GetStartupItems();
-        setStartupItems(list);
-      } catch (error) {
-        console.error('Failed to load startup items', error);
+    setStartupItemsStatus('loading');
+    try {
+      const app = window.go?.main?.App;
+      if (!app?.GetStartupItems) {
+        setStartupItemsStatus('error');
+        return;
       }
-    } else {
-      setStartupItems([]);
+      const list = await app.GetStartupItems();
+      setStartupItems(list ?? []);
+      setStartupItemsStatus('ready');
+    } catch (error) {
+      console.error('Failed to load startup items', error);
+      setStartupItemsStatus('error');
     }
   };
 
@@ -425,6 +430,7 @@ export function App() {
           {activeTab === 'startup' && (
             <StartupView
               items={startupItems}
+              status={startupItemsStatus}
               onRefresh={loadStartupItems}
               onToggle={handleToggleStartupItem}
             />

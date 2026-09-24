@@ -131,14 +131,19 @@ export const BenchmarkView: React.FC<BenchmarkViewProps> = ({
             )}
 
             <button
+              type="button"
+              role="switch"
+              aria-checked={Boolean(autoBoostStatus?.autoBoostEnabled)}
               onClick={() => onToggleAutoBoost(!autoBoostStatus?.autoBoostEnabled)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-mono transition-all active:scale-[0.96] ${
-                autoBoostStatus?.autoBoostEnabled
-                  ? 'bg-surfaceSubtle text-textPrimary'
-                  : 'bg-transparent text-textTertiary hover:text-textPrimary'
+              className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full transition-colors duration-200 ease-in-out focus:outline-none ${
+                autoBoostStatus?.autoBoostEnabled ? 'bg-textPrimary' : 'bg-surfaceSubtle'
               }`}
             >
-              {autoBoostStatus?.autoBoostEnabled ? 'ACTIVE' : 'STANDBY'}
+              <span
+                className={`pointer-events-none inline-block h-4 w-4 transform rounded-full transition duration-200 ease-in-out mt-0.5 ml-0.5 ${
+                  autoBoostStatus?.autoBoostEnabled ? 'translate-x-4 bg-background' : 'translate-x-0 bg-textSecondary'
+                }`}
+              />
             </button>
           </div>
         </div>
