@@ -12,7 +12,7 @@
   --border-focus: rgba(0, 0, 0, 0.12);
   --text-primary: #1d1d1f;
   --text-secondary: #6e6e73;
-  --text-tertiary: #86868b;
+  --text-tertiary: #66666b;
   --text-muted: #a1a1a6;
   --card-shadow: none;
   --accent-primary: #1d1d1f;
@@ -30,7 +30,7 @@
   --border-focus: rgba(255, 255, 255, 0.08);
   --text-primary: #f5f5f7;
   --text-secondary: #9e9ea7;
-  --text-tertiary: #6e6e73;
+  --text-tertiary: #8f8f95;
   --text-muted: #48484a;
   --card-shadow: none;
   --accent-primary: #f5f5f7;
@@ -111,4 +111,10 @@
 
 .animate-fade-in {
   animation: fadeIn 0.15s cubic-bezier(0.2, 0, 0, 1) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in {
+    animation: none;
+  }
 }
