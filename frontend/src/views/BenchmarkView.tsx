@@ -21,13 +21,13 @@ export const BenchmarkView: React.FC<BenchmarkViewProps> = ({
     maxGpuTemp: 0,
     avgGpuLoad: 0,
     stabilityScore: 100,
-    verdict: 'No active session. Click Start Benchmark before launching your game.',
+    verdict: 'No active session. Click Start Benchmark before launching intensive workloads.',
     samplesCount: 0,
   });
 
   const [timer, setTimer] = useState(0);
+  const benchmarkAvailable = Boolean(window.go?.main?.App?.StartBenchmark && window.go?.main?.App?.StopBenchmark);
 
-  // Poll benchmark status
   useEffect(() => {
     const fetchStatus = async () => {
       if (window.go?.main?.App?.GetBenchmarkStatus) {
@@ -52,8 +52,6 @@ export const BenchmarkView: React.FC<BenchmarkViewProps> = ({
     if (window.go?.main?.App?.StartBenchmark) {
       const res = await window.go.main.App.StartBenchmark();
       setBenchmark(res);
-    } else {
-      setBenchmark((prev) => ({ ...prev, isRunning: true, durationSeconds: 0, verdict: 'Session in progress...' }));
     }
   };
 
@@ -61,18 +59,6 @@ export const BenchmarkView: React.FC<BenchmarkViewProps> = ({
     if (window.go?.main?.App?.StopBenchmark) {
       const res = await window.go.main.App.StopBenchmark();
       setBenchmark(res);
-    } else {
-      setBenchmark((prev) => ({
-        ...prev,
-        isRunning: false,
-        avgCpuPercent: 24.5,
-        maxCpuPercent: 58.2,
-        avgRamPercent: 68.4,
-        maxRamPercent: 74.1,
-        maxGpuTemp: 64,
-        stabilityScore: 99,
-        verdict: '🟢 Flawless Stability & Optimal Thermals',
-      }));
     }
   };
 
@@ -83,25 +69,24 @@ export const BenchmarkView: React.FC<BenchmarkViewProps> = ({
   };
 
   return (
-    <div className="p-6 space-y-5 pb-20 font-sans">
-      {/* Header */}
+    <div className="p-6 md:p-8 space-y-6 pb-24 font-sans max-w-5xl mx-auto">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-base font-bold text-white flex items-center space-x-2">
-            <Trophy className="w-5 h-5 text-accent-theme" />
-            <span>Gaming Benchmark & Performance Logger</span>
+          <h2 className="text-xl font-medium tracking-tight text-textPrimary flex items-center space-x-2">
+            <Trophy className="w-5 h-5 text-textPrimary" />
+            <span>Benchmark</span>
           </h2>
-          <p className="text-xs text-neutral-400 mt-0.5 font-normal">
-            Track peak GPU heat, CPU load, and stability scores across your gameplay sessions.
+          <p className="text-xs text-textSecondary mt-1 font-normal">
+            Profile GPU heat, CPU load, and stability scores across active workloads
           </p>
         </div>
 
-        {/* Start / Stop Session Button */}
         <div>
           {benchmark.isRunning ? (
             <button
               onClick={handleStop}
-              className="px-4 py-2 rounded-xl bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold flex items-center space-x-2 transition-all shadow-lg active:scale-95"
+              disabled={!benchmarkAvailable}
+              className="px-4 py-2 rounded-xl bg-surface hover:bg-surfaceHover text-textPrimary text-xs font-medium flex items-center space-x-2 transition-all active:scale-[0.96]"
             >
               <Square className="w-3.5 h-3.5 fill-current" />
               <span>Stop Session ({formatDuration(timer)})</span>
@@ -109,7 +94,8 @@ export const BenchmarkView: React.FC<BenchmarkViewProps> = ({
           ) : (
             <button
               onClick={handleStart}
-              className="px-4 py-2 rounded-xl bg-accent-theme text-black text-xs font-bold flex items-center space-x-2 transition-all shadow-lg active:scale-95 hover:opacity-90"
+              disabled={!benchmarkAvailable}
+              className="px-4 py-2 rounded-xl bg-textPrimary text-background text-xs font-medium flex items-center space-x-2 transition-all active:scale-[0.96] hover:opacity-90"
             >
               <Play className="w-3.5 h-3.5 fill-current" />
               <span>Start Benchmark Session</span>
@@ -118,116 +104,118 @@ export const BenchmarkView: React.FC<BenchmarkViewProps> = ({
         </div>
       </div>
 
-      {/* 1. AUTO-GAME DETECTION WATCHDOG STATUS (Raycast Row) */}
-      <div className="glass-card rounded-2xl overflow-hidden border border-border shadow-xl">
-        <div className="raycast-row">
+      <div className="bg-surface rounded-2xl overflow-hidden">
+        <div className="list-row">
           <div className="flex items-center space-x-3">
-            <div className="w-9 h-9 rounded-xl bg-surfaceHover flex items-center justify-center text-accent-theme">
+            <div className="w-8 h-8 rounded-lg bg-surfaceSubtle flex items-center justify-center text-textSecondary">
               <Zap className="w-4 h-4" />
             </div>
             <div>
-              <span className="text-xs font-bold text-white block">Smart Auto-Game Detection</span>
-              <span className="text-[11px] text-neutral-400">
-                Automatically engages 1.0ms timer & RAM cache purge when games launch
+              <span className="text-xs font-medium text-textPrimary block">Automatic Workload Detection</span>
+              <span className="text-[11px] text-textTertiary">
+                Engages 1.0ms timer and purges standby cache when foreground games launch
               </span>
             </div>
           </div>
 
           <div className="flex items-center space-x-3">
             {autoBoostStatus?.activeGameName ? (
-              <span className="px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-bold flex items-center space-x-1.5 animate-pulse">
-                <span className="w-2 h-2 rounded-full bg-emerald-400" />
+              <span className="px-2.5 py-1 rounded-xl bg-surfaceSubtle text-textPrimary text-xs font-mono flex items-center space-x-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-textPrimary" />
                 <span>Active: {autoBoostStatus.activeGameName}</span>
               </span>
             ) : (
-              <span className="px-2.5 py-1 rounded-lg bg-surfaceHover text-neutral-400 border border-border text-xs font-medium">
-                Watching for Games
+              <span className="px-2.5 py-1 rounded-xl bg-surfaceSubtle text-textTertiary text-xs font-mono">
+                Monitoring Host Tasks
               </span>
             )}
 
             <button
+              type="button"
+              role="switch"
+              aria-checked={Boolean(autoBoostStatus?.autoBoostEnabled)}
               onClick={() => onToggleAutoBoost(!autoBoostStatus?.autoBoostEnabled)}
-              className={`px-3 py-1 rounded-lg text-xs font-bold border transition-colors ${
-                autoBoostStatus?.autoBoostEnabled
-                  ? 'bg-accent-theme/10 text-accent-theme border-accent-theme/30'
-                  : 'bg-surface text-neutral-400 border-border hover:text-white'
+              className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full transition-colors duration-200 ease-in-out focus:outline-none ${
+                autoBoostStatus?.autoBoostEnabled ? 'bg-textPrimary' : 'bg-surfaceSubtle'
               }`}
             >
-              {autoBoostStatus?.autoBoostEnabled ? 'ENABLED' : 'DISABLED'}
+              <span
+                className={`pointer-events-none inline-block h-4 w-4 transform rounded-full transition duration-200 ease-in-out mt-0.5 ml-0.5 ${
+                  autoBoostStatus?.autoBoostEnabled ? 'translate-x-4 bg-background' : 'translate-x-0 bg-textSecondary'
+                }`}
+              />
             </button>
           </div>
         </div>
       </div>
 
-      {/* 2. BENCHMARK SCORE HERO BANNER (Raycast Style) */}
-      <div className="glass-card rounded-2xl p-5 border border-border space-y-4 shadow-xl">
+      <div className="bg-surface rounded-2xl p-5 space-y-4">
         <div className="flex items-start justify-between">
           <div className="flex items-center space-x-3.5">
-            <div className="w-12 h-12 rounded-xl bg-surfaceHover text-accent-theme flex items-center justify-center border border-white/5">
-              <Gauge className="w-6 h-6" />
+            <div className="w-10 h-10 rounded-xl bg-surfaceSubtle text-textSecondary flex items-center justify-center">
+              <Gauge className="w-5 h-5" />
             </div>
             <div>
-              <span className="text-[11px] font-bold text-accent-theme uppercase tracking-wider block">
+              <span className="text-[10px] font-mono text-textTertiary uppercase tracking-wider block">
                 Session Performance Verdict
               </span>
-              <h3 className="text-base font-bold text-white mt-0.5">{benchmark.verdict}</h3>
-              <p className="text-xs text-neutral-400 mt-0.5">
-                Session Length: {formatDuration(benchmark.durationSeconds)} • {benchmark.samplesCount} telemetry samples
+              <h3 className="text-sm font-medium text-textPrimary mt-0.5">{benchmark.verdict}</h3>
+              <p className="text-xs text-textTertiary mt-0.5 font-mono">
+                Duration: {formatDuration(benchmark.durationSeconds)} • {benchmark.samplesCount} telemetry samples
               </p>
             </div>
           </div>
 
-          <div className="text-right bg-surfaceHover/80 px-3.5 py-2 rounded-xl border border-white/5">
-            <span className="text-[10px] text-neutral-400 font-semibold block uppercase tracking-wider">
+          <div className="text-right bg-surfaceSubtle px-3 py-2 rounded-xl">
+            <span className="text-[10px] text-textTertiary font-mono block uppercase tracking-wider">
               Stability Score
             </span>
-            <span className="text-xl font-extrabold text-white font-mono">{benchmark.stabilityScore}%</span>
+            <span className="text-lg font-medium text-textPrimary font-mono tabular-nums">
+              {benchmark.samplesCount > 0 ? `${benchmark.stabilityScore}%` : '—'}
+            </span>
           </div>
         </div>
 
-        {/* 4 Metric Columns */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-2 border-t border-border">
-          {/* CPU Load */}
-          <div className="bg-surface/90 border border-border rounded-xl p-3">
-            <div className="flex items-center space-x-1.5 text-sky-400 mb-1">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 pt-2">
+          <div className="bg-surfaceSubtle rounded-xl p-3">
+            <div className="flex items-center space-x-1.5 text-textSecondary mb-1">
               <Cpu className="w-3.5 h-3.5" />
-              <span className="text-[11px] font-bold">CPU Load</span>
+              <span className="text-[11px] font-medium">CPU Load</span>
             </div>
-            <span className="text-base font-bold text-white block">{benchmark.avgCpuPercent}% Avg</span>
-            <span className="text-[10px] text-neutral-400">Peak: {benchmark.maxCpuPercent}%</span>
-          </div>
-
-          {/* GPU Temp */}
-          <div className="bg-surface/90 border border-border rounded-xl p-3">
-            <div className="flex items-center space-x-1.5 text-emerald-400 mb-1">
-              <Flame className="w-3.5 h-3.5" />
-              <span className="text-[11px] font-bold">GPU Thermal</span>
-            </div>
-            <span className="text-base font-bold text-white block">
-              {benchmark.maxGpuTemp > 0 ? `${benchmark.maxGpuTemp}°C Peak` : 'Cool'}
+            <span className="text-base font-medium text-textPrimary block font-mono tabular-nums">
+              {benchmark.samplesCount > 0 ? `${benchmark.avgCpuPercent.toFixed(1)}% Avg` : '—'}
             </span>
-            <span className="text-[10px] text-neutral-400">Under Throttle Limit</span>
+            <span className="text-[10px] text-textTertiary font-mono">
+              Peak: {benchmark.samplesCount > 0 ? `${benchmark.maxCpuPercent.toFixed(1)}%` : '—'}
+            </span>
           </div>
 
-          {/* Memory Usage */}
-          <div className="bg-surface/90 border border-border rounded-xl p-3">
-            <div className="flex items-center space-x-1.5 text-purple-400 mb-1">
+          <div className="bg-surfaceSubtle rounded-xl p-3">
+            <div className="flex items-center space-x-1.5 text-textSecondary mb-1">
+              <Flame className="w-3.5 h-3.5" />
+              <span className="text-[11px] font-medium">GPU Thermal</span>
+            </div>
+            <span className="text-base font-medium text-textPrimary block font-mono tabular-nums">
+              {benchmark.samplesCount > 0 && benchmark.maxGpuTemp > 0 ? `${benchmark.maxGpuTemp}°C Peak` : '—'}
+            </span>
+            <span className="text-[10px] text-textTertiary font-mono">
+              {benchmark.samplesCount > 0 ? 'Logged' : 'Standby'}
+            </span>
+          </div>
+
+          <div className="bg-surfaceSubtle rounded-xl p-3">
+            <div className="flex items-center space-x-1.5 text-textSecondary mb-1">
               <HardDrive className="w-3.5 h-3.5" />
-              <span className="text-[11px] font-bold">RAM Usage</span>
+              <span className="text-[11px] font-medium">RAM Allocation</span>
             </div>
-            <span className="text-base font-bold text-white block">{benchmark.avgRamPercent}% Avg</span>
-            <span className="text-[10px] text-neutral-400">Peak: {benchmark.maxRamPercent}%</span>
+            <span className="text-base font-medium text-textPrimary block font-mono tabular-nums">
+              {benchmark.samplesCount > 0 ? `${benchmark.avgRamPercent.toFixed(1)}% Avg` : '—'}
+            </span>
+            <span className="text-[10px] text-textTertiary font-mono">
+              Peak: {benchmark.samplesCount > 0 ? `${benchmark.maxRamPercent.toFixed(1)}%` : '—'}
+            </span>
           </div>
 
-          {/* Timer Resolution */}
-          <div className="bg-surface/90 border border-border rounded-xl p-3">
-            <div className="flex items-center space-x-1.5 text-accent-theme mb-1">
-              <Zap className="w-3.5 h-3.5" />
-              <span className="text-[11px] font-bold">Timer Tick</span>
-            </div>
-            <span className="text-base font-bold text-accent-theme block">1.0ms Fixed</span>
-            <span className="text-[10px] text-neutral-400">1000 Hz Resolution</span>
-          </div>
         </div>
       </div>
     </div>

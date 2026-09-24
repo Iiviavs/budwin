@@ -26,15 +26,9 @@ export const FloatingHudView: React.FC<FloatingHudViewProps> = ({
   return (
     <div
       onDoubleClick={onExpand}
-      className="w-full h-full flex items-center justify-between px-2.5 select-none font-sans text-gray-100 rounded-full overflow-hidden draggable"
-      style={{
-        backgroundColor: 'rgba(16, 18, 24, 0.92)', // Discord overlay dark glass
-        border: '1px solid rgba(255, 255, 255, 0.1)',
-        boxShadow: '0 4px 16px rgba(0, 0, 0, 0.6)',
-      }}
+      className="w-full h-full flex items-center justify-between px-2.5 select-none font-sans text-textPrimary rounded-full overflow-hidden draggable bg-surface/95 border border-border shadow-md backdrop-blur-md"
       title="Double-click to expand to full app"
     >
-      {/* 1. Left: Mascot Avatar + 1.0ms Badge */}
       <div className="flex items-center space-x-1.5 non-draggable shrink-0">
         <BuddyMascot
           telemetry={telemetry}
@@ -43,46 +37,43 @@ export const FloatingHudView: React.FC<FloatingHudViewProps> = ({
           compact={true}
         />
 
-        <span className="text-[9px] font-bold font-mono px-1 py-0.2 rounded bg-emerald-500/20 text-emerald-400">
+        <span className="text-[9px] font-mono px-1.5 py-0.5 rounded-full bg-surfaceSubtle text-textSecondary border border-border">
           {timerActive ? '1.0ms' : '15ms'}
         </span>
       </div>
 
-      {/* 2. Middle: Live Telemetry Badges */}
       <div className="flex items-center space-x-2 non-draggable text-[11px] font-mono shrink-0">
-        {/* CPU */}
-        <div className="flex items-center space-x-1 text-[#5865F2]">
+        <div className="flex items-center space-x-1 text-textSecondary">
           <Cpu className="w-3 h-3" />
-          <span className="font-bold text-white text-[11px]">{cpuPercent}%</span>
+          <span className="font-medium text-textPrimary text-[11px]">{cpuPercent}%</span>
         </div>
 
-        {/* GPU */}
-        <div className="flex items-center space-x-1 text-[#23a55a]">
+        <div className="flex items-center space-x-1 text-textSecondary">
           <Zap className="w-3 h-3" />
-          <span className="font-bold text-white text-[11px]">{gpuPercent}%</span>
-          {gpuTemp > 0 && <span className="text-[9px] text-neutral-400 font-normal">({gpuTemp}°)</span>}
+          <span className="font-medium text-textPrimary text-[11px]">{gpuPercent}%</span>
+          {gpuTemp > 0 && <span className="text-[9px] text-textTertiary font-normal">({gpuTemp}°)</span>}
         </div>
 
-        {/* RAM */}
-        <div className="flex items-center space-x-1 text-[#eb459e]">
+        <div className="flex items-center space-x-1 text-textSecondary">
           <HardDrive className="w-3 h-3" />
-          <span className="font-bold text-white text-[11px]">{ramPercent}%</span>
+          <span className="font-medium text-textPrimary text-[11px]">{ramPercent}%</span>
         </div>
       </div>
 
-      {/* 3. Right: Clear Maximize (↗) & Close (✕) Buttons */}
       <div className="flex items-center space-x-1 non-draggable shrink-0 pl-1">
         <button
           onClick={onExpand}
-          className="w-5 h-5 rounded flex items-center justify-center bg-white/10 hover:bg-white/20 text-white transition-colors"
+          className="w-5 h-5 rounded-full flex items-center justify-center bg-surfaceSubtle hover:bg-surfaceHover text-textSecondary hover:text-textPrimary transition-all active:scale-90 border border-border"
           title="Maximize to Full Dashboard"
+          aria-label="Maximize to Full Dashboard"
         >
-          <Maximize2 className="w-3 h-3 text-white" />
+          <Maximize2 className="w-3 h-3" />
         </button>
         <button
           onClick={onClose}
-          className="w-5 h-5 rounded flex items-center justify-center bg-white/5 hover:bg-rose-500 text-neutral-300 hover:text-white transition-colors"
+          className="w-5 h-5 rounded-full flex items-center justify-center bg-surfaceSubtle hover:bg-surfaceHover text-textSecondary hover:text-textPrimary transition-all active:scale-90 border border-border"
           title="Close to Tray"
+          aria-label="Close to tray"
         >
           <X className="w-3 h-3" />
         </button>

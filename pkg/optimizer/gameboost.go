@@ -37,8 +37,6 @@ type GameBoostResult struct {
 
 var isGameBoostActive = false
 var gameBoostMu sync.RWMutex
-
-// PurgeStandbyRAM frees unused pages and working set across all non-critical user applications
 func PurgeStandbyRAM() float64 {
 	procs, err := process.Processes()
 	if err != nil {
@@ -52,8 +50,6 @@ func PurgeStandbyRAM() float64 {
 		if err != nil || memBefore == nil {
 			continue
 		}
-
-		// Open handle with PROCESS_SET_QUOTA | PROCESS_QUERY_INFORMATION
 		hProcess, _, _ := openProcess.Call(
 			uintptr(PROCESS_SET_QUOTA|PROCESS_QUERY_INFORMATION),
 			0,
@@ -74,14 +70,9 @@ func PurgeStandbyRAM() float64 {
 	}
 
 	freedMb := float64(totalFreedBytes) / (1024 * 1024)
-	if freedMb < 50.0 {
-		freedMb = 240.0 // Baseline kernel standby pages reclaimed
-	}
 
 	return math.Round(freedMb*10) / 10
 }
-
-// BoostForegroundGame finds the currently active window and elevates its priority
 func BoostForegroundGame() bool {
 	hWnd, _, _ := getForegroundWnd.Call()
 	if hWnd == 0 {
@@ -106,8 +97,6 @@ func BoostForegroundGame() bool {
 	}
 	return false
 }
-
-// SetProcessHighPriority elevates a specific PID to HIGH_PRIORITY_CLASS
 func SetProcessHighPriority(pid int32) bool {
 	if pid == 0 {
 		return false
@@ -124,27 +113,15 @@ func SetProcessHighPriority(pid int32) bool {
 	}
 	return false
 }
-
-// EnableGameBoost executes full latency, memory, and performance optimizations
 func EnableGameBoost() GameBoostResult {
 	gameBoostMu.Lock()
 	defer gameBoostMu.Unlock()
 	isGameBoostActive = true
-
-	// 1. Force 1.0ms timer resolution
 	EnableHighPrecisionTimer()
-
-	// 2. Strip mouse acceleration & bypass GameDVR
 	OptimizeMouseRawInput()
 	DisableGameDVR()
-
-	// 3. Switch power plan to High Performance
 	SetPowerPlan("High Performance")
-
-	// 4. Purge Standby RAM & Trim background memory
 	freedRam := PurgeStandbyRAM()
-
-	// 5. Elevate foreground game priority
 	BoostForegroundGame()
 
 	return GameBoostResult{
@@ -154,14 +131,10 @@ func EnableGameBoost() GameBoostResult {
 		PowerPlan:   "High Performance",
 	}
 }
-
-// DisableGameBoost restores silent Balanced power plan and standard settings
 func DisableGameBoost() GameBoostResult {
 	gameBoostMu.Lock()
 	defer gameBoostMu.Unlock()
 	isGameBoostActive = false
-
-	// Restore Balanced power scheme for cool temps & silent fans
 	SetPowerPlan("Balanced")
 
 	return GameBoostResult{

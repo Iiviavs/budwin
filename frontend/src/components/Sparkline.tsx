@@ -11,12 +11,12 @@ interface SparklineProps {
 export const Sparkline: React.FC<SparklineProps> = ({
   data,
   max = 100,
-  color = '#38bdf8',
+  color = 'var(--sparkline-stroke)',
   gradientId,
-  height = 50,
+  height = 44,
 }) => {
   if (!data || data.length < 2) {
-    return <div className="w-full bg-surface/50 rounded" style={{ height }} />;
+    return <div className="w-full bg-surfaceSubtle rounded" style={{ height }} />;
   }
 
   const width = 300;
@@ -41,16 +41,16 @@ export const Sparkline: React.FC<SparklineProps> = ({
       >
         <defs>
           <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={color} stopOpacity="0.35" />
-            <stop offset="100%" stopColor={color} stopOpacity="0.0" />
+            <stop offset="0%" stopColor="currentColor" stopOpacity="0.12" />
+            <stop offset="100%" stopColor="currentColor" stopOpacity="0.0" />
           </linearGradient>
         </defs>
-        <path d={fillPath} fill={`url(#${gradientId})`} />
+        <path d={fillPath} fill={`url(#${gradientId})`} className="text-textSecondary" />
         <path
           d={linePath}
           fill="none"
           stroke={color}
-          strokeWidth="2"
+          strokeWidth="1.5"
           strokeLinecap="round"
           strokeLinejoin="round"
         />

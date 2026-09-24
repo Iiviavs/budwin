@@ -13,14 +13,12 @@ export const LatencyTesterView: React.FC<LatencyTesterViewProps> = ({
   multiMonitorSettings,
   onUpdateMonitorSettings,
 }) => {
-  // Mouse Polling State
   const [currentHz, setCurrentHz] = useState(0);
   const [peakHz, setPeakHz] = useState(0);
   const [avgHz, setAvgHz] = useState(0);
   const [samplesCount, setSamplesCount] = useState(0);
   const [clickCount, setClickCount] = useState(0);
 
-  // Controller State
   const [connectedGamepad, setConnectedGamepad] = useState<Gamepad | null>(null);
   const [gamepadButtons, setGamepadButtons] = useState<number[]>([]);
   const [gamepadAxes, setGamepadAxes] = useState<number[]>([]);
@@ -28,7 +26,6 @@ export const LatencyTesterView: React.FC<LatencyTesterViewProps> = ({
   const prevTimeRef = useRef<number>(0);
   const hzSamplesRef = useRef<number[]>([]);
 
-  // Track Mouse Movement inside arena
   const handleMouseMove = () => {
     const now = performance.now();
     if (prevTimeRef.current > 0) {
@@ -67,7 +64,6 @@ export const LatencyTesterView: React.FC<LatencyTesterViewProps> = ({
     prevTimeRef.current = 0;
   };
 
-  // Gamepad Polling Loop
   useEffect(() => {
     let animFrame: number;
 
@@ -91,103 +87,96 @@ export const LatencyTesterView: React.FC<LatencyTesterViewProps> = ({
   }, []);
 
   return (
-    <div className="p-6 space-y-5 pb-20 font-sans">
-      {/* Header */}
+    <div className="p-6 md:p-8 space-y-6 pb-24 font-sans max-w-5xl mx-auto">
       <div>
-        <h2 className="text-base font-bold text-white flex items-center space-x-2">
-          <Activity className="w-5 h-5 text-accent-theme" />
-          <span>Input Latency Lab & Controller Tester</span>
+        <h2 className="text-xl font-medium tracking-tight text-textPrimary flex items-center space-x-2">
+          <Activity className="w-5 h-5 text-textPrimary" />
+          <span>Input Lab</span>
         </h2>
-        <p className="text-xs text-neutral-400 mt-0.5">
-          Measure true mouse polling rate (Hz), click response times, and test gamepad inputs.
+        <p className="text-xs text-textSecondary mt-1 font-normal">
+          Measure mouse polling rate in real-time and inspect controller mapping
         </p>
       </div>
 
-      {/* 1. MOUSE POLLING RATE ARENA (Raycast Style) */}
-      <div className="glass-card rounded-2xl p-5 space-y-4 shadow-xl">
+      <div className="bg-surface rounded-2xl p-5 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-[#24252A] flex items-center justify-center text-sky-400">
+            <div className="w-10 h-10 rounded-xl bg-surfaceSubtle flex items-center justify-center text-textSecondary">
               <MousePointer2 className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-white">Mouse Polling Rate (Hz) Arena</h3>
-              <p className="text-[11px] text-neutral-400">Move your cursor fast inside the box below to test report rate</p>
+              <h3 className="text-sm font-medium text-textPrimary">Mouse Polling Rate (Hz)</h3>
+              <p className="text-[11px] text-textSecondary">Move cursor rapidly inside the arena to test reporting frequency</p>
             </div>
           </div>
 
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={handleResetMouse}
-              className="px-3 py-1.5 rounded-lg bg-[#24252A] hover:bg-[#2E3038] text-neutral-300 text-xs font-semibold flex items-center space-x-1.5 transition-colors"
-            >
-              <RefreshCw className="w-3.5 h-3.5" />
-              <span>Reset</span>
-            </button>
-          </div>
+          <button
+            onClick={handleResetMouse}
+            className="px-3 py-1.5 rounded-xl bg-surfaceSubtle hover:bg-surfaceHover text-textSecondary hover:text-textPrimary text-xs font-medium flex items-center space-x-1.5 transition-all active:scale-[0.96]"
+          >
+            <RefreshCw className="w-3.5 h-3.5" />
+            <span>Reset</span>
+          </button>
         </div>
 
-        {/* 4 Stats Badges */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
-          <div className="bg-[#111215] rounded-xl p-3">
-            <span className="text-[11px] text-neutral-400 block">Current Polling</span>
-            <span className="text-lg font-extrabold text-white font-mono mt-0.5 block">{currentHz} Hz</span>
+          <div className="bg-surfaceSubtle rounded-xl p-3">
+            <span className="text-[10px] text-textTertiary font-mono block uppercase">Current Polling</span>
+            <span className="text-xl font-medium text-textPrimary font-mono mt-0.5 block tabular-nums">{currentHz} Hz</span>
           </div>
 
-          <div className="bg-[#111215] rounded-xl p-3">
-            <span className="text-[11px] text-neutral-400 block">Peak Recorded</span>
-            <span className="text-lg font-extrabold text-accent-theme font-mono mt-0.5 block">{peakHz} Hz</span>
+          <div className="bg-surfaceSubtle rounded-xl p-3">
+            <span className="text-[10px] text-textTertiary font-mono block uppercase">Peak Recorded</span>
+            <span className="text-xl font-medium text-textPrimary font-mono mt-0.5 block tabular-nums">{peakHz} Hz</span>
           </div>
 
-          <div className="bg-[#111215] rounded-xl p-3">
-            <span className="text-[11px] text-neutral-400 block">Average Rate</span>
-            <span className="text-lg font-extrabold text-sky-400 font-mono mt-0.5 block">{avgHz} Hz</span>
+          <div className="bg-surfaceSubtle rounded-xl p-3">
+            <span className="text-[10px] text-textTertiary font-mono block uppercase">Average Rate</span>
+            <span className="text-xl font-medium text-textPrimary font-mono mt-0.5 block tabular-nums">{avgHz} Hz</span>
           </div>
 
-          <div className="bg-[#111215] rounded-xl p-3">
-            <span className="text-[11px] text-neutral-400 block">Delay Per Tick</span>
-            <span className="text-lg font-extrabold text-emerald-400 font-mono mt-0.5 block">
+          <div className="bg-surfaceSubtle rounded-xl p-3">
+            <span className="text-[10px] text-textTertiary font-mono block uppercase">Delay Per Tick</span>
+            <span className="text-xl font-medium text-textPrimary font-mono mt-0.5 block tabular-nums">
               {currentHz > 0 ? `${(1000 / currentHz).toFixed(2)} ms` : '0.00 ms'}
             </span>
           </div>
         </div>
 
-        {/* Interactive Testing Canvas Box */}
         <div
           onMouseMove={handleMouseMove}
           onClick={handleMouseClick}
-          className="w-full h-32 rounded-xl bg-[#111215] hover:bg-[#15161B] flex flex-col items-center justify-center cursor-crosshair select-none transition-colors border-2 border-dashed border-white/5 hover:border-accent-theme/20"
+          className="w-full h-32 rounded-xl bg-surfaceSubtle hover:bg-surface flex flex-col items-center justify-center cursor-crosshair select-none transition-colors"
         >
-          <span className="text-xs font-semibold text-neutral-300 pointer-events-none">
+          <span className="text-xs font-medium text-textSecondary pointer-events-none">
             Move mouse continuously inside this area to benchmark polling rate
           </span>
-          <span className="text-[11px] text-neutral-500 mt-1 pointer-events-none">
+          <span className="text-[11px] text-textTertiary font-mono mt-1 pointer-events-none">
             Clicks recorded: {clickCount} • Samples: {samplesCount}
           </span>
         </div>
       </div>
 
-      {/* 2. GAMEPAD / CONTROLLER TESTER (Raycast Style) */}
-      <div className="glass-card rounded-2xl p-5 space-y-4 shadow-xl">
+      <div className="bg-surface rounded-2xl p-5 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-[#24252A] flex items-center justify-center text-purple-400">
+            <div className="w-10 h-10 rounded-xl bg-surfaceSubtle flex items-center justify-center text-textSecondary">
               <Gamepad2 className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-white">Controller & Gamepad Input Inspector</h3>
-              <p className="text-[11px] text-neutral-400">Xbox, PlayStation DualSense, and USB controllers</p>
+              <h3 className="text-sm font-medium text-textPrimary">Gamepad Inspector</h3>
+              <p className="text-[11px] text-textSecondary">High-precision controller input bus</p>
             </div>
           </div>
 
           <div>
             {connectedGamepad ? (
-              <span className="px-2.5 py-1 rounded-lg bg-emerald-500/15 text-emerald-400 text-xs font-bold flex items-center space-x-1.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="px-2.5 py-1 rounded-xl bg-surfaceSubtle text-textPrimary text-xs font-mono flex items-center space-x-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-textPrimary" />
                 <span>Connected: {connectedGamepad.id.slice(0, 24)}...</span>
               </span>
             ) : (
-              <span className="px-2.5 py-1 rounded-lg bg-[#111215] text-neutral-400 text-xs font-medium">
+              <span className="px-2.5 py-1 rounded-xl bg-surfaceSubtle text-textTertiary text-xs font-mono">
                 Connect a Controller to Test
               </span>
             )}
@@ -196,19 +185,18 @@ export const LatencyTesterView: React.FC<LatencyTesterViewProps> = ({
 
         {connectedGamepad ? (
           <div className="space-y-3">
-            {/* Buttons Map */}
             <div>
-              <span className="text-[11px] font-bold text-neutral-400 block mb-1.5 uppercase tracking-wider">
+              <span className="text-[10px] font-mono text-textTertiary block mb-1.5 uppercase tracking-wider">
                 Digital & Analog Buttons ({gamepadButtons.length})
               </span>
               <div className="flex flex-wrap gap-1.5">
                 {gamepadButtons.map((val, i) => (
                   <span
                     key={i}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition-all ${
+                    className={`px-2.5 py-1 rounded-lg text-xs font-mono transition-all ${
                       val > 0.1
-                        ? 'bg-accent-theme text-black scale-105'
-                        : 'bg-[#111215] text-neutral-400'
+                        ? 'bg-textPrimary text-background'
+                        : 'bg-surfaceSubtle text-textTertiary'
                     }`}
                   >
                     B{i}: {val > 0.1 ? val.toFixed(1) : 0}
@@ -217,16 +205,15 @@ export const LatencyTesterView: React.FC<LatencyTesterViewProps> = ({
               </div>
             </div>
 
-            {/* Thumbstick Axes Map */}
             <div>
-              <span className="text-[11px] font-bold text-neutral-400 block mb-1.5 uppercase tracking-wider">
+              <span className="text-[10px] font-mono text-textTertiary block mb-1.5 uppercase tracking-wider">
                 Analog Thumbstick Axes ({gamepadAxes.length})
               </span>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                 {gamepadAxes.map((axis, i) => (
-                  <div key={i} className="bg-[#111215] rounded-lg p-2 flex justify-between items-center text-xs">
-                    <span className="text-neutral-400 font-mono">Axis {i}</span>
-                    <span className={`font-mono font-bold ${Math.abs(axis) > 0.1 ? 'text-white' : 'text-neutral-500'}`}>
+                  <div key={i} className="bg-surfaceSubtle rounded-xl p-2 flex justify-between items-center text-xs">
+                    <span className="text-textSecondary font-mono">Axis {i}</span>
+                    <span className={`font-mono font-medium ${Math.abs(axis) > 0.1 ? 'text-textPrimary' : 'text-textTertiary'}`}>
                       {axis.toFixed(2)}
                     </span>
                   </div>
@@ -235,22 +222,21 @@ export const LatencyTesterView: React.FC<LatencyTesterViewProps> = ({
             </div>
           </div>
         ) : (
-          <div className="p-6 bg-[#111215] rounded-xl text-center text-xs text-neutral-400">
-            Press any button on your Xbox or DualSense controller to begin testing.
+          <div className="p-6 bg-surfaceSubtle rounded-xl text-center text-xs text-textTertiary font-mono">
+            Press any button on your connected controller to begin testing.
           </div>
         )}
       </div>
 
-      {/* 3. MULTI-MONITOR GAMING PROFILE (Feature 5) */}
-      <div className="glass-card rounded-2xl p-5 space-y-3.5 shadow-xl">
+      <div className="bg-surface rounded-2xl p-5 space-y-3.5">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-[#24252A] flex items-center justify-center text-amber-400">
+            <div className="w-10 h-10 rounded-xl bg-surfaceSubtle flex items-center justify-center text-textSecondary">
               <Monitor className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-white">Multi-Monitor Gaming Optimization</h3>
-              <p className="text-[11px] text-neutral-400">
+              <h3 className="text-sm font-medium text-textPrimary">Display Profiles</h3>
+              <p className="text-[11px] text-textSecondary">
                 {monitors.length} Display{monitors.length > 1 ? 's' : ''} Detected
               </p>
             </div>
@@ -263,10 +249,10 @@ export const LatencyTesterView: React.FC<LatencyTesterViewProps> = ({
                 dimSecondaryMonitors: !multiMonitorSettings.dimSecondaryMonitors,
               })
             }
-            className={`px-3 py-1 rounded-lg text-xs font-bold transition-colors ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-mono transition-all active:scale-[0.96] ${
               multiMonitorSettings.dimSecondaryMonitors
-                ? 'bg-accent-theme/15 text-accent-theme'
-                : 'bg-[#24252A] text-neutral-400 hover:text-white'
+                ? 'bg-surfaceSubtle text-textPrimary'
+                : 'bg-transparent text-textTertiary hover:text-textPrimary'
             }`}
           >
             {multiMonitorSettings.dimSecondaryMonitors ? 'ACTIVE' : 'OFF'}
@@ -275,18 +261,16 @@ export const LatencyTesterView: React.FC<LatencyTesterViewProps> = ({
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 pt-1">
           {monitors.map((m) => (
-            <div key={m.index} className="bg-[#111215] rounded-xl p-3 flex items-center justify-between">
+            <div key={m.index} className="bg-surfaceSubtle rounded-xl p-3 flex items-center justify-between">
               <div>
-                <span className="text-xs font-bold text-white block">
-                  Display #{m.index + 1} {m.isPrimary && '(Primary Gaming Display)'}
+                <span className="text-xs font-medium text-textPrimary block">
+                  Display #{m.index + 1} {m.isPrimary && '(Primary)'}
                 </span>
-                <span className="text-[11px] text-neutral-400">
+                <span className="text-[11px] text-textTertiary font-mono">
                   Resolution: {m.width} x {m.height}
                 </span>
               </div>
-              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
-                m.isPrimary ? 'bg-emerald-500/15 text-emerald-400' : 'bg-[#24252A] text-neutral-400'
-              }`}>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-surface text-textSecondary">
                 {m.isPrimary ? 'PRIMARY' : 'SECONDARY'}
               </span>
             </div>
